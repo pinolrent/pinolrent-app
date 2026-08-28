@@ -1,2 +1,2 @@
-# pinol-rent
-App Android para renta de vehiculos
+# Pinol Rent
+App para renta de vehiculos.
