@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { GluestackUIProvider } from '@/src/components/ui/gluestack-ui-provider';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import { SafeAreaListener } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Uniwind } from 'uniwind';
+
+import { Home } from './src/screens/Home';
 
 export default function App() {
   return (
@@ -17,9 +19,9 @@ export default function App() {
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GluestackUIProvider mode="dark">
+          <StatusBar style="auto" />
           <View style={styles.container}>
-            <Text>Just working...</Text>
-            <StatusBar style="auto" />
+            <Home></Home>
           </View>
         </GluestackUIProvider>
       </GestureHandlerRootView>
