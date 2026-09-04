@@ -20,6 +20,7 @@
     "react-aria": "^3.52.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.10",
+    "react-native-gesture-handler": "~2.30.0",
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "^5.9.1",
     "react-native-svg": "^15.15.5",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "babel-plugin-module-resolver": "^5.0.3",
+    "babel-preset-expo": "^57.0.10",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9.2"
   },
