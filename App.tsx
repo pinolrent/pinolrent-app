@@ -18,7 +18,7 @@ export default function App() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GluestackUIProvider mode="dark">
           <View style={styles.container}>
-            <Text>Using Metro Bundler and Expo for Pinol Rent!</Text>
+            <Text>Just working...</Text>
             <StatusBar style="auto" />
           </View>
         </GluestackUIProvider>
