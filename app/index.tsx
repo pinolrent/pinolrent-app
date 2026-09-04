@@ -5,16 +5,22 @@ import { useAuthStore } from '@/stores/auth.store'
 
 export default function Index() {
   const token = useAuthStore((s) => s.token)
+  const user = useAuthStore((s) => s.user)
+  const isLoaded = useAuthStore((s) => s.isLoaded)
   const router = useRouter()
 
   useEffect(() => {
-    if (token === null) return
-    if (token) {
-      router.replace('/(authenticated)')
-    } else {
+    if (!isLoaded) return
+    if (!token) {
       router.replace('/(auth)/login')
+      return
     }
-  }, [token])
+    router.replace(
+      user?.role === 'seller'
+        ? '/(authenticated)/(seller)'
+        : '/(authenticated)/(buyer)'
+    )
+  }, [isLoaded, token, user?.role])
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
