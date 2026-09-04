@@ -21,8 +21,8 @@ export default function LoginScreen() {
 
   const error = login.isError
     ? (login.error as any)?.response?.data?.error ||
-      login.error?.message ||
-      'Error al iniciar sesión'
+    login.error?.message ||
+    'Error al iniciar sesión'
     : null
 
   return (
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#fff' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#000' },
   input: {
     backgroundColor: '#222',
     color: '#fff',

@@ -25,8 +25,8 @@ export default function RegisterScreen() {
 
   const error = register.isError
     ? (register.error as any)?.response?.data?.error ||
-      register.error?.message ||
-      'Error al registrarse'
+    register.error?.message ||
+    'Error al registrarse'
     : null
 
   return (
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#fff' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#000' },
   input: {
     backgroundColor: '#222',
     color: '#fff',
