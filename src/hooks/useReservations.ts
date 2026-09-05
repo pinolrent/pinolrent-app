@@ -40,3 +40,13 @@ export function useCancelReservation() {
     },
   })
 }
+
+export function useConfirmReservation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservationsService.confirm(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+    },
+  })
+}
