@@ -9,7 +9,6 @@ import {
   Pressable,
   TextInput,
 } from 'react-native'
-import axios from 'axios'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
@@ -17,18 +16,12 @@ import type { Reservation } from '@/types/reservation'
 import type { Payment } from '@/types/payment'
 import { formatPrice } from '@/utils/currency'
 import { formatDate } from '@/utils/dates'
+import { getApiErrorMessage } from '@/utils/errors'
 
 const STATUS_LABELS: Record<Reservation['status'], string> = {
   pending: 'Pendiente',
   confirmed: 'Confirmada',
   cancelled: 'Cancelada',
-}
-
-function getApiErrorMessage(err: unknown, fallback: string): string {
-  if (axios.isAxiosError<{ error?: string }>(err)) {
-    return err.response?.data?.error || err.message || fallback
-  }
-  return err instanceof Error ? err.message : fallback
 }
 
 const STATUS_COLORS: Record<Reservation['status'], string> = {

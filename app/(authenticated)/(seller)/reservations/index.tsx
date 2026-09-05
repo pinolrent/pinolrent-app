@@ -11,6 +11,7 @@ import { useSellerReservations } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
 import { formatPrice } from '@/utils/currency'
 import { formatDate } from '@/utils/dates'
+import { getApiErrorMessage } from '@/utils/errors'
 
 const STATUS_LABELS: Record<Reservation['status'], string> = {
   pending: 'Pendiente',
@@ -29,9 +30,7 @@ export default function ReservedScreen() {
     useSellerReservations()
 
   const errorMessage = isError
-    ? (error as any)?.response?.data?.error ||
-      error?.message ||
-      'Error al cargar las reservas'
+    ? getApiErrorMessage(error, 'Error al cargar las reservas')
     : null
 
   if (isLoading) {

@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCars } from '@/hooks/useCars'
+import { getApiErrorMessage } from '@/utils/errors'
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 
@@ -44,9 +45,7 @@ export default function CatalogScreen() {
   const cars = data?.pages.flatMap((page) => page) ?? []
 
   const errorMessage = isError
-    ? (error as any)?.response?.data?.error ||
-      error?.message ||
-      'Error al cargar el catálogo'
+    ? getApiErrorMessage(error, 'Error al cargar el catálogo')
     : null
 
   if (isLoading) {

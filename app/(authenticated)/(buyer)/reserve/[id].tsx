@@ -12,6 +12,7 @@ import { useCar } from '@/hooks/useCars'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { toISO } from '@/utils/dates'
+import { getApiErrorMessage } from '@/utils/errors'
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -84,9 +85,7 @@ export default function ReserveScreen() {
   }
 
   const serverError = createReservation.isError
-    ? (createReservation.error as any)?.response?.data?.error ||
-      createReservation.error?.message ||
-      'Error al crear la reserva'
+    ? getApiErrorMessage(createReservation.error, 'Error al crear la reserva')
     : null
 
   return (
