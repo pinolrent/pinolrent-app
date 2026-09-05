@@ -6,3 +6,8 @@ export interface Car {
   price_per_day: number
   active: boolean
 }
+
+export interface CarsListParams {
+  limit?: number
+  offset?: number
+}
