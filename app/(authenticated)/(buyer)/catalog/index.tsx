@@ -41,7 +41,7 @@ export default function CatalogScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useCars(PAGE_SIZE)
 
-  const cars = data?.pages.flatMap((page) => page.slice(0, PAGE_SIZE)) ?? []
+  const cars = data?.pages.flatMap((page) => page) ?? []
 
   const errorMessage = isError
     ? (error as any)?.response?.data?.error ||

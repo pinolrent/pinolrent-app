@@ -9,7 +9,7 @@ export function useCars(limit = 10) {
       carsService.list({ limit, offset: pageParam as number }),
     initialPageParam: 0,
     getNextPageParam: (page, _allPages, lastPageParam) =>
-      page.length > limit ? (lastPageParam as number) + limit : undefined,
+      page.length >= limit ? (lastPageParam as number) + limit : undefined,
   })
 }
 
