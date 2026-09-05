@@ -9,6 +9,8 @@ export default function BuyerTabsLayout() {
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Protected guard={!!token && user?.role === 'buyer'}>
         <Tabs.Screen name="index" options={{ title: 'Home' }} />
+        <Tabs.Screen name="catalog" options={{ title: 'Catálogo' }} />
+        <Tabs.Screen name="car/[id]" options={{ title: 'Detalle', href: null }} />
       </Tabs.Protected>
     </Tabs>
   )
