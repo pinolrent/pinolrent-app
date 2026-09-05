@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
 import { formatPrice } from '@/utils/currency'
@@ -26,6 +26,7 @@ function DetailImage({ uri, name }: { uri?: string; name: string }) {
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
+  const router = useRouter()
   const { data: car, isLoading, isError, error, refetch } = useCar(Number(id))
 
   const errorMessage = isError
@@ -61,6 +62,14 @@ export default function CarDetailScreen() {
       <Text style={styles.title}>{car.name}</Text>
       <Text style={styles.subtitle}>Precio por día: {formatPrice(car.price_per_day)}</Text>
       <Text style={styles.subtitle}>Vendedor ID: {car.owner_id}</Text>
+      <Button
+        variant="default"
+        onPress={() =>
+          router.push(`/(authenticated)/(buyer)/reserve/${car.id}`)
+        }
+      >
+        <ButtonText>Reservar este auto</ButtonText>
+      </Button>
     </View>
   )
 }
