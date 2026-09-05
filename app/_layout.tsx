@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Slot, useRouter } from 'expo-router'
+import { Slot } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaListener } from 'react-native-safe-area-context'
@@ -8,25 +8,20 @@ import { GluestackUIProvider } from '../components/ui/gluestack-ui-provider'
 import { useAuthStore } from '@/stores/auth.store'
 import '../global.css'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+})
 
 export default function RootLayout() {
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage)
-  const token = useAuthStore((s) => s.token)
-  const router = useRouter()
 
   useEffect(() => {
     loadFromStorage()
   }, [])
-
-  useEffect(() => {
-    if (token === null) return
-    if (token) {
-      router.replace('/(authenticated)')
-    } else {
-      router.replace('/(auth)/login')
-    }
-  }, [token])
 
   return (
     <SafeAreaListener onChange={() => {}}>

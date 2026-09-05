@@ -34,6 +34,9 @@ yarn-error.*
 .env
 .env*.local
 
+# CodeGraph index
+.codegraph/
+
 # typescript
 *.tsbuildinfo
 
