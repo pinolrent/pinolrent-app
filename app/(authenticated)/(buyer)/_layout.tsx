@@ -11,6 +11,7 @@ export default function BuyerTabsLayout() {
         <Tabs.Screen name="index" options={{ title: 'Home' }} />
         <Tabs.Screen name="catalog" options={{ title: 'Catálogo' }} />
         <Tabs.Screen name="car/[id]" options={{ title: 'Detalle', href: null }} />
+        <Tabs.Screen name="reservations" options={{ title: 'Reservas' }} />
       </Tabs.Protected>
     </Tabs>
   )
