@@ -6,6 +6,7 @@ export function useMyReservations() {
   return useQuery({
     queryKey: ['reservations'],
     queryFn: reservationsService.list,
+    refetchOnMount: 'always',
   })
 }
 
@@ -13,6 +14,7 @@ export function useSellerReservations() {
   return useQuery({
     queryKey: ['reservations', 'seller'],
     queryFn: reservationsService.sellerList,
+    refetchOnMount: 'always',
   })
 }
 
