@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native'
+import { Alert } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import {
   useConfirmReservation,
@@ -123,7 +124,10 @@ export default function ReservedScreen() {
                     variant="default"
                     onPress={() =>
                       confirm.mutate(item.id, {
-                        onSuccess: () => setConfirmingId(null),
+                        onSuccess: () => {
+                          setConfirmingId(null)
+                          Alert.alert('Reserva confirmada', `Reserva #${item.id} confirmada`)
+                        },
                       })
                     }
                     disabled={confirm.isPending}

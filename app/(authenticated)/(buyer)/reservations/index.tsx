@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import { Alert } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
@@ -118,6 +119,7 @@ export default function ReservationsScreen() {
         onSuccess: () => {
           setPayErrorId(null)
           setPayingId(null)
+          Alert.alert('Pago registrado', 'Queda pendiente de confirmación')
         },
         onError: () => setPayErrorId(id),
       }

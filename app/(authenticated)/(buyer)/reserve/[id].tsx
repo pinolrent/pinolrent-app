@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Alert } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
 import { useCreateReservation } from '@/hooks/useReservations'
@@ -96,8 +97,10 @@ export default function ReserveScreen() {
     createReservation.mutate(
       { car_id: car.id, start_date: startDate, end_date: endDate },
       {
-        onSuccess: () =>
-          router.replace('/(authenticated)/(buyer)/reservations'),
+        onSuccess: (res) => {
+          Alert.alert('Reserva creada', `Reserva #${res.id} en estado pendiente`)
+          router.replace('/(authenticated)/(buyer)/reservations')
+        },
       }
     )
   }
