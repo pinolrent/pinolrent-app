@@ -5,6 +5,9 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
@@ -63,6 +66,15 @@ export default function ReserveScreen() {
 
   const today = toISO(new Date())
 
+  const validRange =
+    isValidISO(startDate) &&
+    isValidISO(endDate) &&
+    startDate >= today &&
+    endDate >= startDate &&
+    daysBetween(startDate, endDate) <= 30
+  const previewDays = validRange ? daysBetween(startDate, endDate) + 1 : 0
+  const previewTotal = previewDays * car.price_per_day
+
   const onSubmit = () => {
     setClientError(null)
     if (!isValidISO(startDate) || !isValidISO(endDate)) {
@@ -95,9 +107,21 @@ export default function ReserveScreen() {
     : null
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.content}>
       <Text style={styles.title}>Reservar {car.name}</Text>
-      <Text style={styles.subtitle}>{formatPrice(car.price_per_day)}</Text>
+      <Text style={styles.subtitle}>
+        {formatPrice(car.price_per_day)} / día
+      </Text>
+      {validRange && (
+        <Text style={styles.subtitle}>
+          {previewDays} {previewDays === 1 ? 'día' : 'días'} · Total estimado{' '}
+          {formatPrice(previewTotal)}
+        </Text>
+      )}
 
       <TextInput
         style={styles.input}
@@ -130,17 +154,21 @@ export default function ReserveScreen() {
           <ButtonText>Reservar</ButtonText>
         )}
       </Button>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, gap: 12 },
+  container: { flex: 1 },
+  content: { padding: 24, gap: 12 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#000' },
   subtitle: { color: '#aaa' },
   input: {
-    backgroundColor: '#222',
-    color: '#fff',
+    backgroundColor: '#fff',
+    color: '#000',
+    borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
