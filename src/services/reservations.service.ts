@@ -7,6 +7,9 @@ export const reservationsService = {
 
   list: () => api.get<Reservation[]>('/reservations').then((r) => r.data),
 
+  get: (id: number) =>
+    api.get<Reservation>(`/reservations/${id}`).then((r) => r.data),
+
   cancel: (id: number) =>
     api.patch<Reservation>(`/reservations/${id}/cancel`).then((r) => r.data),
 

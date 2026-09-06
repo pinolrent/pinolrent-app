@@ -9,6 +9,7 @@ import {
   Pressable,
   TextInput,
 } from 'react-native'
+import { useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
@@ -33,6 +34,7 @@ const STATUS_COLORS: Record<Reservation['status'], string> = {
 const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
 
 export default function ReservationsScreen() {
+  const router = useRouter()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
   const cancel = useCancelReservation()
@@ -116,12 +118,18 @@ export default function ReservationsScreen() {
     const paying = payingId === item.id
     return (
       <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{item.car.name}</Text>
-          <Text style={{ color: STATUS_COLORS[item.status] }}>
-            {STATUS_LABELS[item.status]}
-          </Text>
-        </View>
+        <Pressable
+          onPress={() =>
+            router.push(`/(authenticated)/(buyer)/reservations/${item.id}`)
+          }
+        >
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{item.car.name}</Text>
+            <Text style={{ color: STATUS_COLORS[item.status] }}>
+              {STATUS_LABELS[item.status]}
+            </Text>
+          </View>
+        </Pressable>
         <Text style={styles.subtitle}>
           {formatDate(item.start_date)} – {formatDate(item.end_date)}
         </Text>
