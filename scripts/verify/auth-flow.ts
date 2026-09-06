@@ -1,44 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080'
-
-let passed = 0
-let failed = 0
-
-function check(name: string, ok: boolean, detail?: unknown) {
-  if (ok) {
-    passed++
-    console.log(`\x1b[32m✓\x1b[0m ${name}`)
-  } else {
-    failed++
-    console.log(`\x1b[31m✗\x1b[0m ${name}`, detail ?? '')
-  }
-}
-
-async function api(
-  path: string,
-  init?: RequestInit,
-  token?: string
-): Promise<Response> {
-  return fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  })
-}
-
-async function login(
-  email: string,
-  password: string
-): Promise<{ token: string }> {
-  const res = await api('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  })
-  if (!res.ok) throw new Error(`login failed: ${res.status}`)
-  return (await res.json()) as { token: string }
-}
+import { api, check, registerOrLogin, summary } from './_helpers'
 
 async function me(token: string) {
   const res = await api('/auth/me', {}, token)
@@ -48,7 +8,8 @@ async function me(token: string) {
 const EMAIL = `flow_${Date.now()}@example.com`
 
 async function main() {
-  const buyer = await login('compra@example.com', 'secret123')
+  const stamp = Date.now()
+  const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123', false)
   const buyerMe = await me(buyer.token)
   check('login buyer devuelve token', !!buyer.token)
   check(
@@ -57,7 +18,7 @@ async function main() {
     buyerMe.body
   )
 
-  const seller = await login('vende@example.com', 'secret123')
+  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true)
   const sellerMe = await me(seller.token)
   check('login seller devuelve token', !!seller.token)
   check(
@@ -97,8 +58,7 @@ async function main() {
     logout.status === 200 && (await logout.json()).status === 'ok'
   )
 
-  console.log(`\n${passed} pasaron, ${failed} fallaron`)
-  process.exit(failed === 0 ? 0 : 1)
+  summary()
 }
 
 main().catch((err) => {

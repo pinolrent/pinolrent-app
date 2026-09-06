@@ -54,3 +54,19 @@ export async function registerOrLogin(
 export function isoDaysFromNow(days: number) {
   return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
 }
+
+export async function createCar(
+  token: string,
+  name: string
+): Promise<{ id: number; name: string; active: boolean }> {
+  const res = await api(
+    '/seller/cars',
+    {
+      method: 'POST',
+      body: JSON.stringify({ name, price_per_day: 20000 }),
+    },
+    token
+  )
+  if (!res.ok) throw new Error(`create car failed: ${res.status}`)
+  return (await res.json()) as { id: number; name: string; active: boolean }
+}
