@@ -50,6 +50,9 @@
     "@types/react": "~19.2.2",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-preset-expo": "~55.0.10",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "^10.0.0",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.13",
     "typescript": "~5.9.2"
