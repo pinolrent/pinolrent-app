@@ -8,6 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
     "verify:auth": "tsx scripts/verify/auth-flow.ts",
     "verify:cars": "tsx scripts/verify/cars-flow.ts",
     "verify:reservations": "tsx scripts/verify/reservations-flow.ts",
