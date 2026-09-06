@@ -26,6 +26,14 @@ export function useSellerReservations() {
   })
 }
 
+export function useReservation(id: number) {
+  return useQuery({
+    queryKey: ['reservation', id],
+    queryFn: () => reservationsService.get(id),
+    enabled: Number.isFinite(id),
+  })
+}
+
 export function useCreateReservation() {
   const queryClient = useQueryClient()
   return useMutation({
