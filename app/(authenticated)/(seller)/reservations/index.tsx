@@ -87,6 +87,16 @@ export default function ReservedScreen() {
             Pago: {item.payment.method} · {item.payment.status}
           </Text>
         )}
+        {item.payment?.proof_url ? (
+          <Text style={styles.subtitle} numberOfLines={1}>
+            Comprobante: {item.payment.proof_url}
+          </Text>
+        ) : null}
+        {item.status === 'pending' && !item.payment && (
+          <Text style={styles.subtitle}>
+            Esperando pago del comprador
+          </Text>
+        )}
         {canConfirm(item) && (
           <Button
             variant="default"
