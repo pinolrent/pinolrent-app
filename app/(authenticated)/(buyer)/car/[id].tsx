@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
@@ -56,7 +56,7 @@ export default function CarDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <DetailImage uri={car.photo_url} name={car.name} />
       <Text style={styles.title}>{car.name}</Text>
       <Text style={styles.subtitle}>Precio por día: {formatPrice(car.price_per_day)}</Text>
@@ -68,12 +68,13 @@ export default function CarDetailScreen() {
       >
         <ButtonText>Reservar este auto</ButtonText>
       </Button>
-    </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 8 },
+  container: { flex: 1 },
+  content: { padding: 16, gap: 8 },
   image: { width: '100%', height: 200, borderRadius: 12 },
   imagePlaceholder: {
     width: '100%',
