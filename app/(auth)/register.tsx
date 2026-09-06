@@ -10,6 +10,7 @@ import {
 import { Link } from 'expo-router'
 import { Button, ButtonText } from '../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
+import { getApiErrorMessage } from '@/utils/errors'
 
 type Role = 'buyer' | 'seller'
 
@@ -24,9 +25,7 @@ export default function RegisterScreen() {
   }
 
   const error = register.isError
-    ? (register.error as any)?.response?.data?.error ||
-    register.error?.message ||
-    'Error al registrarse'
+    ? getApiErrorMessage(register.error, 'Error al registrarse')
     : null
 
   return (

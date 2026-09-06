@@ -12,6 +12,7 @@ import { useCar } from '@/hooks/useCars'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { toISO } from '@/utils/dates'
+import { getApiErrorMessage } from '@/utils/errors'
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -31,7 +32,8 @@ function daysBetween(start: string, end: string) {
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
-  const { data: car, isLoading: carLoading } = useCar(Number(id))
+  const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar } =
+    useCar(Number(id))
   const createReservation = useCreateReservation()
 
   const [startDate, setStartDate] = useState('')
@@ -49,7 +51,12 @@ export default function ReserveScreen() {
   if (!car) {
     return (
       <View style={styles.center}>
-        <Text style={styles.subtitle}>No se encontró el auto</Text>
+        <Text style={styles.subtitle}>
+          {carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto'}
+        </Text>
+        <Button variant="default" onPress={() => refetchCar()}>
+          <ButtonText>Reintentar</ButtonText>
+        </Button>
       </View>
     )
   }
@@ -84,9 +91,7 @@ export default function ReserveScreen() {
   }
 
   const serverError = createReservation.isError
-    ? (createReservation.error as any)?.response?.data?.error ||
-      createReservation.error?.message ||
-      'Error al crear la reserva'
+    ? getApiErrorMessage(createReservation.error, 'Error al crear la reserva')
     : null
 
   return (

@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
 import { formatPrice } from '@/utils/currency'
+import { getApiErrorMessage } from '@/utils/errors'
 
 function DetailImage({ uri, name }: { uri?: string; name: string }) {
   const [failed, setFailed] = useState(false)
@@ -30,9 +31,7 @@ export default function CarDetailScreen() {
   const { data: car, isLoading, isError, error, refetch } = useCar(Number(id))
 
   const errorMessage = isError
-    ? (error as any)?.response?.data?.error ||
-      error?.message ||
-      'Error al cargar el auto'
+    ? getApiErrorMessage(error, 'Error al cargar el auto')
     : null
 
   if (isLoading) {
@@ -61,7 +60,6 @@ export default function CarDetailScreen() {
       <DetailImage uri={car.photo_url} name={car.name} />
       <Text style={styles.title}>{car.name}</Text>
       <Text style={styles.subtitle}>Precio por día: {formatPrice(car.price_per_day)}</Text>
-      <Text style={styles.subtitle}>Vendedor ID: {car.owner_id}</Text>
       <Button
         variant="default"
         onPress={() =>

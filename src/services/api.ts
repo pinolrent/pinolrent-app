@@ -1,8 +1,10 @@
 import axios from 'axios'
+import { router } from 'expo-router'
+import { API_URL } from '@/constants/config'
 import { useAuthStore } from '@/stores/auth.store'
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -19,6 +21,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       await useAuthStore.getState().clearAuth()
+      router.replace('/(auth)/login')
     }
     return Promise.reject(error)
   }

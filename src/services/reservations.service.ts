@@ -12,4 +12,9 @@ export const reservationsService = {
 
   sellerList: () =>
     api.get<Reservation[]>('/seller/reservations').then((r) => r.data),
+
+  confirm: (id: number) =>
+    api
+      .patch<Reservation>(`/seller/reservations/${id}/confirm`)
+      .then((r) => r.data),
 }

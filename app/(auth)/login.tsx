@@ -9,6 +9,7 @@ import {
 import { Link } from 'expo-router'
 import { Button, ButtonText } from '../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
+import { getApiErrorMessage } from '@/utils/errors'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -20,9 +21,7 @@ export default function LoginScreen() {
   }
 
   const error = login.isError
-    ? (login.error as any)?.response?.data?.error ||
-    login.error?.message ||
-    'Error al iniciar sesión'
+    ? getApiErrorMessage(login.error, 'Error al iniciar sesión')
     : null
 
   return (

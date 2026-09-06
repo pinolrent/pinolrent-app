@@ -1,10 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { reservationsService } from '@/services/reservations.service'
+import { queryKeys } from '@/constants/query-keys'
 import type { CreateReservationRequest } from '@/types/reservation'
+
+function invalidateReservationCaches(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
+  queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
+  queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+  queryClient.invalidateQueries({ queryKey: ['car'] })
+}
 
 export function useMyReservations() {
   return useQuery({
-    queryKey: ['reservations'],
+    queryKey: queryKeys.reservations,
     queryFn: reservationsService.list,
     refetchOnMount: 'always',
   })
@@ -12,7 +20,7 @@ export function useMyReservations() {
 
 export function useSellerReservations() {
   return useQuery({
-    queryKey: ['reservations', 'seller'],
+    queryKey: queryKeys.sellerReservations,
     queryFn: reservationsService.sellerList,
     refetchOnMount: 'always',
   })
@@ -24,8 +32,7 @@ export function useCreateReservation() {
     mutationFn: (data: CreateReservationRequest) =>
       reservationsService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
+      invalidateReservationCaches(queryClient)
     },
   })
 }
@@ -35,8 +42,18 @@ export function useCancelReservation() {
   return useMutation({
     mutationFn: (id: number) => reservationsService.cancel(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
+      invalidateReservationCaches(queryClient)
+    },
+  })
+}
+
+export function useConfirmReservation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservationsService.confirm(id),
+    onSuccess: () => {
+      invalidateReservationCaches(queryClient)
+      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
     },
   })
 }

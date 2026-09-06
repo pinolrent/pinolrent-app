@@ -6,7 +6,14 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "verify:auth": "tsx scripts/verify/auth-flow.ts",
+    "verify:cars": "tsx scripts/verify/cars-flow.ts",
+    "verify:reservations": "tsx scripts/verify/reservations-flow.ts",
+    "verify:payments": "tsx scripts/verify/payments-flow.ts",
+    "verify:seller": "tsx scripts/verify/seller-manage-flow.ts",
+    "verify": "npm run verify:payments && npm run verify:seller"
   },
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
@@ -39,10 +46,12 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@types/node": "^26.4.1",
     "@types/react": "~19.2.2",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-preset-expo": "~55.0.10",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.13",
     "typescript": "~5.9.2"
   },
   "private": true

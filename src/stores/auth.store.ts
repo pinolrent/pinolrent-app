@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import api from '@/services/api'
 import { storage } from '@/utils/storage'
 import type { User } from '@/types/auth'
 
@@ -44,11 +45,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ isLoaded: true })
         return
       }
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (!res.ok) throw new Error()
-      const user = (await res.json()) as User
+      const user = await api
+        .get<User>('/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((r) => r.data)
       set({ token, user, isLoaded: true })
     } catch {
       await storage.removeItem(TOKEN_KEY)
