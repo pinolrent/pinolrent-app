@@ -1,0 +1,71 @@
+name: CI
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: typecheck and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: NODE_ENV=development npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+  verify:
+    name: verify flows
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: false
+
+      - name: Start API
+        working-directory: ../pinolrent-api
+        run: |
+          JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf -m 2 http://localhost:8132/health && break
+            sleep 1
+          done
+          curl -sf -m 2 http://localhost:8132/health
+
+      - name: Install dependencies
+        run: NODE_ENV=development npm ci
+
+      - name: Verify flows
+        run: EXPO_PUBLIC_API_URL=http://localhost:8132 npm run verify
