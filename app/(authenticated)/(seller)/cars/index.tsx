@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
+  Image,
 } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import {
@@ -17,6 +18,33 @@ import {
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
+
+function CarPhoto({ uri, name }: { uri?: string; name: string }) {
+  const [failed, setFailed] = useState(false)
+  if (!uri || failed) {
+    return (
+      <View style={styles.photoPlaceholder}>
+        <Text style={styles.photoPlaceholderText}>{name[0]}</Text>
+      </View>
+    )
+  }
+  return (
+    <Image
+      style={styles.photo}
+      source={{ uri }}
+      resizeMode="cover"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
+function specificToggleError(err: unknown) {
+  const msg = getApiErrorMessage(err, 'Error al actualizar el auto')
+  if (msg.includes('future reservations')) {
+    return 'No se puede desactivar: tiene reservas futuras'
+  }
+  return msg
+}
 
 export default function SellerCarsScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -40,7 +68,7 @@ export default function SellerCarsScreen() {
     : null
 
   const toggleError = toggleCar.isError
-    ? getApiErrorMessage(toggleCar.error, 'Error al actualizar el auto')
+    ? specificToggleError(toggleCar.error)
     : null
 
   if (isLoading) {
@@ -122,6 +150,7 @@ export default function SellerCarsScreen() {
 
   const renderItem = ({ item }: { item: Car }) => (
     <View style={styles.card}>
+      <CarPhoto uri={item.photo_url} name={item.name} />
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={{ color: item.active ? '#15803d' : '#6b7280' }}>
@@ -244,6 +273,16 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   error: { color: '#ff6467' },
+  photo: { width: '100%', height: 140, borderRadius: 8 },
+  photoPlaceholder: {
+    width: '100%',
+    height: 140,
+    borderRadius: 8,
+    backgroundColor: '#e5e5e5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoPlaceholderText: { fontSize: 48, fontWeight: 'bold', color: '#aaa' },
   subtitle: { color: '#aaa' },
   center: {
     flex: 1,
