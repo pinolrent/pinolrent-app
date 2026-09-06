@@ -3,10 +3,11 @@ import {
   sellerCarsService,
   type CreateSellerCarRequest,
 } from '@/services/seller-cars.service'
+import { queryKeys } from '@/constants/query-keys'
 
 export function useSellerCars() {
   return useQuery({
-    queryKey: ['seller-cars'],
+    queryKey: queryKeys.sellerCars,
     queryFn: () => sellerCarsService.list(),
     refetchOnMount: 'always',
   })
@@ -18,8 +19,9 @@ export function useCreateSellerCar() {
     mutationFn: (data: CreateSellerCarRequest) =>
       sellerCarsService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seller-cars'] })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
+      queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+      queryClient.invalidateQueries({ queryKey: ['car'] })
     },
   })
 }
@@ -30,8 +32,9 @@ export function useToggleSellerCar() {
     mutationFn: ({ id, active }: { id: number; active: boolean }) =>
       sellerCarsService.setActive(id, active),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seller-cars'] })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
+      queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+      queryClient.invalidateQueries({ queryKey: ['car'] })
     },
   })
 }
