@@ -8,10 +8,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  TextInput,
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCars } from '@/hooks/useCars'
+import type { CarsFilters } from '@/hooks/useCars'
 import { getApiErrorMessage } from '@/utils/errors'
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
@@ -37,12 +39,44 @@ function CarImage({ car }: { car: Car }) {
   )
 }
 
+const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
+
 export default function CatalogScreen() {
   const router = useRouter()
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [filterError, setFilterError] = useState<string | null>(null)
+  const [filters, setFilters] = useState<CarsFilters>({})
   const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useCars(PAGE_SIZE)
+    useCars(PAGE_SIZE, filters)
 
   const cars = data?.pages.flatMap((page) => page) ?? []
+
+  const applyFilters = () => {
+    const start = startDate.trim()
+    const end = endDate.trim()
+    if ((start && !ISO_RE.test(start)) || (end && !ISO_RE.test(end))) {
+      setFilterError('Formato inválido, esperado YYYY-MM-DD')
+      return
+    }
+    if ((start && !end) || (!start && end)) {
+      setFilterError('start_date y end_date deben ir juntos')
+      return
+    }
+    if (start && end && end < start) {
+      setFilterError('La fecha de fin debe ser posterior o igual a la de inicio')
+      return
+    }
+    setFilterError(null)
+    setFilters(start && end ? { start_date: start, end_date: end } : {})
+  }
+
+  const clearFilters = () => {
+    setStartDate('')
+    setEndDate('')
+    setFilterError(null)
+    setFilters({})
+  }
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar el catálogo')
@@ -81,8 +115,38 @@ export default function CatalogScreen() {
   )
 
   return (
-    <FlatList
-      style={styles.list}
+    <View style={styles.container}>
+      <View style={styles.filterBox}>
+        <TextInput
+          style={styles.filterInput}
+          placeholder="Desde (YYYY-MM-DD)"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={startDate}
+          onChangeText={setStartDate}
+        />
+        <TextInput
+          style={styles.filterInput}
+          placeholder="Hasta (YYYY-MM-DD)"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={endDate}
+          onChangeText={setEndDate}
+        />
+        {filterError && <Text style={styles.error}>{filterError}</Text>}
+        <View style={styles.filterActions}>
+          <Button variant="default" onPress={applyFilters}>
+            <ButtonText>Filtrar</ButtonText>
+          </Button>
+          <Button variant="ghost" onPress={clearFilters}>
+            <ButtonText>Limpiar</ButtonText>
+          </Button>
+        </View>
+      </View>
+      <FlatList
+        style={styles.list}
       contentContainerStyle={styles.listContent}
       data={cars}
       keyExtractor={(item) => String(item.id)}
@@ -106,11 +170,25 @@ export default function CatalogScreen() {
           </View>
         ) : null
       }
-    />
+      />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
+  filterBox: { padding: 16, paddingBottom: 0, gap: 8 },
+  filterInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    color: '#000',
+    backgroundColor: '#fff',
+  },
+  filterActions: { flexDirection: 'row', gap: 8 },
+  error: { color: '#ff6467' },
   list: { flex: 1 },
   listContent: { padding: 16, gap: 12 },
   card: {
