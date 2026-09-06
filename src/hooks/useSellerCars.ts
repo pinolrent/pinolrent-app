@@ -20,7 +20,7 @@ export function useCreateSellerCar() {
       sellerCarsService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
-      queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+      queryClient.invalidateQueries({ queryKey: ['cars'] })
       queryClient.invalidateQueries({ queryKey: ['car'] })
     },
   })
@@ -33,7 +33,7 @@ export function useToggleSellerCar() {
       sellerCarsService.setActive(id, active),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
-      queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+      queryClient.invalidateQueries({ queryKey: ['cars'] })
       queryClient.invalidateQueries({ queryKey: ['car'] })
     },
   })

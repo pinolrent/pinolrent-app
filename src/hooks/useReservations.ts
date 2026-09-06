@@ -6,7 +6,7 @@ import type { CreateReservationRequest } from '@/types/reservation'
 function invalidateReservationCaches(queryClient: ReturnType<typeof useQueryClient>) {
   queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
   queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
-  queryClient.invalidateQueries({ queryKey: queryKeys.cars() })
+  queryClient.invalidateQueries({ queryKey: ['cars'] })
   queryClient.invalidateQueries({ queryKey: ['car'] })
 }
 
