@@ -10,4 +10,7 @@ export interface Car {
 export interface CarsListParams {
   limit?: number
   offset?: number
+  start_date?: string
+  end_date?: string
+  owner_id?: number
 }
