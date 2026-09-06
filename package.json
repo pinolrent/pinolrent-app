@@ -13,7 +13,7 @@
     "verify:reservations": "tsx scripts/verify/reservations-flow.ts",
     "verify:payments": "tsx scripts/verify/payments-flow.ts",
     "verify:seller": "tsx scripts/verify/seller-manage-flow.ts",
-    "verify": "npm run verify:payments && npm run verify:seller"
+    "verify": "npm run typecheck && npm run verify:auth && npm run verify:cars && npm run verify:reservations && npm run verify:payments && npm run verify:seller"
   },
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
