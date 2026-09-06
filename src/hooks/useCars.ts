@@ -1,13 +1,16 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { carsService } from '@/services/cars.service'
 import { queryKeys } from '@/constants/query-keys'
-import type { Car } from '@/types/car'
+import type { Car, CarsListParams } from '@/types/car'
 
-export function useCars(limit = 10) {
+export interface CarsFilters extends CarsListParams {}
+
+export function useCars(limit = 10, filters?: CarsFilters) {
+  const { limit: _ignoredLimit, offset: _ignoredOffset, ...rest } = filters ?? {}
   return useInfiniteQuery({
-    queryKey: ['cars', { limit }],
+    queryKey: ['cars', { limit, ...rest }],
     queryFn: ({ pageParam }: { pageParam: number }) =>
-      carsService.list({ limit, offset: pageParam }),
+      carsService.list({ limit, offset: pageParam, ...rest }),
     initialPageParam: 0,
     getNextPageParam: (
       page: Car[],
