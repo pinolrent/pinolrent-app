@@ -188,14 +188,14 @@ export default function SellerCarsScreen() {
       </Button>
       {formOpen && (
         <View style={styles.card}>
-          <TextInput
+          <TextInput accessibilityLabel="Nombre (obligatorio)"
             style={styles.input}
             placeholder="Nombre (obligatorio)"
             placeholderTextColor="#888"
             value={name}
             onChangeText={setName}
           />
-          <TextInput
+          <TextInput accessibilityLabel="photo_url (opcional, https://...)"
             style={styles.input}
             placeholder="photo_url (opcional, https://...)"
             placeholderTextColor="#888"
@@ -204,7 +204,7 @@ export default function SellerCarsScreen() {
             value={photoUrl}
             onChangeText={setPhotoUrl}
           />
-          <TextInput
+          <TextInput accessibilityLabel="price_per_day en centavos (opcional)"
             style={styles.input}
             placeholder="price_per_day en centavos (opcional)"
             placeholderTextColor="#888"

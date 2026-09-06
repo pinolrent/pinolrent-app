@@ -123,7 +123,7 @@ export default function ReserveScreen() {
         </Text>
       )}
 
-      <TextInput
+      <TextInput accessibilityLabel="Fecha inicio (YYYY-MM-DD)"
         style={styles.input}
         placeholder="Fecha inicio (YYYY-MM-DD)"
         placeholderTextColor="#888"
@@ -133,7 +133,7 @@ export default function ReserveScreen() {
         onChangeText={setStartDate}
       />
 
-      <TextInput
+      <TextInput accessibilityLabel="Fecha fin (YYYY-MM-DD)"
         style={styles.input}
         placeholder="Fecha fin (YYYY-MM-DD)"
         placeholderTextColor="#888"
