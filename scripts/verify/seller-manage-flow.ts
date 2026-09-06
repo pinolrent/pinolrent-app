@@ -1,49 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080'
-
-let passed = 0
-let failed = 0
-
-function check(name: string, ok: boolean, detail?: unknown) {
-  if (ok) {
-    passed++
-    console.log(`✓ ${name}`)
-  } else {
-    failed++
-    console.log(`✗ ${name}`, detail ?? '')
-  }
-}
-
-async function api(
-  path: string,
-  init?: RequestInit,
-  token?: string
-): Promise<Response> {
-  return fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  })
-}
-
-async function registerOrLogin(
-  email: string,
-  password: string,
-  seller: boolean
-): Promise<{ token: string }> {
-  await api(seller ? '/auth/register/seller' : '/auth/register', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  })
-  const res = await api('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  })
-  if (!res.ok) throw new Error(`login failed: ${res.status}`)
-  return (await res.json()) as { token: string }
-}
+import { api, check, registerOrLogin, summary } from './_helpers'
 
 async function main() {
   const stamp = Date.now()
@@ -121,8 +76,7 @@ async function main() {
   )
   check('PATCH sin active -> 400', missingActive.status === 400)
 
-  console.log(`\n${passed} pasaron, ${failed} fallaron`)
-  process.exit(failed === 0 ? 0 : 1)
+  summary()
 }
 
 main().catch((err) => {
