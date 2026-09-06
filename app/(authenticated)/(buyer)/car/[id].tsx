@@ -60,7 +60,6 @@ export default function CarDetailScreen() {
       <DetailImage uri={car.photo_url} name={car.name} />
       <Text style={styles.title}>{car.name}</Text>
       <Text style={styles.subtitle}>Precio por día: {formatPrice(car.price_per_day)}</Text>
-      <Text style={styles.subtitle}>Vendedor ID: {car.owner_id}</Text>
       <Button
         variant="default"
         onPress={() =>

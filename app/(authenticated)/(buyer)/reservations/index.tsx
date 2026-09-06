@@ -247,7 +247,7 @@ export default function ReservationsScreen() {
       }
       ListEmptyComponent={
         <View style={styles.center}>
-          <Text style={styles.subtitle}>No tenés reservas</Text>
+          <Text style={styles.subtitle}>No hay reservas</Text>
         </View>
       }
     />

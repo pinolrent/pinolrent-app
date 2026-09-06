@@ -207,7 +207,7 @@ export default function SellerCarsScreen() {
         }
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.subtitle}>No tenés autos publicados</Text>
+            <Text style={styles.subtitle}>No hay autos publicados</Text>
           </View>
         }
       />
