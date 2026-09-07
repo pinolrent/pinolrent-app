@@ -8,6 +8,7 @@ function invalidateReservationCaches(queryClient: ReturnType<typeof useQueryClie
   queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
   queryClient.invalidateQueries({ queryKey: ['cars'] })
   queryClient.invalidateQueries({ queryKey: ['car'] })
+  queryClient.invalidateQueries({ queryKey: ['reservation'] })
 }
 
 export function useMyReservations() {
@@ -28,7 +29,7 @@ export function useSellerReservations() {
 
 export function useReservation(id: number) {
   return useQuery({
-    queryKey: ['reservation', id],
+    queryKey: queryKeys.reservation(id),
     queryFn: () => reservationsService.get(id),
     enabled: Number.isFinite(id),
   })

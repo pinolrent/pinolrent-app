@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCars } from '@/hooks/useCars'
-import type { CarsFilters } from '@/hooks/useCars'
+import type { CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
 import type { Car } from '@/types/car'
 import { CarImage } from '@/components/CarImage'
@@ -27,7 +27,7 @@ export default function CatalogScreen() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filterError, setFilterError] = useState<string | null>(null)
-  const [filters, setFilters] = useState<CarsFilters>({})
+  const [filters, setFilters] = useState<CarsListParams>({})
   const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useCars(PAGE_SIZE, filters)
 

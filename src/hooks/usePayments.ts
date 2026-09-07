@@ -17,6 +17,7 @@ export function useCreatePayment() {
       queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
       queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
       queryClient.invalidateQueries({ queryKey: ['car'] })
+      queryClient.invalidateQueries({ queryKey: ['reservation'] })
     },
   })
 }
