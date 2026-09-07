@@ -18,7 +18,7 @@ import type { Reservation } from '@/types/reservation'
 import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
 import type { Payment } from '@/types/payment'
 import { formatPrice } from '@/utils/currency'
-import { formatDate } from '@/utils/dates'
+import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 
 const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
@@ -135,7 +135,10 @@ export default function ReservationsScreen() {
         <Text style={styles.subtitle}>
           {formatDate(item.start_date)} – {formatDate(item.end_date)}
         </Text>
-        <Text style={styles.cardPrice}>{formatPrice(item.car.price_per_day)}</Text>
+        <Text style={styles.cardPrice}>
+          {formatPrice(item.car.price_per_day)} / día · Total{' '}
+          {formatPrice((daysBetween(item.start_date, item.end_date) + 1) * item.car.price_per_day)}
+        </Text>
         {item.payment && (
           <Text style={styles.subtitle}>
             Pago: {item.payment.method} · {item.payment.status}
