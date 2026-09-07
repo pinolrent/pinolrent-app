@@ -15,23 +15,8 @@ import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
-import { toISO } from '@/utils/dates'
+import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-
-const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
-
-function isValidISO(value: string) {
-  if (!ISO_RE.test(value)) return false
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return false
-  return date.toISOString().slice(0, 10) === value
-}
-
-function daysBetween(start: string, end: string) {
-  const s = new Date(`${start}T00:00:00Z`).getTime()
-  const e = new Date(`${end}T00:00:00Z`).getTime()
-  return Math.round((e - s) / 86400000)
-}
 
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -68,8 +53,8 @@ export default function ReserveScreen() {
   const today = toISO(new Date())
 
   const validRange =
-    isValidISO(startDate) &&
-    isValidISO(endDate) &&
+    isValidISODate(startDate) &&
+    isValidISODate(endDate) &&
     startDate >= today &&
     endDate >= startDate &&
     daysBetween(startDate, endDate) <= 30
@@ -78,7 +63,7 @@ export default function ReserveScreen() {
 
   const onSubmit = () => {
     setClientError(null)
-    if (!isValidISO(startDate) || !isValidISO(endDate)) {
+    if (!isValidISODate(startDate) || !isValidISODate(endDate)) {
       setClientError('Formato inválido, esperado YYYY-MM-DD')
       return
     }

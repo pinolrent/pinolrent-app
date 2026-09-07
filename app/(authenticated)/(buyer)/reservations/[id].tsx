@@ -2,28 +2,10 @@ import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-nat
 import { useLocalSearchParams } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useReservation } from '@/hooks/useReservations'
-import type { Reservation } from '@/types/reservation'
+import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
-import { formatDate } from '@/utils/dates'
+import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-
-const STATUS_LABELS: Record<Reservation['status'], string> = {
-  pending: 'Pendiente',
-  confirmed: 'Confirmada',
-  cancelled: 'Cancelada',
-}
-
-const STATUS_COLORS: Record<Reservation['status'], string> = {
-  pending: '#b45309',
-  confirmed: '#15803d',
-  cancelled: '#6b7280',
-}
-
-function daysBetween(start: string, end: string) {
-  const s = new Date(`${start}T00:00:00Z`).getTime()
-  const e = new Date(`${end}T00:00:00Z`).getTime()
-  return Math.round((e - s) / 86400000) + 1
-}
 
 export default function ReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -54,7 +36,7 @@ export default function ReservationDetailScreen() {
     )
   }
 
-  const days = daysBetween(data.start_date, data.end_date)
+  const days = daysBetween(data.start_date, data.end_date) + 1
   const total = days * data.car.price_per_day
 
   return (

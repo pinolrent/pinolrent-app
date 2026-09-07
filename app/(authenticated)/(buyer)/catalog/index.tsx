@@ -3,7 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   ActivityIndicator,
@@ -16,28 +15,10 @@ import { useCars } from '@/hooks/useCars'
 import type { CarsFilters } from '@/hooks/useCars'
 import { getApiErrorMessage } from '@/utils/errors'
 import type { Car } from '@/types/car'
+import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 
 const PAGE_SIZE = 10
-
-function CarImage({ car }: { car: Car }) {
-  const [failed, setFailed] = useState(false)
-  if (!car.photo_url || failed) {
-    return (
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.imagePlaceholderText}>{car.name[0]}</Text>
-      </View>
-    )
-  }
-  return (
-    <Image
-      style={styles.image}
-      source={{ uri: car.photo_url }}
-      resizeMode="cover"
-      onError={() => setFailed(true)}
-    />
-  )
-}
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -106,7 +87,9 @@ export default function CatalogScreen() {
       style={styles.card}
       onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
     >
-      <CarImage car={item} />
+      <View style={styles.imageWrap}>
+        <CarImage uri={item.photo_url} name={item.name} />
+      </View>
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={styles.cardPrice}>{formatPrice(item.price_per_day)}</Text>
@@ -199,15 +182,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     overflow: 'hidden',
   },
-  image: { width: 96, height: 96 },
-  imagePlaceholder: {
-    width: 96,
-    height: 96,
-    backgroundColor: '#e5e5e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePlaceholderText: { fontSize: 32, fontWeight: 'bold', color: '#aaa' },
+  imageWrap: { width: 96, height: 96 },
   cardBody: { flex: 1, justifyContent: 'center', padding: 12, gap: 4 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#000' },
   cardPrice: { fontSize: 14, color: '#444' },

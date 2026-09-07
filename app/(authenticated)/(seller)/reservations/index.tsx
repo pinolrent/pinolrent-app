@@ -14,21 +14,10 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
+import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-
-const STATUS_LABELS: Record<Reservation['status'], string> = {
-  pending: 'Pendiente',
-  confirmed: 'Confirmada',
-  cancelled: 'Cancelada',
-}
-
-const STATUS_COLORS: Record<Reservation['status'], string> = {
-  pending: '#b45309',
-  confirmed: '#15803d',
-  cancelled: '#6b7280',
-}
 
 export default function ReservedScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =

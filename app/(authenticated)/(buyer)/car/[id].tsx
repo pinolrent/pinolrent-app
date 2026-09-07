@@ -1,29 +1,10 @@
-import { useState } from 'react'
-import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
+import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
-
-function DetailImage({ uri, name }: { uri?: string; name: string }) {
-  const [failed, setFailed] = useState(false)
-  if (!uri || failed) {
-    return (
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.imagePlaceholderText}>{name[0]}</Text>
-      </View>
-    )
-  }
-  return (
-    <Image
-      style={styles.image}
-      source={{ uri }}
-      resizeMode="cover"
-      onError={() => setFailed(true)}
-    />
-  )
-}
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -57,7 +38,7 @@ export default function CarDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <DetailImage uri={car.photo_url} name={car.name} />
+      <CarImage uri={car.photo_url} name={car.name} />
       <Text style={styles.title}>{car.name}</Text>
       <Text style={styles.subtitle}>Precio por día: {formatPrice(car.price_per_day)}</Text>
       <Button
@@ -75,16 +56,6 @@ export default function CarDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 16, gap: 8 },
-  image: { width: '100%', height: 200, borderRadius: 12 },
-  imagePlaceholder: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    backgroundColor: '#e5e5e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePlaceholderText: { fontSize: 64, fontWeight: 'bold', color: '#aaa' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#000', marginTop: 8 },
   subtitle: { color: '#aaa' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 },
