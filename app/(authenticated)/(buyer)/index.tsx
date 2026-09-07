@@ -8,7 +8,12 @@ import { getApiErrorMessage } from '@/utils/errors'
 export default function BuyerHomeScreen() {
   const { user, logout } = useAuth()
   const router = useRouter()
-  const { data, isLoading } = useMyReservations()
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useMyReservations()
+
+  const loadError = isError
+    ? getApiErrorMessage(error, 'Error al cargar tus reservas')
+    : null
 
   const pending = data?.filter((r) => r.status === 'pending').length ?? 0
   const confirmed = data?.filter((r) => r.status === 'confirmed').length ?? 0
@@ -24,6 +29,17 @@ export default function BuyerHomeScreen() {
 
       {isLoading ? (
         <ActivityIndicator />
+      ) : loadError ? (
+        <>
+          <Text style={styles.error}>{loadError}</Text>
+          <Button
+            variant="default"
+            onPress={() => refetch()}
+            disabled={isRefetching}
+          >
+            <ButtonText>Reintentar</ButtonText>
+          </Button>
+        </>
       ) : (
         <Text style={styles.subtitle}>
           {pending} pendientes · {confirmed} confirmadas

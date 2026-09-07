@@ -5,19 +5,34 @@ import { useAuth } from '@/hooks/useAuth'
 import { useSellerCars } from '@/hooks/useSellerCars'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
+import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-
-function rentalDays(start: string, end: string) {
-  const s = new Date(`${start}T00:00:00Z`).getTime()
-  const e = new Date(`${end}T00:00:00Z`).getTime()
-  return Math.round((e - s) / 86400000) + 1
-}
 
 export default function SellerHomeScreen() {
   const { user, logout } = useAuth()
   const router = useRouter()
-  const { data: cars, isLoading: carsLoading } = useSellerCars()
-  const { data: reservations, isLoading: resLoading } = useSellerReservations()
+  const {
+    data: cars,
+    isLoading: carsLoading,
+    isError: carsError,
+    error: carsErr,
+    refetch: refetchCars,
+    isRefetching: carsRefetching,
+  } = useSellerCars()
+  const {
+    data: reservations,
+    isLoading: resLoading,
+    isError: resError,
+    error: resErr,
+    refetch: refetchRes,
+    isRefetching: resRefetching,
+  } = useSellerReservations()
+
+  const loadError = carsError
+    ? getApiErrorMessage(carsErr, 'Error al cargar tus autos')
+    : resError
+      ? getApiErrorMessage(resErr, 'Error al cargar tus reservas')
+      : null
 
   const pendingPay = reservations?.filter(
     (r) => r.status === 'pending' && r.payment?.status === 'pending'
@@ -25,7 +40,11 @@ export default function SellerHomeScreen() {
   const confirmed = reservations?.filter((r) => r.status === 'confirmed').length ?? 0
   const earnings = (reservations ?? [])
     .filter((r) => r.status === 'confirmed')
-    .reduce((acc, r) => acc + rentalDays(r.start_date, r.end_date) * r.car.price_per_day, 0)
+    .reduce(
+      (acc, r) =>
+        acc + (daysBetween(r.start_date, r.end_date) + 1) * r.car.price_per_day,
+      0
+    )
 
   const logoutError = logout.isError
     ? getApiErrorMessage(logout.error, 'Error al cerrar sesión')
@@ -38,6 +57,20 @@ export default function SellerHomeScreen() {
 
       {carsLoading || resLoading ? (
         <ActivityIndicator />
+      ) : loadError ? (
+        <>
+          <Text style={styles.error}>{loadError}</Text>
+          <Button
+            variant="default"
+            onPress={() => {
+              refetchCars()
+              refetchRes()
+            }}
+            disabled={carsRefetching || resRefetching}
+          >
+            <ButtonText>Reintentar</ButtonText>
+          </Button>
+        </>
       ) : (
         <Text style={styles.subtitle}>
           {cars?.length ?? 0} autos · {pendingPay} por confirmar · {confirmed} confirmadas
