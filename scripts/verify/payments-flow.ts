@@ -134,6 +134,107 @@ async function main() {
     confirmed
   )
 
+  const detail = await api(`/reservations/${created.id}`, {}, buyer.token)
+  const detailBody = (await detail.json()) as {
+    id: number
+    status: string
+    payment?: { status: string }
+  }
+  check(
+    'GET /reservations/{id} como dueño -> confirmed + approved',
+    detail.status === 200 &&
+      detailBody.id === created.id &&
+      detailBody.status === 'confirmed' &&
+      detailBody.payment?.status === 'approved',
+    detailBody
+  )
+
+  const sellerDetail = await api(`/reservations/${created.id}`, {}, seller.token)
+  check(
+    'GET /reservations/{id} como vendedor dueño -> 200',
+    sellerDetail.status === 200
+  )
+
+  const cashStart = isoDaysFromNow(10)
+  const cashEnd = isoDaysFromNow(12)
+  const cashRes = await api(
+    '/reservations',
+    {
+      method: 'POST',
+      body: JSON.stringify({ car_id: car.id, start_date: cashStart, end_date: cashEnd }),
+    },
+    buyer.token
+  )
+  const cashCreated = (await cashRes.json()) as { id: number }
+  const cashPay = await api(
+    `/reservations/${cashCreated.id}/payment`,
+    { method: 'POST', body: JSON.stringify({ method: 'cash' }) },
+    buyer.token
+  )
+  check('POST payment cash -> 201', cashPay.status === 201)
+
+  await api(`/reservations/${cashCreated.id}/cancel`, { method: 'PATCH' }, buyer.token)
+
+  const noPayConfirm = await api(
+    `/seller/reservations/${cashCreated.id}/confirm`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  void noPayConfirm
+
+  const freshStart = isoDaysFromNow(20)
+  const freshEnd = isoDaysFromNow(22)
+  const freshRes = await api(
+    '/reservations',
+    {
+      method: 'POST',
+      body: JSON.stringify({ car_id: car.id, start_date: freshStart, end_date: freshEnd }),
+    },
+    buyer.token
+  )
+  const fresh = (await freshRes.json()) as { id: number }
+  const confirmNoPay = await api(
+    `/seller/reservations/${fresh.id}/confirm`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  check('confirmar sin pago -> 409', confirmNoPay.status === 409)
+  await api(`/reservations/${fresh.id}/cancel`, { method: 'PATCH' }, buyer.token)
+
+  const otherSeller = await registerOrLogin(
+    `vende2_${stamp}@example.com`,
+    'secret123',
+    true
+  )
+  const lonelyCar = await createCar(otherSeller.token, `ajeno_${stamp}`)
+  const foreignPatch = await api(
+    `/seller/cars/${lonelyCar.id}`,
+    { method: 'PATCH', body: JSON.stringify({ active: false }) },
+    seller.token
+  )
+  check('PATCH auto ajeno sin reservas -> 404', foreignPatch.status === 404)
+
+  const buyerWrite = await api(
+    '/seller/cars',
+    { method: 'POST', body: JSON.stringify({ name: 'ajeno' }) },
+    buyer.token
+  )
+  check('buyer POST /seller/cars -> 403', buyerWrite.status === 403)
+
+  const filtered = await api(
+    `/cars?start_date=${start}&end_date=${end}`,
+    {},
+    undefined
+  )
+  const filteredBody = (await filtered.json()) as { id: number }[]
+  check(
+    'GET /cars con fechas excluye reservado',
+    filtered.status === 200 &&
+      Array.isArray(filteredBody) &&
+      !filteredBody.some((c) => c.id === car.id),
+    { count: filteredBody.length }
+  )
+
   summary()
 }
 
