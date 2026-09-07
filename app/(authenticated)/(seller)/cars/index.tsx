@@ -118,6 +118,11 @@ export default function SellerCarsScreen() {
     )
   }
 
+  const togglingRowId =
+    toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
+      ? toggleCar.variables.id
+      : togglingId
+
   const onToggle = (car: Car) => {
     setTogglingId(car.id)
     toggleCar.mutate(
@@ -141,13 +146,13 @@ export default function SellerCarsScreen() {
       <Text style={styles.cardPrice}>
         {formatPrice(item.price_per_day)} / día
       </Text>
-      {togglingId === item.id && toggleCar.isPending ? (
+      {togglingRowId === item.id && toggleCar.isPending ? (
         <ActivityIndicator />
       ) : (
         <Button
           variant={item.active ? 'destructive' : 'default'}
           onPress={() => onToggle(item)}
-          disabled={toggleCar.isPending}
+          disabled={toggleCar.isPending && togglingRowId === item.id}
         >
           <ButtonText>{item.active ? 'Desactivar' : 'Activar'}</ButtonText>
         </Button>

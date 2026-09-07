@@ -31,6 +31,16 @@ export default function ReserveScreen() {
   const [endDate, setEndDate] = useState('')
   const [clientError, setClientError] = useState<string | null>(null)
 
+  const editStart = (v: string) => {
+    setStartDate(v)
+    createReservation.reset()
+  }
+
+  const editEnd = (v: string) => {
+    setEndDate(v)
+    createReservation.reset()
+  }
+
   if (carLoading) {
     return (
       <View style={styles.center}>
@@ -122,7 +132,7 @@ export default function ReserveScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         value={startDate}
-        onChangeText={setStartDate}
+        onChangeText={editStart}
       />
 
       <TextInput accessibilityLabel="Fecha fin (YYYY-MM-DD)"
@@ -132,7 +142,7 @@ export default function ReserveScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         value={endDate}
-        onChangeText={setEndDate}
+        onChangeText={editEnd}
       />
 
       {(clientError || serverError) && (
