@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import { Alert } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
@@ -50,13 +51,18 @@ export default function ReservationsScreen() {
     ? getApiErrorMessage(error, 'Error al cargar las reservas')
     : null
 
-  const cancelError = cancel.isError
-    ? getApiErrorMessage(cancel.error, 'Error al cancelar la reserva')
-    : null
+  const [cancelErrorId, setCancelErrorId] = useState<number | null>(null)
+  const [payErrorId, setPayErrorId] = useState<number | null>(null)
 
-  const payError = pay.isError
-    ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
-    : null
+  const cancelError =
+    cancel.isError && cancelErrorId !== null
+      ? getApiErrorMessage(cancel.error, 'Error al cancelar la reserva')
+      : null
+
+  const payError =
+    pay.isError && payErrorId !== null
+      ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
+      : null
 
   if (isLoading) {
     return (
@@ -109,7 +115,14 @@ export default function ReservationsScreen() {
           ? { method: payMethod, proof_url: proof }
           : { method: payMethod },
       },
-      { onSuccess: () => setPayingId(null) }
+      {
+        onSuccess: () => {
+          setPayErrorId(null)
+          setPayingId(null)
+          Alert.alert('Pago registrado', 'Queda pendiente de confirmación')
+        },
+        onError: () => setPayErrorId(id),
+      }
     )
   }
 
@@ -192,8 +205,10 @@ export default function ReservationsScreen() {
               value={payProofUrl}
               onChangeText={setPayProofUrl}
             />
-            {(payClientError || payError) && (
-              <Text style={styles.error}>{payClientError ?? payError}</Text>
+{(payClientError || (payError && payErrorId === item.id)) && (
+              <Text style={styles.error}>
+                {payClientError ?? payError}
+              </Text>
             )}
             <View style={styles.confirmActions}>
               <Button
@@ -222,11 +237,21 @@ export default function ReservationsScreen() {
                 <Text style={styles.subtitle}>
                   ¿Cancelar la reserva de {item.car.name}?
                 </Text>
-                {cancelError && <Text style={styles.error}>{cancelError}</Text>}
+{cancelError && cancelErrorId === item.id && (
+                  <Text style={styles.error}>{cancelError}</Text>
+                )}
                 <View style={styles.confirmActions}>
                   <Button
                     variant="destructive"
-                    onPress={() => cancel.mutate(item.id)}
+                    onPress={() =>
+                      cancel.mutate(item.id, {
+                        onError: () => setCancelErrorId(item.id),
+                        onSuccess: () => {
+                          setCancelErrorId(null)
+                          setConfirmingId(null)
+                        },
+                      })
+                    }
                     disabled={cancel.isPending}
                   >
                     <ButtonText>Confirmar</ButtonText>
@@ -256,6 +281,12 @@ export default function ReservationsScreen() {
       ListEmptyComponent={
         <View style={styles.center}>
           <Text style={styles.subtitle}>No hay reservas</Text>
+          <Button
+            variant="default"
+            onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
+          >
+            <ButtonText>Explorar autos</ButtonText>
+          </Button>
         </View>
       }
     />

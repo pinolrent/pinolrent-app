@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Uniwind } from 'uniwind'
 import { GluestackUIProvider } from '../components/ui/gluestack-ui-provider'
 import { useAuthStore } from '@/stores/auth.store'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import '../global.css'
 
 const queryClient = new QueryClient({
@@ -34,7 +35,9 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GluestackUIProvider mode="dark">
             <StatusBar style="auto" />
-            <Slot />
+            <ErrorBoundary>
+              <Slot />
+            </ErrorBoundary>
           </GluestackUIProvider>
         </QueryClientProvider>
       </GestureHandlerRootView>
