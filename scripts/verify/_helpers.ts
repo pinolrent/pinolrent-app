@@ -57,13 +57,14 @@ export function isoDaysFromNow(days: number) {
 
 export async function createCar(
   token: string,
-  name: string
+  name: string,
+  overrides?: { price_per_day?: number; photo_url?: string }
 ): Promise<{ id: number; name: string; active: boolean }> {
   const res = await api(
     '/seller/cars',
     {
       method: 'POST',
-      body: JSON.stringify({ name, price_per_day: 20000 }),
+      body: JSON.stringify({ name, price_per_day: 20000, ...overrides }),
     },
     token
   )

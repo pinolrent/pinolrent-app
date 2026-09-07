@@ -1,4 +1,11 @@
-import { api, check, isoDaysFromNow, registerOrLogin, summary } from './_helpers'
+import {
+  api,
+  check,
+  createCar,
+  isoDaysFromNow,
+  registerOrLogin,
+  summary,
+} from './_helpers'
 
 async function main() {
   const stamp = Date.now()
@@ -14,23 +21,10 @@ async function main() {
   )
   check('login buyer y seller entregan token', !!buyer.token && !!seller.token)
 
-  const carRes = await api(
-    '/seller/cars',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        name: `pago_${stamp}`,
-        price_per_day: 45000,
-      }),
-    },
-    seller.token
-  )
-  const car = (await carRes.json()) as { id: number; active: boolean }
-  check(
-    'POST /seller/cars crea auto activo',
-    carRes.status === 201 && car.id > 0 && car.active === true,
-    car
-  )
+  const car = await createCar(seller.token, `pago_${stamp}`, {
+    price_per_day: 45000,
+  })
+  check('POST /seller/cars crea auto activo', car.id > 0 && car.active === true, car)
 
   const start = isoDaysFromNow(1)
   const end = isoDaysFromNow(3)
