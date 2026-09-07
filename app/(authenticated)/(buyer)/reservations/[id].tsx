@@ -9,7 +9,9 @@ import { getApiErrorMessage } from '@/utils/errors'
 
 export default function ReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const { data, isLoading, isError, error, refetch } = useReservation(Number(id))
+  const idNum = Number(id)
+  const invalidId = !Number.isFinite(idNum)
+  const { data, isLoading, isError, error, refetch } = useReservation(idNum)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar la reserva')
@@ -23,15 +25,17 @@ export default function ReservationDetailScreen() {
     )
   }
 
-  if (isError || !data) {
+  if (invalidId || isError || !data) {
     return (
       <View style={styles.center}>
         <Text style={styles.subtitle}>
-          {errorMessage ?? 'No se encontró la reserva'}
+          {invalidId ? 'ID de reserva inválido' : (errorMessage ?? 'No se encontró la reserva')}
         </Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+        {!invalidId && (
+          <Button variant="default" onPress={() => refetch()}>
+            <ButtonText>Reintentar</ButtonText>
+          </Button>
+        )}
       </View>
     )
   }

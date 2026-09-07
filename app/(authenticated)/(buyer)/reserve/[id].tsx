@@ -21,8 +21,10 @@ import { getApiErrorMessage } from '@/utils/errors'
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
+  const idNum = Number(id)
+  const invalidId = !Number.isFinite(idNum)
   const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar } =
-    useCar(Number(id))
+    useCar(idNum)
   const createReservation = useCreateReservation()
 
   const [startDate, setStartDate] = useState('')
@@ -37,15 +39,17 @@ export default function ReserveScreen() {
     )
   }
 
-  if (!car) {
+  if (invalidId || !car) {
     return (
       <View style={styles.center}>
         <Text style={styles.subtitle}>
-          {carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto'}
+          {invalidId ? 'ID de auto inválido' : (carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto')}
         </Text>
-        <Button variant="default" onPress={() => refetchCar()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+        {!invalidId && (
+          <Button variant="default" onPress={() => refetchCar()}>
+            <ButtonText>Reintentar</ButtonText>
+          </Button>
+        )}
       </View>
     )
   }

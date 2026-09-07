@@ -9,7 +9,9 @@ import { getApiErrorMessage } from '@/utils/errors'
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
-  const { data: car, isLoading, isError, error, refetch } = useCar(Number(id))
+  const idNum = Number(id)
+  const invalidId = !Number.isFinite(idNum)
+  const { data: car, isLoading, isError, error, refetch } = useCar(idNum)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar el auto')
@@ -23,15 +25,17 @@ export default function CarDetailScreen() {
     )
   }
 
-  if (isError || !car) {
+  if (invalidId || isError || !car) {
     return (
       <View style={styles.center}>
         <Text style={styles.subtitle}>
-          {errorMessage ?? 'No se encontró el auto'}
+          {invalidId ? 'ID de auto inválido' : (errorMessage ?? 'No se encontró el auto')}
         </Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+        {!invalidId && (
+          <Button variant="default" onPress={() => refetch()}>
+            <ButtonText>Reintentar</ButtonText>
+          </Button>
+        )}
       </View>
     )
   }
