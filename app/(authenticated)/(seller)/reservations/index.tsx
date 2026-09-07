@@ -14,21 +14,10 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
+import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-
-const STATUS_LABELS: Record<Reservation['status'], string> = {
-  pending: 'Pendiente',
-  confirmed: 'Confirmada',
-  cancelled: 'Cancelada',
-}
-
-const STATUS_COLORS: Record<Reservation['status'], string> = {
-  pending: '#b45309',
-  confirmed: '#15803d',
-  cancelled: '#6b7280',
-}
 
 export default function ReservedScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -36,14 +25,16 @@ export default function ReservedScreen() {
   const confirm = useConfirmReservation()
 
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
+  const [confirmErrorId, setConfirmErrorId] = useState<number | null>(null)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar las reservas')
     : null
 
-  const confirmError = confirm.isError
-    ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
-    : null
+  const confirmError =
+    confirm.isError && confirmErrorId !== null
+      ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
+      : null
 
   const canConfirm = (r: Reservation) =>
     r.status === 'pending' && r.payment?.status === 'pending'
@@ -116,7 +107,7 @@ export default function ReservedScreen() {
                 <Text style={styles.subtitle}>
                   ¿Confirmar la reserva de {item.car.name}?
                 </Text>
-                {confirmError && (
+{confirmError && confirmErrorId === item.id && (
                   <Text style={styles.error}>{confirmError}</Text>
                 )}
                 <View style={styles.confirmActions}>
@@ -125,9 +116,11 @@ export default function ReservedScreen() {
                     onPress={() =>
                       confirm.mutate(item.id, {
                         onSuccess: () => {
+                          setConfirmErrorId(null)
                           setConfirmingId(null)
                           Alert.alert('Reserva confirmada', `Reserva #${item.id} confirmada`)
                         },
+                        onError: () => setConfirmErrorId(item.id),
                       })
                     }
                     disabled={confirm.isPending}

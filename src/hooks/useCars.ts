@@ -3,12 +3,12 @@ import { carsService } from '@/services/cars.service'
 import { queryKeys } from '@/constants/query-keys'
 import type { Car, CarsListParams } from '@/types/car'
 
-export interface CarsFilters extends CarsListParams {}
-
-export function useCars(limit = 10, filters?: CarsFilters) {
-  const { limit: _ignoredLimit, offset: _ignoredOffset, ...rest } = filters ?? {}
+export function useCars(limit = 10, filters?: CarsListParams) {
+  const { limit: _limit, offset: _offset, ...rest } = filters ?? {}
+  void _limit
+  void _offset
   return useInfiniteQuery({
-    queryKey: ['cars', { limit, ...rest }],
+    queryKey: queryKeys.cars(limit, rest),
     queryFn: ({ pageParam }: { pageParam: number }) =>
       carsService.list({ limit, offset: pageParam, ...rest }),
     initialPageParam: 0,

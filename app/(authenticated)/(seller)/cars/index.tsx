@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Image,
 } from 'react-native'
 import { Button, ButtonText } from '../../../../components/ui/button'
 import {
@@ -18,25 +17,7 @@ import {
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
-
-function CarPhoto({ uri, name }: { uri?: string; name: string }) {
-  const [failed, setFailed] = useState(false)
-  if (!uri || failed) {
-    return (
-      <View style={styles.photoPlaceholder}>
-        <Text style={styles.photoPlaceholderText}>{name[0]}</Text>
-      </View>
-    )
-  }
-  return (
-    <Image
-      style={styles.photo}
-      source={{ uri }}
-      resizeMode="cover"
-      onError={() => setFailed(true)}
-    />
-  )
-}
+import { CarImage } from '@/components/CarImage'
 
 function specificToggleError(err: unknown) {
   const msg = getApiErrorMessage(err, 'Error al actualizar el auto')
@@ -137,6 +118,11 @@ export default function SellerCarsScreen() {
     )
   }
 
+  const togglingRowId =
+    toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
+      ? toggleCar.variables.id
+      : togglingId
+
   const onToggle = (car: Car) => {
     setTogglingId(car.id)
     toggleCar.mutate(
@@ -150,7 +136,7 @@ export default function SellerCarsScreen() {
 
   const renderItem = ({ item }: { item: Car }) => (
     <View style={styles.card}>
-      <CarPhoto uri={item.photo_url} name={item.name} />
+      <CarImage uri={item.photo_url} name={item.name} />
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={{ color: item.active ? '#15803d' : '#6b7280' }}>
@@ -160,13 +146,13 @@ export default function SellerCarsScreen() {
       <Text style={styles.cardPrice}>
         {formatPrice(item.price_per_day)} / día
       </Text>
-      {togglingId === item.id && toggleCar.isPending ? (
+      {togglingRowId === item.id && toggleCar.isPending ? (
         <ActivityIndicator />
       ) : (
         <Button
           variant={item.active ? 'destructive' : 'default'}
           onPress={() => onToggle(item)}
-          disabled={toggleCar.isPending}
+          disabled={toggleCar.isPending && togglingRowId === item.id}
         >
           <ButtonText>{item.active ? 'Desactivar' : 'Activar'}</ButtonText>
         </Button>
@@ -273,16 +259,6 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   error: { color: '#ff6467' },
-  photo: { width: '100%', height: 140, borderRadius: 8 },
-  photoPlaceholder: {
-    width: '100%',
-    height: 140,
-    borderRadius: 8,
-    backgroundColor: '#e5e5e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  photoPlaceholderText: { fontSize: 48, fontWeight: 'bold', color: '#aaa' },
   subtitle: { color: '#aaa' },
   center: {
     flex: 1,

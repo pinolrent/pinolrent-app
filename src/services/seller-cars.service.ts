@@ -1,11 +1,8 @@
 import api from './api'
 import type { Car, CarsListParams } from '@/types/car'
 
-export interface CreateSellerCarRequest {
-  name: string
-  photo_url?: string
-  price_per_day?: number
-}
+export type CreateSellerCarRequest = Pick<Car, 'name'> &
+  Partial<Pick<Car, 'photo_url' | 'price_per_day'>>
 
 export const sellerCarsService = {
   list: (params?: CarsListParams) =>

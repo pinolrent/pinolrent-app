@@ -35,6 +35,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit tests
+        run: npm test
+
   verify:
     name: verify flows
     runs-on: ubuntu-latest
