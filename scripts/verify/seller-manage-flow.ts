@@ -1,4 +1,4 @@
-import { api, check, registerOrLogin, summary } from './_helpers'
+import { api, check, createCar, registerOrLogin, summary } from './_helpers'
 
 async function main() {
   const stamp = Date.now()
@@ -9,29 +9,11 @@ async function main() {
   )
   check('login seller entrega token', !!seller.token)
 
-  const create = await api(
-    '/seller/cars',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        name: `gestion_${stamp}`,
-        photo_url: 'https://example.com/auto.jpg',
-        price_per_day: 38000,
-      }),
-    },
-    seller.token
-  )
-  const car = (await create.json()) as {
-    id: number
-    name: string
-    active: boolean
-    price_per_day: number
-  }
-  check(
-    'POST /seller/cars -> 201 active con owner',
-    create.status === 201 && car.id > 0 && car.active === true,
-    car
-  )
+  const car = await createCar(seller.token, `gestion_${stamp}`, {
+    photo_url: 'https://example.com/auto.jpg',
+    price_per_day: 38000,
+  })
+  check('POST /seller/cars -> 201 active con owner', car.id > 0 && car.active === true, car)
 
   const badName = await api(
     '/seller/cars',
