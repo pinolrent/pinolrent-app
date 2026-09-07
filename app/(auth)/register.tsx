@@ -32,7 +32,7 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Crear cuenta</Text>
 
-      <TextInput
+      <TextInput accessibilityLabel="Email"
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#888"
@@ -42,7 +42,7 @@ export default function RegisterScreen() {
         onChangeText={setEmail}
       />
 
-      <TextInput
+      <TextInput accessibilityLabel="Contraseña"
         style={styles.input}
         placeholder="Contraseña"
         placeholderTextColor="#888"

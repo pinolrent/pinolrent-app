@@ -28,7 +28,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Iniciar sesión</Text>
 
-      <TextInput
+      <TextInput accessibilityLabel="Email"
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#888"
@@ -38,7 +38,7 @@ export default function LoginScreen() {
         onChangeText={setEmail}
       />
 
-      <TextInput
+      <TextInput accessibilityLabel="Contraseña"
         style={styles.input}
         placeholder="Contraseña"
         placeholderTextColor="#888"

@@ -196,7 +196,7 @@ export default function ReservationsScreen() {
                 </Pressable>
               ))}
             </View>
-            <TextInput
+            <TextInput accessibilityLabel="proof_url (opcional, https://...)"
               style={styles.input}
               placeholder="proof_url (opcional, https://...)"
               placeholderTextColor="#888"
