@@ -20,8 +20,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await useAuthStore.getState().clearAuth()
-      router.replace('/(auth)/login')
+      const url = error.config?.url ?? ''
+      if (!url.includes('/auth/login')) {
+        await useAuthStore.getState().clearAuth()
+        router.replace('/(auth)/login')
+      }
     }
     return Promise.reject(error)
   }

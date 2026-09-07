@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { create } from 'zustand'
 import api from '@/services/api'
 import { storage } from '@/utils/storage'
@@ -39,19 +40,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loadFromStorage: async () => {
+    const token = await storage.getItem(TOKEN_KEY)
+    if (!token) {
+      set({ isLoaded: true })
+      return
+    }
     try {
-      const token = await storage.getItem(TOKEN_KEY)
-      if (!token) {
-        set({ isLoaded: true })
-        return
-      }
       const user = await api
         .get<User>('/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((r) => r.data)
       set({ token, user, isLoaded: true })
-    } catch {
+    } catch (err) {
+      if (axios.isAxiosError(err) && !err.response) {
+        set({ token, user: null, isLoaded: true })
+        return
+      }
       await storage.removeItem(TOKEN_KEY)
       await storage.removeItem(USER_KEY)
       set({ token: null, user: null, isLoaded: true })
