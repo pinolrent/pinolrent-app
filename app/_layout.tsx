@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Uniwind } from 'uniwind'
 import { GluestackUIProvider } from '../components/ui/gluestack-ui-provider'
 import { useAuthStore } from '@/stores/auth.store'
+import { useThemeStore } from '@/stores/theme.store'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import '../global.css'
 
@@ -20,9 +21,12 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage)
+  const loadTheme = useThemeStore((s) => s.loadTheme)
+  const theme = useThemeStore((s) => s.theme)
 
   useEffect(() => {
     loadFromStorage()
+    loadTheme()
   }, [])
 
   return (
@@ -33,7 +37,7 @@ export default function RootLayout() {
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
-          <GluestackUIProvider mode="dark">
+          <GluestackUIProvider mode={theme}>
             <StatusBar style="auto" />
             <ErrorBoundary>
               <Slot />
