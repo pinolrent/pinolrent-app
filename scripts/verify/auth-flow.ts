@@ -52,6 +52,55 @@ async function main() {
   const noToken = await api('/auth/me')
   check('me sin token -> 401', noToken.status === 401)
 
+  const freshLogin = await api('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: EMAIL, password: 'secret123' }),
+  })
+  const pair = (await freshLogin.json()) as {
+    token: string
+    refresh_token: string
+  }
+  check(
+    'login devuelve par token + refresh_token',
+    freshLogin.status === 200 && !!pair.token && !!pair.refresh_token,
+    { status: freshLogin.status, hasToken: !!pair.token, hasRefresh: !!pair.refresh_token }
+  )
+
+  const rotated = await api('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refresh_token: pair.refresh_token }),
+  })
+  const rotatedPair = (await rotated.json()) as {
+    token: string
+    refresh_token: string
+  }
+  check(
+    'refresh rota el par',
+    rotated.status === 200 &&
+      !!rotatedPair.token &&
+      !!rotatedPair.refresh_token &&
+      rotatedPair.refresh_token !== pair.refresh_token,
+    rotated.status
+  )
+
+  const replay = await api('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refresh_token: pair.refresh_token }),
+  })
+  check('replay del refresh viejo -> 401', replay.status === 401, replay.status)
+
+  const misuse = await api('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refresh_token: rotatedPair.token }),
+  })
+  check('access como refresh -> 401', misuse.status === 401, misuse.status)
+
+  const missing = await api('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  })
+  check('refresh sin campo -> 400', missing.status === 400, missing.status)
+
   const logout = await api('/auth/logout', { method: 'POST' }, buyer.token)
   check(
     'logout con token responde ok',
