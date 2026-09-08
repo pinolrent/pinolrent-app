@@ -11,6 +11,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string
+  refresh_token: string
 }
 
 export interface RegisterRequest {
@@ -18,7 +19,15 @@ export interface RegisterRequest {
   password: string
 }
 
+export interface RefreshRequest {
+  refresh_token: string
+}
+
+export interface RefreshResponse {
+  token: string
+  refresh_token: string
+}
+
 export interface RegisterResponse {
-  id: number
   email: string
 }
