@@ -36,7 +36,6 @@ export default function BuyerTabsLayout() {
     <View className="flex-1 flex-row bg-background">
       <View className="flex-1">
         <Tabs
-      initialRouteName="catalog"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
