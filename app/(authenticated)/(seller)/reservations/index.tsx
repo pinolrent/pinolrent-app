@@ -12,7 +12,7 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
-import { STATUS_LABELS } from '@/constants/reservation-ui'
+import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -39,10 +39,6 @@ export default function ReservedScreen() {
   const canConfirm = (r: Reservation) =>
     r.status === 'pending' && r.payment?.status === 'pending'
 
-  const statusTone = (
-    status: Reservation['status']
-  ): 'warning' | 'success' | 'muted' =>
-    status === 'pending' ? 'warning' : status === 'confirmed' ? 'success' : 'muted'
 
   if (isLoading) {
     return (
@@ -69,7 +65,7 @@ export default function ReservedScreen() {
           <Text className="flex-1 text-base font-bold text-foreground">
             {item.car.name}
           </Text>
-          <StatusBadge tone={statusTone(item.status)}>
+          <StatusBadge tone={STATUS_TONES[item.status]}>
             {STATUS_LABELS[item.status]}
           </StatusBadge>
         </View>

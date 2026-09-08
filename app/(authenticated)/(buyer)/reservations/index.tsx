@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Reservation } from '@/types/reservation'
-import { STATUS_LABELS } from '@/constants/reservation-ui'
+import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import type { Payment } from '@/types/payment'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
@@ -22,9 +22,6 @@ import { AppInput, StatusBadge } from '@/components/fields'
 
 const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
 
-function statusTone(status: Reservation['status']): 'warning' | 'success' | 'muted' {
-  return status === 'pending' ? 'warning' : status === 'confirmed' ? 'success' : 'muted'
-}
 
 export default function ReservationsScreen() {
   const router = useRouter()
@@ -131,7 +128,7 @@ export default function ReservationsScreen() {
             <Text className="flex-1 text-base font-bold text-foreground">
               {item.car.name}
             </Text>
-            <StatusBadge tone={statusTone(item.status)}>
+            <StatusBadge tone={STATUS_TONES[item.status]}>
               {STATUS_LABELS[item.status]}
             </StatusBadge>
           </View>

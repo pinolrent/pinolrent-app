@@ -1,17 +1,13 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
-import type { Reservation } from '@/types/reservation'
-import { STATUS_LABELS } from '@/constants/reservation-ui'
+import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, AppCard, EmptyState } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 
-function statusTone(status: Reservation['status']): 'warning' | 'success' | 'muted' {
-  return status === 'pending' ? 'warning' : status === 'confirmed' ? 'success' : 'muted'
-}
 
 export default function ReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -59,7 +55,7 @@ export default function ReservationDetailScreen() {
           <Text className="flex-1 text-2xl font-bold text-foreground">
             {data.car.name}
           </Text>
-          <StatusBadge tone={statusTone(data.status)}>
+          <StatusBadge tone={STATUS_TONES[data.status]}>
             {STATUS_LABELS[data.status]}
           </StatusBadge>
         </View>
