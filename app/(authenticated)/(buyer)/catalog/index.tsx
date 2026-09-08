@@ -12,6 +12,7 @@ import { useCars } from '@/hooks/useCars'
 import type { CarsListParams } from '@/types/car'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
+import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
@@ -81,7 +82,8 @@ export default function CatalogScreen() {
     )
   }
 
-  const renderItem = ({ item }: { item: Car }) => (
+  const renderItem = ({ item, index }: { item: Car; index: number }) => (
+    <StaggerCard index={index}>
     <Pressable
       accessibilityRole="button"
       onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
@@ -99,6 +101,7 @@ export default function CatalogScreen() {
         </Text>
       </View>
     </Pressable>
+    </StaggerCard>
   )
 
   return (
