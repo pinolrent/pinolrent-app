@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
@@ -47,6 +48,7 @@ export default function ReservationDetailScreen() {
   const total = days * data.car.price_per_day
 
   return (
+    <Animated.View entering={FadeIn.duration(200)} className="flex-1 bg-background">
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
@@ -84,6 +86,7 @@ export default function ReservationDetailScreen() {
         )}
       </AppCard>
     </ScrollView>
+    </Animated.View>
   )
 }
 
