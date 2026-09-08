@@ -1,16 +1,11 @@
 import { useState } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  ActivityIndicator,
-  Pressable,
-} from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
 import { Link } from 'expo-router'
-import { Button, ButtonText } from '../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton } from '@/components/ui-kit'
+import { AppInput } from '@/components/fields'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type Role = 'buyer' | 'seller'
 
@@ -29,92 +24,68 @@ export default function RegisterScreen() {
     : null
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Crear cuenta</Text>
-
-      <TextInput accessibilityLabel="Email"
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      <TextInput accessibilityLabel="Contraseña"
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#888"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <View style={styles.roleRow}>
-        {(['buyer', 'seller'] as Role[]).map((r) => (
-          <Pressable
-            key={r}
-            onPress={() => setRole(r)}
-            style={[
-              styles.roleButton,
-              role === r && styles.roleButtonActive,
-            ]}
-          >
-            <Text style={styles.roleText}>
-              {r === 'buyer' ? 'Comprador' : 'Vendedor'}
-            </Text>
-          </Pressable>
-        ))}
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <View className="flex-1 items-end p-4">
+        <ThemeToggle />
       </View>
+      <View className="flex-1 justify-center gap-3 p-6">
+        <Text className="mb-4 text-2xl font-bold text-foreground">
+          Crear cuenta
+        </Text>
 
-      {error && <Text style={styles.error}>{error}</Text>}
+        <AppInput
+          label="Email"
+          placeholder="Email"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <Button
-        variant="default"
-        onPress={onRegister}
-        disabled={register.isPending}
-      >
-        {register.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Registrarse</ButtonText>
-        )}
-      </Button>
+        <AppInput
+          label="Contraseña"
+          placeholder="Contraseña"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      <Link href="/login" style={styles.link}>
-        <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
-      </Link>
-    </View>
+        <View className="my-1 flex-row gap-2">
+          {(['buyer', 'seller'] as Role[]).map((r) => (
+            <Pressable
+              key={r}
+              accessibilityRole="button"
+              onPress={() => setRole(r)}
+              className={`flex-1 items-center rounded-lg p-3 ${
+                role === r ? 'bg-primary' : 'bg-muted'
+              }`}
+            >
+              <Text
+                className={
+                  role === r ? 'text-primary-foreground' : 'text-foreground'
+                }
+              >
+                {r === 'buyer' ? 'Comprador' : 'Vendedor'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {error && <Text className="text-sm text-destructive">{error}</Text>}
+
+        <AppButton onPress={onRegister} disabled={register.isPending}>
+          {register.isPending ? <ActivityIndicator /> : 'Registrarse'}
+        </AppButton>
+
+        <Link href="/login" className="mt-3 self-center">
+          <Text className="text-primary">
+            ¿Ya tienes cuenta? Inicia sesión
+          </Text>
+        </Link>
+      </View>
+    </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    gap: 12,
-  },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#000' },
-  input: {
-    backgroundColor: '#222',
-    color: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  roleRow: { flexDirection: 'row', gap: 8, marginVertical: 4 },
-  roleButton: {
-    flex: 1,
-    backgroundColor: '#222',
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-  },
-  roleButtonActive: { backgroundColor: '#3b82f6' },
-  roleText: { color: '#fff', fontSize: 16 },
-  error: { color: '#ff6467', marginBottom: 4 },
-  link: { marginTop: 12, alignSelf: 'center' },
-  linkText: { color: '#3b82f6' },
-})

@@ -1,12 +1,13 @@
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, ActivityIndicator } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button, ButtonText } from '../../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useSellerCars } from '@/hooks/useSellerCars'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, FormError, StatCard } from '@/components/ui-kit'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function SellerHomeScreen() {
   const { user, logout } = useAuth()
@@ -51,69 +52,61 @@ export default function SellerHomeScreen() {
     : null
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Panel de vendedor</Text>
-      <Text style={styles.subtitle}>Hola, {user?.email}</Text>
+    <View className="flex-1 gap-3 bg-background p-6">
+      <View className="items-end">
+        <ThemeToggle />
+      </View>
+      <Text className="text-2xl font-bold text-foreground">
+        Panel de vendedor
+      </Text>
+      <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {carsLoading || resLoading ? (
         <ActivityIndicator />
       ) : loadError ? (
-        <>
-          <Text style={styles.error}>{loadError}</Text>
-          <Button
-            variant="default"
+        <View className="gap-2">
+          <FormError message={loadError} />
+          <AppButton
             onPress={() => {
               refetchCars()
               refetchRes()
             }}
             disabled={carsRefetching || resRefetching}
           >
-            <ButtonText>Reintentar</ButtonText>
-          </Button>
-        </>
+            Reintentar
+          </AppButton>
+        </View>
       ) : (
-        <Text style={styles.subtitle}>
-          {cars?.length ?? 0} autos · {pendingPay} por confirmar · {confirmed} confirmadas
-        </Text>
-      )}
-      {!resLoading && (
-        <Text style={styles.subtitle}>
-          Ingresos confirmados: {formatPrice(earnings)}
-        </Text>
+        <View className="gap-3">
+          <View className="flex-row gap-3">
+            <StatCard label="Autos" value={String(cars?.length ?? 0)} />
+            <StatCard label="Por confirmar" value={String(pendingPay)} />
+          </View>
+          <View className="flex-row gap-3">
+            <StatCard label="Confirmadas" value={String(confirmed)} />
+            <StatCard
+              label="Ingresos"
+              value={formatPrice(earnings)}
+            />
+          </View>
+        </View>
       )}
 
-      <Button
-        variant="default"
+      <AppButton
         onPress={() => router.push('/(authenticated)/(seller)/cars')}
       >
-        <ButtonText>Mis autos</ButtonText>
-      </Button>
-      <Button
-        variant="default"
+        Mis autos
+      </AppButton>
+      <AppButton
         onPress={() => router.push('/(authenticated)/(seller)/reservations')}
       >
-        <ButtonText>Reservas</ButtonText>
-      </Button>
+        Reservas
+      </AppButton>
 
-      {logoutError && <Text style={styles.error}>{logoutError}</Text>}
-      <Button
-        variant="default"
-        onPress={() => logout.mutate()}
-        disabled={logout.isPending}
-      >
-        {logout.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Cerrar sesión</ButtonText>
-        )}
-      </Button>
+      <FormError message={logoutError} />
+      <AppButton onPress={() => logout.mutate()} disabled={logout.isPending}>
+        {logout.isPending ? <ActivityIndicator /> : 'Cerrar sesión'}
+      </AppButton>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#000' },
-  subtitle: { color: '#aaa' },
-  error: { color: '#ff6467' },
-})

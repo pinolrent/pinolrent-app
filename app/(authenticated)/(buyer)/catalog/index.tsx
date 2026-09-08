@@ -4,19 +4,19 @@ import {
   Text,
   FlatList,
   Pressable,
-  StyleSheet,
   ActivityIndicator,
   RefreshControl,
-  TextInput,
 } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCars } from '@/hooks/useCars'
 import type { CarsListParams } from '@/types/car'
-import { getApiErrorMessage } from '@/utils/errors'
 import type { Car } from '@/types/car'
+import { getApiErrorMessage } from '@/utils/errors'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
+import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
+import { AppInput } from '@/components/fields'
 
 const PAGE_SIZE = 10
 
@@ -24,6 +24,7 @@ const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
 export default function CatalogScreen() {
   const router = useRouter()
+  const { columns: numColumns } = useBreakpoints()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filterError, setFilterError] = useState<string | null>(null)
@@ -65,7 +66,7 @@ export default function CatalogScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -73,120 +74,95 @@ export default function CatalogScreen() {
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>{errorMessage}</Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">{errorMessage}</Text>
+        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
     )
   }
 
   const renderItem = ({ item }: { item: Car }) => (
     <Pressable
-      style={styles.card}
+      accessibilityRole="button"
       onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
+      className={`overflow-hidden rounded-xl border border-border bg-card ${
+        numColumns > 1 ? 'flex-1' : 'flex-row'
+      }`}
     >
-      <View style={styles.imageWrap}>
+      <View className={numColumns > 1 ? '' : 'h-24 w-24'}>
         <CarImage uri={item.photo_url} name={item.name} />
       </View>
-      <View style={styles.cardBody}>
-        <Text style={styles.cardTitle}>{item.name}</Text>
-        <Text style={styles.cardPrice}>{formatPrice(item.price_per_day)}</Text>
+      <View className="flex-1 justify-center gap-1 p-3">
+        <Text className="text-base font-bold text-foreground">{item.name}</Text>
+        <Text className="text-sm text-muted-foreground">
+          {formatPrice(item.price_per_day)} / día
+        </Text>
       </View>
     </Pressable>
   )
 
   return (
-    <View style={styles.container}>
-      <View style={styles.filterBox}>
-        <TextInput
-          style={styles.filterInput}
-          placeholder="Desde (YYYY-MM-DD)"
-          placeholderTextColor="#888"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={startDate}
-          onChangeText={setStartDate}
-        />
-        <TextInput
-          style={styles.filterInput}
-          placeholder="Hasta (YYYY-MM-DD)"
-          placeholderTextColor="#888"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={endDate}
-          onChangeText={setEndDate}
-        />
-        {filterError && <Text style={styles.error}>{filterError}</Text>}
-        <View style={styles.filterActions}>
-          <Button variant="default" onPress={applyFilters}>
-            <ButtonText>Filtrar</ButtonText>
-          </Button>
-          <Button variant="ghost" onPress={clearFilters}>
-            <ButtonText>Limpiar</ButtonText>
-          </Button>
+    <View className="flex-1 bg-background">
+      <View className="gap-2 p-4 pb-0">
+        <View className="flex-row gap-2">
+          <View className="flex-1">
+            <AppInput
+              label="Desde"
+              placeholder="YYYY-MM-DD"
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={10}
+              value={startDate}
+              onChangeText={setStartDate}
+            />
+          </View>
+          <View className="flex-1">
+            <AppInput
+              label="Hasta"
+              placeholder="YYYY-MM-DD"
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={10}
+              value={endDate}
+              onChangeText={setEndDate}
+            />
+          </View>
+        </View>
+        <FormError message={filterError} />
+        <View className="flex-row gap-2">
+          <AppButton onPress={applyFilters}>Filtrar</AppButton>
+          <AppButton variant="ghost" onPress={clearFilters}>
+            Limpiar
+          </AppButton>
         </View>
       </View>
       <FlatList
-        style={styles.list}
-      contentContainerStyle={styles.listContent}
-      data={cars}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={renderItem}
-      refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
-      }
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) fetchNextPage()
-      }}
-      onEndReachedThreshold={0.4}
-      ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.subtitle}>No hay autos disponibles</Text>
-        </View>
-      }
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View style={styles.footer}>
-            <ActivityIndicator />
-          </View>
-        ) : null
-      }
+        key={numColumns}
+        numColumns={numColumns}
+        columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, gap: 12 }}
+        data={cars}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderItem}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+        }
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+        }}
+        onEndReachedThreshold={0.4}
+        ListEmptyComponent={
+          <EmptyState message="No hay autos disponibles" />
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View className="py-4">
+              <ActivityIndicator />
+            </View>
+          ) : null
+        }
       />
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  filterBox: { padding: 16, paddingBottom: 0, gap: 8 },
-  filterInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
-    color: '#000',
-    backgroundColor: '#fff',
-  },
-  filterActions: { flexDirection: 'row', gap: 8 },
-  error: { color: '#ff6467' },
-  list: { flex: 1 },
-  listContent: { padding: 16, gap: 12 },
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'hidden',
-  },
-  imageWrap: { width: 96, height: 96 },
-  cardBody: { flex: 1, justifyContent: 'center', padding: 12, gap: 4 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#000' },
-  cardPrice: { fontSize: 14, color: '#444' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 },
-  subtitle: { color: '#aaa', textAlign: 'center' },
-  footer: { paddingVertical: 16 },
-})

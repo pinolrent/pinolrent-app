@@ -3,12 +3,9 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   ActivityIndicator,
   RefreshControl,
-  TextInput,
 } from 'react-native'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import {
   useCreateSellerCar,
   useSellerCars,
@@ -17,7 +14,10 @@ import {
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
+import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { AppInput, StatusBadge } from '@/components/fields'
 
 function specificToggleError(err: unknown) {
   const msg = getApiErrorMessage(err, 'Error al actualizar el auto')
@@ -28,6 +28,7 @@ function specificToggleError(err: unknown) {
 }
 
 export default function SellerCarsScreen() {
+  const { columns: numColumns } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
@@ -54,7 +55,7 @@ export default function SellerCarsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -62,11 +63,9 @@ export default function SellerCarsScreen() {
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>{errorMessage}</Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">{errorMessage}</Text>
+        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
     )
   }
@@ -135,85 +134,80 @@ export default function SellerCarsScreen() {
   }
 
   const renderItem = ({ item }: { item: Car }) => (
-    <View style={styles.card}>
+    <AppCard className={numColumns > 1 ? 'flex-1' : undefined}>
       <CarImage uri={item.photo_url} name={item.name} />
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.name}</Text>
-        <Text style={{ color: item.active ? '#15803d' : '#6b7280' }}>
-          {item.active ? 'Activo' : 'Inactivo'}
+      <View className="flex-row items-center justify-between gap-2">
+        <Text className="flex-1 text-base font-bold text-foreground">
+          {item.name}
         </Text>
+        <StatusBadge tone={item.active ? 'success' : 'muted'}>
+          {item.active ? 'Activo' : 'Inactivo'}
+        </StatusBadge>
       </View>
-      <Text style={styles.cardPrice}>
+      <Text className="text-sm text-muted-foreground">
         {formatPrice(item.price_per_day)} / día
       </Text>
       {togglingRowId === item.id && toggleCar.isPending ? (
         <ActivityIndicator />
       ) : (
-        <Button
+        <AppButton
           variant={item.active ? 'destructive' : 'default'}
           onPress={() => onToggle(item)}
           disabled={toggleCar.isPending && togglingRowId === item.id}
         >
-          <ButtonText>{item.active ? 'Desactivar' : 'Activar'}</ButtonText>
-        </Button>
+          {item.active ? 'Desactivar' : 'Activar'}
+        </AppButton>
       )}
-    </View>
+    </AppCard>
   )
 
   return (
-    <View style={styles.container}>
-      <Button
-        variant="default"
+    <View className="flex-1 gap-3 bg-background p-4">
+      <AppButton
         onPress={() => {
           setClientError(null)
           createCar.reset()
           setFormOpen(!formOpen)
         }}
       >
-        <ButtonText>{formOpen ? 'Cerrar formulario' : 'Agregar auto'}</ButtonText>
-      </Button>
+        {formOpen ? 'Cerrar formulario' : 'Agregar auto'}
+      </AppButton>
       {formOpen && (
-        <View style={styles.card}>
-          <TextInput accessibilityLabel="Nombre (obligatorio)"
-            style={styles.input}
+        <AppCard>
+          <AppInput
+            label="Nombre"
             placeholder="Nombre (obligatorio)"
-            placeholderTextColor="#888"
             value={name}
             onChangeText={setName}
           />
-          <TextInput accessibilityLabel="photo_url (opcional, https://...)"
-            style={styles.input}
+          <AppInput
+            label="Foto"
             placeholder="photo_url (opcional, https://...)"
-            placeholderTextColor="#888"
             autoCapitalize="none"
             autoCorrect={false}
             value={photoUrl}
             onChangeText={setPhotoUrl}
           />
-          <TextInput accessibilityLabel="price_per_day en centavos (opcional)"
-            style={styles.input}
+          <AppInput
+            label="Precio"
             placeholder="price_per_day en centavos (opcional)"
-            placeholderTextColor="#888"
             keyboardType="numeric"
             value={priceText}
             onChangeText={setPriceText}
           />
-          {(clientError || createError) && (
-            <Text style={styles.error}>{clientError ?? createError}</Text>
-          )}
-          <Button onPress={onSubmit} disabled={createCar.isPending}>
-            {createCar.isPending ? (
-              <ActivityIndicator />
-            ) : (
-              <ButtonText>Crear auto</ButtonText>
-            )}
-          </Button>
-        </View>
+          <FormError message={clientError ?? createError} />
+          <AppButton onPress={onSubmit} disabled={createCar.isPending}>
+            {createCar.isPending ? <ActivityIndicator /> : 'Crear auto'}
+          </AppButton>
+        </AppCard>
       )}
-      {toggleError && <Text style={styles.error}>{toggleError}</Text>}
+      <FormError message={toggleError} />
       <FlatList
-        style={styles.list}
-        contentContainerStyle={styles.listContent}
+        key={numColumns}
+        numColumns={numColumns}
+        columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
+        className="flex-1"
+        contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
         data={data ?? []}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
@@ -221,50 +215,10 @@ export default function SellerCarsScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
         }
         ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={styles.subtitle}>No hay autos publicados</Text>
-          </View>
+          <EmptyState message="No hay autos publicados" />
         }
       />
     </View>
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12 },
-  list: { flex: 1 },
-  listContent: { gap: 12, paddingBottom: 16 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 12,
-    gap: 6,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#000', flex: 1 },
-  cardPrice: { fontSize: 14, color: '#444' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
-    color: '#000',
-  },
-  error: { color: '#ff6467' },
-  subtitle: { color: '#aaa' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-})

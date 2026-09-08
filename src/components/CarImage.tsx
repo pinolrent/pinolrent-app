@@ -1,35 +1,36 @@
 import { useState } from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import { View, Text, Image } from 'react-native'
+import { useBreakpoints, BREAKPOINTS } from '@/hooks/useBreakpoints'
 
 export function CarImage({ uri, name }: { uri?: string; name: string }) {
   const [failed, setFailed] = useState(false)
+  const { width } = useBreakpoints()
   const initial = name ? name[0] : '?'
+  const maxWidth =
+    width >= BREAKPOINTS.tablet ? BREAKPOINTS.imageMaxWidth : undefined
   if (!uri || failed) {
     return (
-      <View style={styles.placeholder}>
-        <Text style={styles.placeholderText}>{initial}</Text>
+      <View
+        className="aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg bg-muted"
+        style={maxWidth ? { maxWidth } : undefined}
+      >
+        <Text className="text-5xl font-bold text-muted-foreground">
+          {initial}
+        </Text>
       </View>
     )
   }
   return (
-    <Image
-      style={styles.image}
-      source={{ uri }}
-      resizeMode="cover"
-      onError={() => setFailed(true)}
-    />
+    <View
+      className="w-full overflow-hidden rounded-lg"
+      style={maxWidth ? { maxWidth } : undefined}
+    >
+      <Image
+        className="aspect-[4/3] w-full rounded-lg"
+        source={{ uri }}
+        resizeMode="cover"
+        onError={() => setFailed(true)}
+      />
+    </View>
   )
 }
-
-const styles = StyleSheet.create({
-  image: { width: '100%', height: 140, borderRadius: 8 },
-  placeholder: {
-    width: '100%',
-    height: 140,
-    borderRadius: 8,
-    backgroundColor: '#e5e5e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: { fontSize: 48, fontWeight: 'bold', color: '#aaa' },
-})

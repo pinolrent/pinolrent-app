@@ -1,73 +1,81 @@
 @import "tailwindcss";
 @import 'uniwind';
 /* ─── UniWind theme variants ─────────────────────────────────────
-   Switched at runtime via Uniwind.setTheme('light' | 'dark' | 'adaptive').
-   Variable values match the nativewind config.ts tokens so that the
-   same Tailwind utility classes (bg-primary, text-foreground, etc.)
-   produce identical output regardless of styling engine.                */
+   Switched at runtime via Uniwind.setTheme('light' | 'dark').
+   Hex tokens per variant (no rgb(var()) indirection): utilities like
+   bg-primary, text-foreground, bg-card adapt to the active theme.  */
 @layer theme {
   :root {
     @variant light {
-      --primary: 23 23 23;
-      --primary-foreground: 250 250 250;
-      --card: 255 255 255;
-      --secondary: 245 245 245;
-      --secondary-foreground: 23 23 23;
-      --background: 255 255 255;
-      --popover: 255 255 255;
-      --popover-foreground: 10 10 10;
-      --muted: 245 245 245;
-      --muted-foreground: 115 115 115;
-      --destructive: 231 0 11;
-      --foreground: 10 10 10;
-      --border: 229 229 229;
-      --input: 229 229 229;
-      --ring: 212 212 212;
-      --accent: 247 247 247;
-      --accent-foreground: 52 52 52;
+      --color-primary: #1D4ED8;
+      --color-primary-foreground: #FFFFFF;
+      --color-blue-50: #EFF6FF;
+      --color-blue-100: #DBEAFE;
+      --color-blue-200: #BFDBFE;
+      --color-blue-300: #93C5FD;
+      --color-blue-400: #60A5FA;
+      --color-blue-500: #3B82F6;
+      --color-blue-600: #1D4ED8;
+      --color-blue-700: #1D40AF;
+      --color-blue-800: #1E40AF;
+      --color-blue-900: #1E3A8A;
+      --color-card: #FFFFFF;
+      --color-secondary: #EFF6FF;
+      --color-secondary-foreground: #1E3A8A;
+      --color-background: #FFFFFF;
+      --color-popover: #FFFFFF;
+      --color-popover-foreground: #0F172A;
+      --color-muted: #F1F5F9;
+      --color-muted-foreground: #64748B;
+      --color-destructive: #DC2626;
+      --color-success: #15803D;
+      --color-warning: #B45309;
+      --color-foreground: #0F172A;
+      --color-border: #E2E8F0;
+      --color-input: #E2E8F0;
+      --color-ring: #93C5FD;
+      --color-accent: #EFF6FF;
+      --color-accent-foreground: #1E3A8A;
+      --color-overlay: #0F172A;
+      --color-tint-warning: #FEF3C7;
+      --color-tint-success: #DCFCE7;
+      --color-tint-destructive: #FEE2E2;
     }
 
     @variant dark {
-      --primary: 255 245 245;
-      --primary-foreground: 23 23 23;
-      --card: 23 23 23;
-      --secondary: 38 38 38;
-      --secondary-foreground: 250 250 250;
-      --background: 10 10 10;
-      --popover: 23 23 23;
-      --popover-foreground: 250 250 250;
-      --muted: 38 38 38;
-      --muted-foreground: 161 161 161;
-      --destructive: 255 100 103;
-      --foreground: 250 250 250;
-      --border: 46 46 46;
-      --input: 46 46 46;
-      --accent: 38 38 38;
-      --accent-foreground: 250 250 250;
-      --ring: 115 115 115;
+      --color-primary: #60A5FA;
+      --color-primary-foreground: #0B1220;
+      --color-blue-50: #0B1220;
+      --color-blue-100: #172554;
+      --color-blue-200: #1E3A8A;
+      --color-blue-300: #1D4ED8;
+      --color-blue-400: #3B82F6;
+      --color-blue-500: #60A5FA;
+      --color-blue-600: #93C5FD;
+      --color-blue-700: #BFDBFE;
+      --color-blue-800: #DBEAFE;
+      --color-blue-900: #EFF6FF;
+      --color-card: #111C33;
+      --color-secondary: #16213A;
+      --color-secondary-foreground: #E2E8F0;
+      --color-background: #0B1220;
+      --color-popover: #111C33;
+      --color-popover-foreground: #E2E8F0;
+      --color-muted: #16213A;
+      --color-muted-foreground: #94A3B8;
+      --color-destructive: #F87171;
+      --color-success: #4ADE80;
+      --color-warning: #FBBF24;
+      --color-foreground: #E2E8F0;
+      --color-border: #243352;
+      --color-input: #243352;
+      --color-accent: #16213A;
+      --color-accent-foreground: #E2E8F0;
+      --color-ring: #3B82F6;
+      --color-overlay: #020617;
+      --color-tint-warning: #422006;
+      --color-tint-success: #052E16;
+      --color-tint-destructive: #450A0A;
     }
   }
-}
-
-/* ─── Tailwind v4 color mappings ─────────────────────────────────
-   Maps the theme CSS variables above to Tailwind color utilities.
-   bg-primary → rgb(var(--primary)), text-foreground → rgb(var(--foreground)), etc. */
-@theme inline {
-  --color-primary: rgb(var(--primary));
-  --color-primary-foreground: rgb(var(--primary-foreground));
-  --color-card: rgb(var(--card));
-  --color-secondary: rgb(var(--secondary));
-  --color-secondary-foreground: rgb(var(--secondary-foreground));
-  --color-background: rgb(var(--background));
-  --color-popover: rgb(var(--popover));
-  --color-popover-foreground: rgb(var(--popover-foreground));
-  --color-muted: rgb(var(--muted));
-  --color-muted-foreground: rgb(var(--muted-foreground));
-  --color-destructive: rgb(var(--destructive));
-  --color-foreground: rgb(var(--foreground));
-  --color-border: rgb(var(--border));
-  --color-input: rgb(var(--input));
-  --color-ring: rgb(var(--ring));
-  --color-accent: rgb(var(--accent));
-  --color-accent-foreground: rgb(var(--accent-foreground));
 }

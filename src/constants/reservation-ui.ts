@@ -6,8 +6,11 @@ export const STATUS_LABELS: Record<Reservation['status'], string> = {
   cancelled: 'Cancelada',
 }
 
-export const STATUS_COLORS: Record<Reservation['status'], string> = {
-  pending: '#b45309',
-  confirmed: '#15803d',
-  cancelled: '#6b7280',
+export const STATUS_TONES: Record<
+  Reservation['status'],
+  'warning' | 'success' | 'destructive'
+> = {
+  pending: 'warning',
+  confirmed: 'success',
+  cancelled: 'destructive',
 }

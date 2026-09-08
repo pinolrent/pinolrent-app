@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
   ActivityIndicator,
+  ImageBackground,
+  ScrollView,
+  Text,
+  View,
 } from 'react-native'
 import { Link } from 'expo-router'
-import { Button, ButtonText } from '../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, AppCard } from '@/components/ui-kit'
+import { AppInput } from '@/components/fields'
+import { ThemeToggle } from '@/components/ThemeToggle'
+
+const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -25,61 +29,66 @@ export default function LoginScreen() {
     : null
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar sesión</Text>
-
-      <TextInput accessibilityLabel="Email"
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+    <View className="flex-1 overflow-hidden bg-background">
+      <ImageBackground
+        source={LOGIN_BG}
+        resizeMode="cover"
+        className="absolute inset-0 h-full w-full"
       />
+      <View className="absolute inset-0 bg-overlay opacity-70" />
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 24,
+        }}
+      >
+        <View className="w-full max-w-md gap-3">
+          <View className="items-end">
+            <ThemeToggle />
+          </View>
+          <AppCard className="gap-3 p-6">
+            <Text className="mb-2 text-center text-2xl font-bold text-foreground">
+              Iniciar sesión
+            </Text>
 
-      <TextInput accessibilityLabel="Contraseña"
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#888"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+            <AppInput
+              label="Email"
+              placeholder="Email"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
 
-      {error && <Text style={styles.error}>{error}</Text>}
+            <AppInput
+              label="Contraseña"
+              placeholder="Contraseña"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-      <Button variant="default" onPress={onLogin} disabled={login.isPending}>
-        {login.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Entrar</ButtonText>
-        )}
-      </Button>
+            {error && (
+              <Text className="text-center text-sm text-destructive">
+                {error}
+              </Text>
+            )}
 
-      <Link href="/register" style={styles.link}>
-        <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
-      </Link>
+            <AppButton onPress={onLogin} disabled={login.isPending}>
+              {login.isPending ? <ActivityIndicator /> : 'Entrar'}
+            </AppButton>
+
+            <Link href="/register" className="mt-1 self-center">
+              <Text className="text-primary">
+                ¿No tienes cuenta? Regístrate
+              </Text>
+            </Link>
+          </AppCard>
+        </View>
+      </ScrollView>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    gap: 12,
-  },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#000' },
-  input: {
-    backgroundColor: '#222',
-    color: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  error: { color: '#ff6467', marginBottom: 4 },
-  link: { marginTop: 12, alignSelf: 'center' },
-  linkText: { color: '#3b82f6' },
-})

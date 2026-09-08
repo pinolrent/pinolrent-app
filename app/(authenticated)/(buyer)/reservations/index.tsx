@@ -3,25 +3,25 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   ActivityIndicator,
   RefreshControl,
   Pressable,
-  TextInput,
+  Alert,
 } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Alert } from 'react-native'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Reservation } from '@/types/reservation'
-import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
+import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import type { Payment } from '@/types/payment'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { AppInput, StatusBadge } from '@/components/fields'
 
 const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
+
 
 export default function ReservationsScreen() {
   const router = useRouter()
@@ -55,7 +55,7 @@ export default function ReservationsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -63,11 +63,9 @@ export default function ReservationsScreen() {
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>{errorMessage}</Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">{errorMessage}</Text>
+        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
     )
   }
@@ -119,33 +117,36 @@ export default function ReservationsScreen() {
     const confirming = confirmingId === item.id
     const paying = payingId === item.id
     return (
-      <View style={styles.card}>
+      <AppCard>
         <Pressable
+          accessibilityRole="button"
           onPress={() =>
             router.push(`/(authenticated)/(buyer)/reservations/${item.id}`)
           }
         >
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>{item.car.name}</Text>
-            <Text style={{ color: STATUS_COLORS[item.status] }}>
-              {STATUS_LABELS[item.status]}
+          <View className="flex-row items-center justify-between gap-2">
+            <Text className="flex-1 text-base font-bold text-foreground">
+              {item.car.name}
             </Text>
+            <StatusBadge tone={STATUS_TONES[item.status]}>
+              {STATUS_LABELS[item.status]}
+            </StatusBadge>
           </View>
         </Pressable>
-        <Text style={styles.subtitle}>
+        <Text className="text-muted-foreground">
           {formatDate(item.start_date)} – {formatDate(item.end_date)}
         </Text>
-        <Text style={styles.cardPrice}>
+        <Text className="text-sm text-foreground">
           {formatPrice(item.car.price_per_day)} / día · Total{' '}
           {formatPrice((daysBetween(item.start_date, item.end_date) + 1) * item.car.price_per_day)}
         </Text>
         {item.payment && (
-          <Text style={styles.subtitle}>
+          <Text className="text-muted-foreground">
             Pago: {item.payment.method} · {item.payment.status}
           </Text>
         )}
         {canCancel(item) && (
-          <Button
+          <AppButton
             variant="destructive"
             onPress={() => {
               setPayingId(null)
@@ -153,87 +154,84 @@ export default function ReservationsScreen() {
             }}
             disabled={cancel.isPending}
           >
-            <ButtonText>Cancelar</ButtonText>
-          </Button>
+            Cancelar
+          </AppButton>
         )}
         {canPay(item) && (
-          <Button
-            variant="default"
+          <AppButton
             onPress={() => openPayForm(item.id)}
             disabled={pay.isPending}
           >
-            <ButtonText>{paying ? 'Cerrar pago' : 'Pagar'}</ButtonText>
-          </Button>
+            {paying ? 'Cerrar pago' : 'Pagar'}
+          </AppButton>
         )}
         {paying && (
-          <View style={styles.confirmBox}>
-            <View style={styles.methodRow}>
+          <View className="mt-1 gap-2">
+            <View className="flex-row gap-2">
               {PAYMENT_METHODS.map((m) => (
                 <Pressable
                   key={m}
-                  style={[
-                    styles.methodChip,
-                    payMethod === m && styles.methodChipActive,
-                  ]}
+                  accessibilityRole="button"
                   onPress={() => setPayMethod(m)}
+                  className={`rounded-lg border px-3 py-1.5 ${
+                    payMethod === m
+                      ? 'border-primary bg-primary'
+                      : 'border-border bg-card'
+                  }`}
                 >
                   <Text
-                    style={[
-                      styles.methodChipText,
-                      payMethod === m && styles.methodChipTextActive,
-                    ]}
+                    className={
+                      payMethod === m
+                        ? 'text-primary-foreground'
+                        : 'text-foreground'
+                    }
                   >
                     {m}
                   </Text>
                 </Pressable>
               ))}
             </View>
-            <TextInput accessibilityLabel="proof_url (opcional, https://...)"
-              style={styles.input}
+            <AppInput
+              label="Comprobante"
               placeholder="proof_url (opcional, https://...)"
-              placeholderTextColor="#888"
               autoCapitalize="none"
               autoCorrect={false}
               value={payProofUrl}
               onChangeText={setPayProofUrl}
             />
-{(payClientError || (payError && payErrorId === item.id)) && (
-              <Text style={styles.error}>
-                {payClientError ?? payError}
-              </Text>
-            )}
-            <View style={styles.confirmActions}>
-              <Button
-                variant="default"
+            <FormError
+              message={
+                payClientError ??
+                (payError && payErrorId === item.id ? payError : null)
+              }
+            />
+            <View className="flex-row items-center gap-2">
+              <AppButton
                 onPress={() => submitPayment(item.id)}
                 disabled={pay.isPending}
               >
-                {pay.isPending ? (
-                  <ActivityIndicator />
-                ) : (
-                  <ButtonText>Registrar pago</ButtonText>
-                )}
-              </Button>
-              <Button variant="ghost" onPress={() => setPayingId(null)}>
-                <ButtonText>Volver</ButtonText>
-              </Button>
+                {pay.isPending ? <ActivityIndicator /> : 'Registrar pago'}
+              </AppButton>
+              <AppButton variant="ghost" onPress={() => setPayingId(null)}>
+                Volver
+              </AppButton>
             </View>
           </View>
         )}
         {confirming && (
-          <View style={styles.confirmBox}>
+          <View className="mt-1 gap-2">
             {cancel.isPending ? (
               <ActivityIndicator />
             ) : (
               <>
-                <Text style={styles.subtitle}>
+                <Text className="text-muted-foreground">
                   ¿Cancelar la reserva de {item.car.name}?
                 </Text>
-{cancelError && cancelErrorId === item.id && (
-                  <Text style={styles.error}>{cancelError}</Text>
+                {cancelError && cancelErrorId === item.id && (
+                  <FormError message={cancelError} />
                 )}
-                <View style={styles.confirmActions}>
-                  <Button
+                <View className="flex-row items-center gap-2">
+                  <AppButton
                     variant="destructive"
                     onPress={() =>
                       cancel.mutate(item.id, {
@@ -246,24 +244,27 @@ export default function ReservationsScreen() {
                     }
                     disabled={cancel.isPending}
                   >
-                    <ButtonText>Confirmar</ButtonText>
-                  </Button>
-                  <Button variant="ghost" onPress={() => setConfirmingId(null)}>
-                    <ButtonText>Volver</ButtonText>
-                  </Button>
+                    Confirmar
+                  </AppButton>
+                  <AppButton
+                    variant="ghost"
+                    onPress={() => setConfirmingId(null)}
+                  >
+                    Volver
+                  </AppButton>
                 </View>
               </>
             )}
           </View>
         )}
-      </View>
+      </AppCard>
     )
   }
 
   return (
     <FlatList
-      style={styles.list}
-      contentContainerStyle={styles.listContent}
+      className="flex-1 bg-background"
+      contentContainerStyle={{ padding: 16, gap: 12 }}
       data={data ?? []}
       keyExtractor={(item) => String(item.id)}
       renderItem={renderItem}
@@ -271,71 +272,18 @@ export default function ReservationsScreen() {
         <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
       }
       ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.subtitle}>No hay reservas</Text>
-          <Button
-            variant="default"
-            onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
-          >
-            <ButtonText>Explorar autos</ButtonText>
-          </Button>
-        </View>
+        <EmptyState
+          message="No has hecho ninguna reserva"
+          action={
+            <AppButton
+              onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
+            >
+              Explorar autos
+            </AppButton>
+          }
+        />
       }
     />
   )
 }
 
-const styles = StyleSheet.create({
-  list: { flex: 1 },
-  listContent: { padding: 16, gap: 12 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 12,
-    gap: 6,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#000', flex: 1 },
-  cardPrice: { fontSize: 14, color: '#444' },
-  confirmBox: { gap: 8, marginTop: 4 },
-  confirmActions: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  methodRow: { flexDirection: 'row', gap: 8 },
-  methodChip: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  methodChipActive: { backgroundColor: '#000', borderColor: '#000' },
-  methodChipText: { color: '#444' },
-  methodChipTextActive: { color: '#fff' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
-    color: '#000',
-  },
-  error: { color: '#ff6467' },
-  subtitle: { color: '#aaa' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-})

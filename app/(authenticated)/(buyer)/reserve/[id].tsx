@@ -2,21 +2,21 @@ import { useState } from 'react'
 import {
   View,
   Text,
-  TextInput,
-  StyleSheet,
   ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { Alert } from 'react-native'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import { useCar } from '@/hooks/useCars'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppBackButton } from '@/components/nav-icons'
+import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppInput } from '@/components/fields'
 
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -43,7 +43,7 @@ export default function ReserveScreen() {
 
   if (carLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -51,14 +51,12 @@ export default function ReserveScreen() {
 
   if (invalidId || !car) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">
           {invalidId ? 'ID de auto inválido' : (carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto')}
         </Text>
         {!invalidId && (
-          <Button variant="default" onPress={() => refetchCar()}>
-            <ButtonText>Reintentar</ButtonText>
-          </Button>
+          <AppButton onPress={() => refetchCar()}>Reintentar</AppButton>
         )}
       </View>
     )
@@ -110,77 +108,56 @@ export default function ReserveScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Reservar {car.name}</Text>
-      <Text style={styles.subtitle}>
-        {formatPrice(car.price_per_day)} / día
-      </Text>
-      {validRange && (
-        <Text style={styles.subtitle}>
-          {previewDays} {previewDays === 1 ? 'día' : 'días'} · Total estimado{' '}
-          {formatPrice(previewTotal)}
+      <ScrollView
+        className="flex-1 bg-background"
+        contentContainerStyle={{ padding: 24, gap: 12 }}
+      >
+        <AppBackButton />
+        <Text className="text-2xl font-bold text-foreground">
+          Reservar {car.name}
         </Text>
-      )}
-
-      <TextInput accessibilityLabel="Fecha inicio (YYYY-MM-DD)"
-        style={styles.input}
-        placeholder="Fecha inicio (YYYY-MM-DD)"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={startDate}
-        onChangeText={editStart}
-      />
-
-      <TextInput accessibilityLabel="Fecha fin (YYYY-MM-DD)"
-        style={styles.input}
-        placeholder="Fecha fin (YYYY-MM-DD)"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={endDate}
-        onChangeText={editEnd}
-      />
-
-      {(clientError || serverError) && (
-        <Text style={styles.error}>{clientError ?? serverError}</Text>
-      )}
-
-      <Button onPress={onSubmit} disabled={createReservation.isPending}>
-        {createReservation.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Reservar</ButtonText>
+        <Text className="text-muted-foreground">
+          {formatPrice(car.price_per_day)} / día
+        </Text>
+        {validRange && (
+          <AppCard>
+            <Text className="text-muted-foreground">
+              {previewDays} {previewDays === 1 ? 'día' : 'días'} · Total
+              estimado {formatPrice(previewTotal)}
+            </Text>
+          </AppCard>
         )}
-      </Button>
+
+        <AppInput
+          label="Fecha inicio"
+          placeholder="YYYY-MM-DD"
+          autoCapitalize="none"
+          autoCorrect={false}
+          maxLength={10}
+          value={startDate}
+          onChangeText={editStart}
+        />
+
+        <AppInput
+          label="Fecha fin"
+          placeholder="YYYY-MM-DD"
+          autoCapitalize="none"
+          autoCorrect={false}
+          maxLength={10}
+          value={endDate}
+          onChangeText={editEnd}
+        />
+
+        <FormError message={clientError ?? serverError} />
+
+        <AppButton onPress={onSubmit} disabled={createReservation.isPending}>
+          {createReservation.isPending ? <ActivityIndicator /> : 'Reservar'}
+        </AppButton>
       </ScrollView>
     </KeyboardAvoidingView>
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 24, gap: 12 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#000' },
-  subtitle: { color: '#aaa' },
-  input: {
-    backgroundColor: '#fff',
-    color: '#000',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  error: { color: '#ff6467' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-})
