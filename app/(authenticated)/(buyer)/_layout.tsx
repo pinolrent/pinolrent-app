@@ -65,7 +65,7 @@ export default function BuyerTabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="catalog"
+          name="catalog/index"
           options={{
             title: 'Catálogo',
             tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.catalog} color={color} />,
@@ -79,12 +79,19 @@ export default function BuyerTabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="reservations"
+          name="reservations/index"
           options={{
             title: 'Reservas',
             tabBarIcon: ({ color }) => (
               <TabIcon Icon={NAV_ICONS.reservations} color={color} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="reservations/[id]"
+          options={{
+            title: 'Detalle',
+            href: null,
           }}
         />
         <Tabs.Screen
@@ -96,6 +103,11 @@ export default function BuyerTabsLayout() {
         />
       </Tabs.Protected>
         </Tabs>
+        {!isDesktop && (
+          <View className="absolute right-4 top-4 z-10">
+            <MenuButton items={items} />
+          </View>
+        )}
       </View>
     </View>
   )

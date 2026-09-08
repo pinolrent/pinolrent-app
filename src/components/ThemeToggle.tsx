@@ -1,19 +1,26 @@
-import { Pressable, Text } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
+import { Moon, Sun } from 'lucide-react-native'
 import { useThemeStore } from '@/stores/theme.store'
 
 export function ThemeToggle() {
   const theme = useThemeStore((s) => s.theme)
   const toggle = useThemeStore((s) => s.toggle)
+  const dark = theme === 'dark'
+  const Icon = dark ? Sun : Moon
 
-  const label = theme === 'light' ? '🌙 Oscuro' : '☀️ Claro'
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+      accessibilityLabel={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
       onPress={() => toggle()}
-      className="rounded-full border border-border bg-card px-3 py-1.5"
+      className="flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5"
     >
-      <Text className="text-sm text-foreground">{label}</Text>
+      <Icon size={16} color={dark ? '#E2E8F0' : '#0F172A'} />
+      <View>
+        <Text className="text-sm text-foreground">
+          {dark ? 'Claro' : 'Oscuro'}
+        </Text>
+      </View>
     </Pressable>
   )
 }

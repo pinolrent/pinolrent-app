@@ -65,14 +65,14 @@ export default function SellerTabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="cars"
+          name="cars/index"
           options={{
             title: 'Mis autos',
             tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.cars} color={color} />,
           }}
         />
         <Tabs.Screen
-          name="reservations"
+          name="reservations/index"
           options={{
             title: 'Reservas',
             tabBarIcon: ({ color }) => (
@@ -82,6 +82,11 @@ export default function SellerTabsLayout() {
         />
       </Tabs.Protected>
         </Tabs>
+        {!isDesktop && (
+          <View className="absolute right-4 top-4 z-10">
+            <MenuButton items={items} />
+          </View>
+        )}
       </View>
     </View>
   )
