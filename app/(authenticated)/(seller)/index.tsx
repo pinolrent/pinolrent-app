@@ -7,7 +7,6 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError, StatCard } from '@/components/ui-kit'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function SellerHomeScreen() {
   const { user } = useAuth()
@@ -50,9 +49,6 @@ export default function SellerHomeScreen() {
 
   return (
     <View className="flex-1 gap-3 bg-background p-6">
-      <View className="items-end">
-        <ThemeToggle />
-      </View>
       <Text className="text-2xl font-bold text-foreground">
         Panel de vendedor
       </Text>

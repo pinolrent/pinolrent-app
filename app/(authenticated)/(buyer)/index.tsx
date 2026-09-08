@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMyReservations } from '@/hooks/useReservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError, StatCard } from '@/components/ui-kit'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function BuyerHomeScreen() {
   const { user } = useAuth()
@@ -22,9 +21,6 @@ export default function BuyerHomeScreen() {
 
   return (
     <View className="flex-1 gap-3 bg-background p-6">
-      <View className="items-end">
-        <ThemeToggle />
-      </View>
       <Text className="text-2xl font-bold text-foreground">
         Panel de comprador
       </Text>
