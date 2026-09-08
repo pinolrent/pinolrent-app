@@ -14,6 +14,7 @@ import {
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
+import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
@@ -133,7 +134,8 @@ export default function SellerCarsScreen() {
     )
   }
 
-  const renderItem = ({ item }: { item: Car }) => (
+  const renderItem = ({ item, index }: { item: Car; index: number }) => (
+    <StaggerCard index={index}>
     <AppCard className={numColumns > 1 ? 'flex-1' : undefined}>
       <CarImage uri={item.photo_url} name={item.name} />
       <View className="flex-row items-center justify-between gap-2">
@@ -159,6 +161,7 @@ export default function SellerCarsScreen() {
         </AppButton>
       )}
     </AppCard>
+    </StaggerCard>
   )
 
   return (

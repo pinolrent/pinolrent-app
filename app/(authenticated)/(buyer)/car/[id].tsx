@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
 import { CarImage } from '@/components/CarImage'
@@ -43,6 +44,7 @@ export default function CarDetailScreen() {
   }
 
   return (
+    <Animated.View entering={FadeIn.duration(200)} className="flex-1 bg-background">
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
@@ -66,6 +68,7 @@ export default function CarDetailScreen() {
         Reservar este auto
       </AppButton>
     </ScrollView>
+    </Animated.View>
   )
 }
 

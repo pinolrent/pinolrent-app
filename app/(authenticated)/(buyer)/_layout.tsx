@@ -5,11 +5,14 @@ import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
 import { Sidebar, type NavItem } from '@/components/SideNav'
 
-function tabIcon(
-  Icon: (typeof NAV_ICONS)[keyof typeof NAV_ICONS],
+function TabIcon({
+  Icon,
+  color,
+}: {
+  Icon: (typeof NAV_ICONS)[keyof typeof NAV_ICONS]
   color: string
-) {
-  return () => <Icon size={22} color={color} />
+}) {
+  return <Icon size={22} color={color} />
 }
 
 export default function BuyerTabsLayout() {
@@ -49,14 +52,14 @@ export default function BuyerTabsLayout() {
           name="index"
           options={{
             title: 'Inicio',
-            tabBarIcon: ({ color }) => tabIcon(NAV_ICONS.home, color)(),
+            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.home} color={color} />,
           }}
         />
         <Tabs.Screen
           name="catalog"
           options={{
             title: 'Catálogo',
-            tabBarIcon: ({ color }) => tabIcon(NAV_ICONS.catalog, color)(),
+            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.catalog} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -71,8 +74,9 @@ export default function BuyerTabsLayout() {
           name="reservations"
           options={{
             title: 'Reservas',
-            tabBarIcon: ({ color }) =>
-              tabIcon(NAV_ICONS.reservations, color)(),
+            tabBarIcon: ({ color }) => (
+              <TabIcon Icon={NAV_ICONS.reservations} color={color} />
+            ),
           }}
         />
         <Tabs.Screen

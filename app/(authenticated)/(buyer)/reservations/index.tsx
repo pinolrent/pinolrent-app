@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useMyReservations, useCancelReservation } from '@/hooks/useReservations'
+import * as Haptics from 'expo-haptics'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Reservation } from '@/types/reservation'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
@@ -106,6 +107,7 @@ export default function ReservationsScreen() {
         onSuccess: () => {
           setPayErrorId(null)
           setPayingId(null)
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
           Alert.alert('Pago registrado', 'Queda pendiente de confirmación')
         },
         onError: () => setPayErrorId(id),

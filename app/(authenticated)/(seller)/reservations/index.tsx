@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics'
 import { useState } from 'react'
 import {
   View,
@@ -118,6 +119,7 @@ export default function ReservedScreen() {
                         onSuccess: () => {
                           setConfirmErrorId(null)
                           setConfirmingId(null)
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
                           Alert.alert('Reserva confirmada', `Reserva #${item.id} confirmada`)
                         },
                         onError: () => setConfirmErrorId(item.id),
