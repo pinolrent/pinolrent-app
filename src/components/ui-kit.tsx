@@ -27,7 +27,8 @@ export function AppCard({
   className?: string
 }) {
   return (
-    <View className={`rounded-xl border border-border bg-card p-3 shadow-sm ${className}`}>
+    <View className={`gap-3 rounded-xl border border-border bg-card p-3 shadow-sm ${className}`}>
+
       {children}
     </View>
   )

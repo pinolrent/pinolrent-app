@@ -92,11 +92,11 @@ export default function CatalogScreen() {
         numColumns > 1 ? 'flex-1' : 'flex-row'
       }`}
     >
-      <View className={numColumns > 1 ? '' : 'h-24 w-24'}>
+      <View className={numColumns > 1 ? '' : 'h-24 w-24 shrink-0 items-center justify-center overflow-hidden'}>
         <CarImage uri={item.photo_url} name={item.name} />
       </View>
-      <View className="flex-1 justify-center gap-1 p-3">
-        <Text className="text-base font-bold text-foreground">{item.name}</Text>
+      <View className="flex-1 justify-center gap-2 p-3">
+        <Text numberOfLines={1} className="text-base font-bold text-foreground">{item.name}</Text>
         <Text className="text-sm text-muted-foreground">
           {formatPrice(item.price_per_day)} / día
         </Text>

@@ -11,7 +11,7 @@ export function CarImage({ uri, name }: { uri?: string; name: string }) {
   if (!uri || failed) {
     return (
       <View
-        className="aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg bg-muted"
+        className="aspect-[4/3] w-full items-center justify-center self-center overflow-hidden rounded-lg bg-muted"
         style={maxWidth ? { maxWidth } : undefined}
       >
         <Text className="text-5xl font-bold text-muted-foreground">
@@ -22,7 +22,7 @@ export function CarImage({ uri, name }: { uri?: string; name: string }) {
   }
   return (
     <View
-      className="w-full overflow-hidden rounded-lg"
+      className="w-full self-center overflow-hidden rounded-lg"
       style={maxWidth ? { maxWidth } : undefined}
     >
       <Image
