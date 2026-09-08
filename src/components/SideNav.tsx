@@ -80,7 +80,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
       </Pressable>
       <Modal visible={open} transparent animationType="fade">
         <Pressable
-          className="flex-1 bg-black/50"
+          className="flex-1 bg-overlay opacity-50"
           onPress={() => setOpen(false)}
         >
           <View className="ml-auto h-full w-64 gap-1 bg-card p-4">

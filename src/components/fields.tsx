@@ -35,10 +35,10 @@ export function StatusBadge({
   children: ReactNode
 }) {
   const tones = {
-    warning: 'bg-warning/15 text-warning',
-    success: 'bg-success/15 text-success',
+    warning: 'bg-tint-warning text-warning',
+    success: 'bg-tint-success text-success',
     muted: 'bg-muted text-muted-foreground',
-    destructive: 'bg-destructive/15 text-destructive',
+    destructive: 'bg-tint-destructive text-destructive',
   } as const
   return (
     <View className="rounded-full px-2 py-0.5">

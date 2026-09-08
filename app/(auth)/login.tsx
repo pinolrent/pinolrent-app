@@ -35,7 +35,7 @@ export default function LoginScreen() {
         resizeMode="cover"
         className="absolute inset-0 h-full w-full"
       />
-      <View className="absolute inset-0 bg-background/70 dark:bg-background/80" />
+      <View className="absolute inset-0 bg-overlay opacity-70" />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
