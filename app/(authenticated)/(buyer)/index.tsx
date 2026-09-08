@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, ActivityIndicator } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button, ButtonText } from '../../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useMyReservations } from '@/hooks/useReservations'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, FormError, StatCard } from '@/components/ui-kit'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function BuyerHomeScreen() {
   const { user, logout } = useAuth()
@@ -23,61 +24,46 @@ export default function BuyerHomeScreen() {
     : null
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Panel de comprador</Text>
-      <Text style={styles.subtitle}>Hola, {user?.email}</Text>
+    <View className="flex-1 gap-3 bg-background p-6">
+      <View className="items-end">
+        <ThemeToggle />
+      </View>
+      <Text className="text-2xl font-bold text-foreground">
+        Panel de comprador
+      </Text>
+      <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {isLoading ? (
         <ActivityIndicator />
       ) : loadError ? (
-        <>
-          <Text style={styles.error}>{loadError}</Text>
-          <Button
-            variant="default"
-            onPress={() => refetch()}
-            disabled={isRefetching}
-          >
-            <ButtonText>Reintentar</ButtonText>
-          </Button>
-        </>
+        <View className="gap-2">
+          <FormError message={loadError} />
+          <AppButton onPress={() => refetch()} disabled={isRefetching}>
+            Reintentar
+          </AppButton>
+        </View>
       ) : (
-        <Text style={styles.subtitle}>
-          {pending} pendientes · {confirmed} confirmadas
-        </Text>
+        <View className="flex-row gap-3">
+          <StatCard label="Pendientes" value={String(pending)} />
+          <StatCard label="Confirmadas" value={String(confirmed)} />
+        </View>
       )}
 
-      <Button
-        variant="default"
+      <AppButton
         onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
       >
-        <ButtonText>Explorar autos</ButtonText>
-      </Button>
-      <Button
-        variant="default"
+        Explorar autos
+      </AppButton>
+      <AppButton
         onPress={() => router.push('/(authenticated)/(buyer)/reservations')}
       >
-        <ButtonText>Mis reservas</ButtonText>
-      </Button>
+        Mis reservas
+      </AppButton>
 
-      {logoutError && <Text style={styles.error}>{logoutError}</Text>}
-      <Button
-        variant="default"
-        onPress={() => logout.mutate()}
-        disabled={logout.isPending}
-      >
-        {logout.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Cerrar sesión</ButtonText>
-        )}
-      </Button>
+      <FormError message={logoutError} />
+      <AppButton onPress={() => logout.mutate()} disabled={logout.isPending}>
+        {logout.isPending ? <ActivityIndicator /> : 'Cerrar sesión'}
+      </AppButton>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#000' },
-  subtitle: { color: '#aaa' },
-  error: { color: '#ff6467' },
-})
