@@ -139,7 +139,7 @@ export default function SellerCarsScreen() {
     <AppCard className={numColumns > 1 ? 'flex-1' : undefined}>
       <CarImage uri={item.photo_url} name={item.name} />
       <View className="flex-row items-center justify-between gap-2">
-        <Text className="flex-1 text-base font-bold text-foreground">
+        <Text numberOfLines={1} className="flex-1 text-base font-bold text-foreground">
           {item.name}
         </Text>
         <StatusBadge tone={item.active ? 'success' : 'muted'}>

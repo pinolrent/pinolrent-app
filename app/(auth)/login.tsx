@@ -11,7 +11,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 
@@ -46,9 +45,6 @@ export default function LoginScreen() {
         }}
       >
         <View className="w-full max-w-md gap-3">
-          <View className="items-end">
-            <ThemeToggle />
-          </View>
           <AppCard className="gap-3 p-6">
             <Text className="mb-2 text-center text-2xl font-bold text-foreground">
               Iniciar sesión

@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 type Role = 'buyer' | 'seller'
 
@@ -28,9 +27,6 @@ export default function RegisterScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ flexGrow: 1 }}
     >
-      <View className="flex-1 items-end p-4">
-        <ThemeToggle />
-      </View>
       <View className="flex-1 justify-center gap-3 p-6">
         <Text className="mb-4 text-2xl font-bold text-foreground">
           Crear cuenta

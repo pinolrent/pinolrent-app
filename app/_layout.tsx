@@ -23,11 +23,14 @@ export default function RootLayout() {
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage)
   const loadTheme = useThemeStore((s) => s.loadTheme)
   const theme = useThemeStore((s) => s.theme)
+  const themeLoaded = useThemeStore((s) => s.isLoaded)
 
   useEffect(() => {
     loadFromStorage()
     loadTheme()
   }, [])
+
+  if (!themeLoaded) return null
 
   return (
     <SafeAreaListener

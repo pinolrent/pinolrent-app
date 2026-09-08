@@ -1,15 +1,51 @@
 import { useState } from 'react'
-import { Modal, Pressable, Text, View } from 'react-native'
+import { Image, Modal, Pressable, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
 import { useThemeStore } from '@/stores/theme.store'
 import { ThemeToggle } from './ThemeToggle'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useAuth } from '@/hooks/useAuth'
+import { getApiErrorMessage } from '@/utils/errors'
+
+const LOGO = require('../assets/icon.png')
+
+function SidebarFooter() {
+  const { logout } = useAuth()
+  const logoutError = logout.isError
+    ? getApiErrorMessage(logout.error, 'Error al cerrar sesión')
+    : null
+  return (
+    <View className="mt-auto gap-2 border-t border-border pt-3">
+      <ThemeToggle />
+      {logoutError && (
+        <Text className="text-xs text-destructive">{logoutError}</Text>
+      )}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Cerrar sesión"
+        onPress={() => logout.mutate()}
+        disabled={logout.isPending}
+        className="flex-row items-center justify-center gap-2 rounded-lg bg-destructive px-3 py-2 opacity-100 disabled:opacity-50"
+      >
+        <Text className="font-semibold text-white">
+          {logout.isPending ? 'Cerrando...' : 'Cerrar sesión'}
+        </Text>
+      </Pressable>
+    </View>
+  )
+}
 
 export interface NavItem {
   label: string
   href: string
   icon: keyof typeof NAV_ICONS
+}
+
+function isActive(pathname: string, href: string) {
+  const tail = href.split('/').pop() ?? href
+  if (!tail || tail.startsWith('(')) return pathname === '/' || pathname === ''
+  return pathname === `/${tail}` || pathname.startsWith(`/${tail}/`)
 }
 
 export function Sidebar({ items }: { items: NavItem[] }) {
@@ -20,10 +56,18 @@ export function Sidebar({ items }: { items: NavItem[] }) {
   if (!isDesktop) return null
 
   return (
-    <View className="w-60 gap-1 border-l border-border bg-card p-4">
+    <View className="w-60 gap-1 border-r border-border bg-card p-4">
+      <View className="mb-2 flex-row items-center gap-2">
+        <Image
+          source={LOGO}
+          className="h-9 w-9 rounded-lg"
+          resizeMode="cover"
+        />
+        <Text className="text-lg font-bold text-foreground">PinolRent</Text>
+      </View>
       {items.map((item) => {
         const Icon = NAV_ICONS[item.icon]
-        const active = pathname.startsWith(item.href)
+        const active = isActive(pathname, item.href)
         return (
           <Pressable
             key={item.href}
@@ -49,9 +93,7 @@ export function Sidebar({ items }: { items: NavItem[] }) {
           </Pressable>
         )
       })}
-      <View className="mt-4">
-        <ThemeToggle />
-      </View>
+      <SidebarFooter />
     </View>
   )
 }
@@ -84,6 +126,16 @@ export function MenuButton({ items }: { items: NavItem[] }) {
           onPress={() => setOpen(false)}
         >
           <View className="ml-auto h-full w-64 gap-1 bg-card p-4">
+            <View className="mb-2 flex-row items-center gap-2">
+              <Image
+                source={LOGO}
+                className="h-9 w-9 rounded-lg"
+                resizeMode="cover"
+              />
+              <Text className="text-lg font-bold text-foreground">
+                PinolRent
+              </Text>
+            </View>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Cerrar menú"
@@ -97,7 +149,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
             </Pressable>
             {items.map((item) => {
               const Icon = NAV_ICONS[item.icon]
-              const active = pathname.startsWith(item.href)
+              const active = isActive(pathname, item.href)
               return (
                 <Pressable
                   key={item.href}
@@ -126,9 +178,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
                 </Pressable>
               )
             })}
-            <View className="mt-4">
-              <ThemeToggle />
-            </View>
+            <SidebarFooter />
           </View>
         </Pressable>
       </Modal>

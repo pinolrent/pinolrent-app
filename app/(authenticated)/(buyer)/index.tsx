@@ -4,10 +4,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMyReservations } from '@/hooks/useReservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError, StatCard } from '@/components/ui-kit'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function BuyerHomeScreen() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
@@ -19,15 +18,9 @@ export default function BuyerHomeScreen() {
   const pending = data?.filter((r) => r.status === 'pending').length ?? 0
   const confirmed = data?.filter((r) => r.status === 'confirmed').length ?? 0
 
-  const logoutError = logout.isError
-    ? getApiErrorMessage(logout.error, 'Error al cerrar sesión')
-    : null
 
   return (
     <View className="flex-1 gap-3 bg-background p-6">
-      <View className="items-end">
-        <ThemeToggle />
-      </View>
       <Text className="text-2xl font-bold text-foreground">
         Panel de comprador
       </Text>
@@ -60,10 +53,6 @@ export default function BuyerHomeScreen() {
         Explorar autos
       </AppButton>
 
-      <FormError message={logoutError} />
-      <AppButton onPress={() => logout.mutate()} disabled={logout.isPending}>
-        {logout.isPending ? <ActivityIndicator /> : 'Cerrar sesión'}
-      </AppButton>
     </View>
   )
 }
