@@ -67,7 +67,6 @@ export default function BuyerTabsLayout() {
           options={{
             title: 'Detalle',
             href: null,
-            tabBarButton: () => null,
           }}
         />
         <Tabs.Screen
@@ -84,7 +83,6 @@ export default function BuyerTabsLayout() {
           options={{
             title: 'Reservar',
             href: null,
-            tabBarButton: () => null,
           }}
         />
       </Tabs.Protected>
