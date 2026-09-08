@@ -50,14 +50,14 @@ export default function BuyerHomeScreen() {
       )}
 
       <AppButton
-        onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
-      >
-        Explorar autos
-      </AppButton>
-      <AppButton
         onPress={() => router.push('/(authenticated)/(buyer)/reservations')}
       >
         Mis reservas
+      </AppButton>
+      <AppButton
+        onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
+      >
+        Explorar autos
       </AppButton>
 
       <FormError message={logoutError} />

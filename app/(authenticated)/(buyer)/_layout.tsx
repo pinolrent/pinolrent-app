@@ -28,6 +28,7 @@ export default function BuyerTabsLayout() {
 
   return (
     <Tabs
+      initialRouteName="catalog"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
