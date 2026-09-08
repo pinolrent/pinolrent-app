@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { formatPrice } from './currency'
+import { formatPrice, formatUSD } from './currency'
 
-describe('formatPrice', () => {
-  it('formats cents as córdobas', () => {
-    expect(formatPrice(45000)).toBe('C$ 450.00')
+describe('formatUSD', () => {
+  it('converts cents to dollars', () => {
+    expect(formatUSD(45000)).toBe('$450.00')
   })
 
   it('formats zero', () => {
-    expect(formatPrice(0)).toBe('C$ 0.00')
+    expect(formatUSD(0)).toBe('$0.00')
+  })
+})
+
+describe('formatPrice', () => {
+  it('is an alias of formatUSD', () => {
+    expect(formatPrice(45000)).toBe('$450.00')
   })
 })
