@@ -273,7 +273,7 @@ export default function ReservationsScreen() {
       }
       ListEmptyComponent={
         <EmptyState
-          message="No hay reservas"
+          message="No has hecho ninguna reserva"
           action={
             <AppButton
               onPress={() => router.push('/(authenticated)/(buyer)/catalog')}

@@ -8,9 +8,9 @@ export const STATUS_LABELS: Record<Reservation['status'], string> = {
 
 export const STATUS_TONES: Record<
   Reservation['status'],
-  'warning' | 'success' | 'muted'
+  'warning' | 'success' | 'destructive'
 > = {
   pending: 'warning',
   confirmed: 'success',
-  cancelled: 'muted',
+  cancelled: 'destructive',
 }

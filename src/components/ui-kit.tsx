@@ -27,7 +27,7 @@ export function AppCard({
   className?: string
 }) {
   return (
-    <View className={`rounded-xl border border-border bg-card p-3 ${className}`}>
+    <View className={`rounded-xl border border-border bg-card p-3 shadow-sm ${className}`}>
       {children}
     </View>
   )
@@ -41,7 +41,7 @@ export function StatCard({
   value: string
 }) {
   return (
-    <View className="flex-1 rounded-xl border border-border bg-card p-3">
+    <View className="flex-1 rounded-xl border border-border bg-card p-3 shadow-sm">
       <Text className="text-sm text-muted-foreground">{label}</Text>
       <Text className="text-lg font-bold text-foreground">{value}</Text>
     </View>
