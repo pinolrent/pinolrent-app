@@ -1,15 +1,11 @@
 import { useState } from 'react'
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native'
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native'
 import { Link } from 'expo-router'
-import { Button, ButtonText } from '../../components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton } from '@/components/ui-kit'
+import { AppInput } from '@/components/fields'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -25,61 +21,47 @@ export default function LoginScreen() {
     : null
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar sesión</Text>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <View className="flex-1 items-end p-4">
+        <ThemeToggle />
+      </View>
+      <View className="flex-1 justify-center gap-3 p-6">
+        <Text className="mb-4 text-2xl font-bold text-foreground">
+          Iniciar sesión
+        </Text>
 
-      <TextInput accessibilityLabel="Email"
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
+        <AppInput
+          label="Email"
+          placeholder="Email"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <TextInput accessibilityLabel="Contraseña"
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#888"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <AppInput
+          label="Contraseña"
+          placeholder="Contraseña"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      {error && <Text style={styles.error}>{error}</Text>}
-
-      <Button variant="default" onPress={onLogin} disabled={login.isPending}>
-        {login.isPending ? (
-          <ActivityIndicator />
-        ) : (
-          <ButtonText>Entrar</ButtonText>
+        {error && (
+          <Text className="text-sm text-destructive">{error}</Text>
         )}
-      </Button>
 
-      <Link href="/register" style={styles.link}>
-        <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
-      </Link>
-    </View>
+        <AppButton onPress={onLogin} disabled={login.isPending}>
+          {login.isPending ? <ActivityIndicator /> : 'Entrar'}
+        </AppButton>
+
+        <Link href="/register" className="mt-3 self-center">
+          <Text className="text-primary">¿No tienes cuenta? Regístrate</Text>
+        </Link>
+      </View>
+    </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    gap: 12,
-  },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#000' },
-  input: {
-    backgroundColor: '#222',
-    color: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  error: { color: '#ff6467', marginBottom: 4 },
-  link: { marginTop: 12, alignSelf: 'center' },
-  linkText: { color: '#3b82f6' },
-})
