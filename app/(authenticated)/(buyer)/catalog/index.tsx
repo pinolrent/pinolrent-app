@@ -13,6 +13,7 @@ import type { CarsListParams } from '@/types/car'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
+import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
@@ -67,8 +68,8 @@ export default function CatalogScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={4} />
       </View>
     )
   }
