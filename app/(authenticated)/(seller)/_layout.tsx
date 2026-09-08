@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
-import { Sidebar, type NavItem } from '@/components/SideNav'
+import { MenuButton, Sidebar, type NavItem } from '@/components/SideNav'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 function TabIcon({
@@ -38,6 +38,11 @@ export default function SellerTabsLayout() {
     <View className="flex-1 flex-row bg-background">
       <Sidebar items={items} />
       <View className="flex-1">
+        {!isDesktop && (
+          <View className="absolute right-4 top-4 z-10">
+            <MenuButton items={items} />
+          </View>
+        )}
         <Tabs
       screenOptions={{
         headerShown: false,
