@@ -71,7 +71,7 @@ export default function ReserveScreen() {
     isValidISODate(endDate) &&
     startDate >= today &&
     endDate >= startDate &&
-    daysBetween(startDate, endDate) <= 30
+    daysBetween(startDate, endDate) < 30
   const previewDays = validRange ? daysBetween(startDate, endDate) + 1 : 0
   const previewTotal = previewDays * car.price_per_day
 
@@ -89,7 +89,7 @@ export default function ReserveScreen() {
       setClientError('La fecha de fin debe ser posterior o igual a la de inicio')
       return
     }
-    if (daysBetween(startDate, endDate) > 30) {
+    if (daysBetween(startDate, endDate) >= 30) {
       setClientError('La reserva no puede superar los 30 días')
       return
     }
