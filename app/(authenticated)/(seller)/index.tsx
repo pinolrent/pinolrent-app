@@ -10,7 +10,7 @@ import { AppButton, FormError, StatCard } from '@/components/ui-kit'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function SellerHomeScreen() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
   const {
     data: cars,
@@ -47,9 +47,6 @@ export default function SellerHomeScreen() {
       0
     )
 
-  const logoutError = logout.isError
-    ? getApiErrorMessage(logout.error, 'Error al cerrar sesión')
-    : null
 
   return (
     <View className="flex-1 gap-3 bg-background p-6">
@@ -103,10 +100,6 @@ export default function SellerHomeScreen() {
         Reservas
       </AppButton>
 
-      <FormError message={logoutError} />
-      <AppButton onPress={() => logout.mutate()} disabled={logout.isPending}>
-        {logout.isPending ? <ActivityIndicator /> : 'Cerrar sesión'}
-      </AppButton>
     </View>
   )
 }
