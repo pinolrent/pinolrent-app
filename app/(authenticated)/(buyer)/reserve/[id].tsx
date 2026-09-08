@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
+import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
@@ -95,6 +96,7 @@ export default function ReserveScreen() {
       { car_id: car.id, start_date: startDate, end_date: endDate },
       {
         onSuccess: (res) => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
           Alert.alert('Reserva creada', `Reserva #${res.id} en estado pendiente`)
           router.replace('/(authenticated)/(buyer)/reservations')
         },
