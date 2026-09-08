@@ -5,7 +5,9 @@ async function me(token: string) {
   return { status: res.status, body: await res.json() }
 }
 
-const EMAIL = `flow_${Date.now()}@example.com`
+const STAMP = Date.now()
+const EMAIL = `flow_${STAMP}@example.com`
+const SELLER_EMAIL = `flow_${STAMP}seller@example.com`
 
 async function main() {
   const stamp = Date.now()
@@ -35,7 +37,7 @@ async function main() {
 
   const regSell = await api('/auth/register/seller', {
     method: 'POST',
-    body: JSON.stringify({ email: `${EMAIL}seller`, password: 'secret123' }),
+    body: JSON.stringify({ email: SELLER_EMAIL, password: 'secret123' }),
   })
   check(
     'register/seller responde 201',

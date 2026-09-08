@@ -213,6 +213,10 @@ async function main() {
     seller.token
   )
   check('PATCH auto ajeno sin reservas -> 404', foreignPatch.status === 404)
+  // Nota: con reservas futuras un PATCH ajeno responde 409 en vez de 404
+  // (el backend chequea futuras antes que dueño). No se testea como 404
+  // hasta que el backend lo corrija. Tampoco existe `payment is not pending`
+  // en docs pero el código lo devuelve: la UI lo trata como 409 genérico.
 
   const buyerWrite = await api(
     '/seller/cars',
