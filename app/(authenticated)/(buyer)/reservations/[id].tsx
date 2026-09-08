@@ -1,11 +1,17 @@
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import { useReservation } from '@/hooks/useReservations'
-import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
+import type { Reservation } from '@/types/reservation'
+import { STATUS_LABELS } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, AppCard, EmptyState } from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
+
+function statusTone(status: Reservation['status']): 'warning' | 'success' | 'muted' {
+  return status === 'pending' ? 'warning' : status === 'confirmed' ? 'success' : 'muted'
+}
 
 export default function ReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -19,7 +25,7 @@ export default function ReservationDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -27,14 +33,14 @@ export default function ReservationDetailScreen() {
 
   if (invalidId || isError || !data) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>
-          {invalidId ? 'ID de reserva inválido' : (errorMessage ?? 'No se encontró la reserva')}
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">
+          {invalidId
+            ? 'ID de reserva inválido'
+            : (errorMessage ?? 'No se encontró la reserva')}
         </Text>
         {!invalidId && (
-          <Button variant="default" onPress={() => refetch()}>
-            <ButtonText>Reintentar</ButtonText>
-          </Button>
+          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
         )}
       </View>
     )
@@ -44,54 +50,45 @@ export default function ReservationDetailScreen() {
   const total = days * data.car.price_per_day
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.title}>{data.car.name}</Text>
-        <Text style={{ color: STATUS_COLORS[data.status] }}>
-          {STATUS_LABELS[data.status]}
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ padding: 16, gap: 12 }}
+    >
+      <AppCard>
+        <View className="flex-row items-center justify-between gap-2">
+          <Text className="flex-1 text-2xl font-bold text-foreground">
+            {data.car.name}
+          </Text>
+          <StatusBadge tone={statusTone(data.status)}>
+            {STATUS_LABELS[data.status]}
+          </StatusBadge>
+        </View>
+        <Text className="text-muted-foreground">
+          {formatDate(data.start_date)} – {formatDate(data.end_date)} ({days}{' '}
+          {days === 1 ? 'día' : 'días'})
         </Text>
-      </View>
-      <Text style={styles.subtitle}>
-        {formatDate(data.start_date)} – {formatDate(data.end_date)} ({days}{' '}
-        {days === 1 ? 'día' : 'días'})
-      </Text>
-      <Text style={styles.cardPrice}>
-        {formatPrice(data.car.price_per_day)} / día · Total {formatPrice(total)}
-      </Text>
-      {data.payment ? (
-        <Text style={styles.subtitle}>
-          Pago: {data.payment.method} · {data.payment.status}
-          {data.payment.proof_url ? ` · ${data.payment.proof_url}` : ''}
+        <Text className="text-sm text-foreground">
+          {formatPrice(data.car.price_per_day)} / día · Total{' '}
+          {formatPrice(total)}
         </Text>
-      ) : (
-        <Text style={styles.subtitle}>Sin pago registrado</Text>
-      )}
-      {data.status === 'pending' && !data.payment && (
-        <Text style={styles.subtitle}>
-          Podés cancelarla desde la lista mientras no tenga pago.
-        </Text>
-      )}
+        {data.payment ? (
+          <Text className="text-muted-foreground">
+            Pago: {data.payment.method} · {data.payment.status}
+            {data.payment.proof_url ? ` · ${data.payment.proof_url}` : ''}
+          </Text>
+        ) : (
+          <Text className="text-muted-foreground">Sin pago registrado</Text>
+        )}
+        {data.status === 'pending' && !data.payment && (
+          <Text className="text-muted-foreground">
+            Puedes cancelarla desde la lista mientras no tenga pago.
+          </Text>
+        )}
+      </AppCard>
     </ScrollView>
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, gap: 8 },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#000' },
-  subtitle: { color: '#aaa' },
-  cardPrice: { fontSize: 14, color: '#444' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-})
+export function ReservationDetailEmpty() {
+  return <EmptyState message="No se encontró la reserva" />
+}
