@@ -2,6 +2,8 @@ import api from './api'
 import type {
   LoginRequest,
   LoginResponse,
+  RefreshRequest,
+  RefreshResponse,
   RegisterRequest,
   RegisterResponse,
   User,
@@ -10,6 +12,9 @@ import type {
 export const authService = {
   login: (data: LoginRequest) =>
     api.post<LoginResponse>('/auth/login', data).then((r) => r.data),
+
+  refresh: (data: RefreshRequest) =>
+    api.post<RefreshResponse>('/auth/refresh', data).then((r) => r.data),
 
   register: (data: RegisterRequest) =>
     api.post<RegisterResponse>('/auth/register', data).then((r) => r.data),

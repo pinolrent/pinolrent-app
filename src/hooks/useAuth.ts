@@ -24,12 +24,15 @@ export function useAuth() {
 
   const login = useMutation({
     mutationFn: async ({ email, password }: LoginInput) => {
-      const { token } = await authService.login({ email, password })
+      const { token, refresh_token } = await authService.login({
+        email,
+        password,
+      })
       const user = await authService.me(token)
-      return { token, user }
+      return { token, refreshToken: refresh_token, user }
     },
-    onSuccess: async ({ token, user }) => {
-      await setAuth(token, user)
+    onSuccess: async ({ token, refreshToken, user }) => {
+      await setAuth(token, refreshToken, user)
       router.replace(
         user.role === 'seller'
           ? '/(authenticated)/(seller)'
@@ -45,12 +48,15 @@ export function useAuth() {
       } else {
         await authService.register({ email, password })
       }
-      const { token } = await authService.login({ email, password })
+      const { token, refresh_token } = await authService.login({
+        email,
+        password,
+      })
       const user = await authService.me(token)
-      return { token, user }
+      return { token, refreshToken: refresh_token, user }
     },
-    onSuccess: async ({ token, user }) => {
-      await setAuth(token, user)
+    onSuccess: async ({ token, refreshToken, user }) => {
+      await setAuth(token, refreshToken, user)
       router.replace(
         user.role === 'seller'
           ? '/(authenticated)/(seller)'
