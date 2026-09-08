@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
-import { Button, ButtonText } from '../../components/ui/button'
+import { View, Text } from 'react-native'
+import { AppButton, EmptyState } from './ui-kit'
 
 interface State {
   error: Error | null
@@ -16,30 +16,21 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     if (this.state.error) {
       return (
-        <View style={styles.center}>
-          <Text style={styles.title}>Algo salió mal</Text>
-          <Text style={styles.subtitle}>Reintentá volviendo a cargar</Text>
-          <Button
-            variant="default"
-            onPress={() => this.setState({ error: null })}
-          >
-            <ButtonText>Reintentar</ButtonText>
-          </Button>
+        <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+          <Text className="text-xl font-bold text-foreground">
+            Algo salió mal
+          </Text>
+          <EmptyState
+            message="Reintenta volviendo a cargar"
+            action={
+              <AppButton onPress={() => this.setState({ error: null })}>
+                Reintentar
+              </AppButton>
+            }
+          />
         </View>
       )
     }
     return this.props.children
   }
 }
-
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#000' },
-  subtitle: { color: '#aaa' },
-})

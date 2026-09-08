@@ -3,21 +3,21 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native'
-import { Alert } from 'react-native'
-import { Button, ButtonText } from '../../../../components/ui/button'
 import {
   useConfirmReservation,
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
-import { STATUS_COLORS, STATUS_LABELS } from '@/constants/reservation-ui'
+import { STATUS_LABELS } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
 
 export default function ReservedScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -39,9 +39,14 @@ export default function ReservedScreen() {
   const canConfirm = (r: Reservation) =>
     r.status === 'pending' && r.payment?.status === 'pending'
 
+  const statusTone = (
+    status: Reservation['status']
+  ): 'warning' | 'success' | 'muted' =>
+    status === 'pending' ? 'warning' : status === 'confirmed' ? 'success' : 'muted'
+
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" />
       </View>
     )
@@ -49,11 +54,9 @@ export default function ReservedScreen() {
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.subtitle}>{errorMessage}</Text>
-        <Button variant="default" onPress={() => refetch()}>
-          <ButtonText>Reintentar</ButtonText>
-        </Button>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text className="text-muted-foreground">{errorMessage}</Text>
+        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
     )
   }
@@ -61,59 +64,59 @@ export default function ReservedScreen() {
   const renderItem = ({ item }: { item: Reservation }) => {
     const confirming = confirmingId === item.id
     return (
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{item.car.name}</Text>
-          <Text style={{ color: STATUS_COLORS[item.status] }}>
-            {STATUS_LABELS[item.status]}
+      <AppCard>
+        <View className="flex-row items-center justify-between gap-2">
+          <Text className="flex-1 text-base font-bold text-foreground">
+            {item.car.name}
           </Text>
+          <StatusBadge tone={statusTone(item.status)}>
+            {STATUS_LABELS[item.status]}
+          </StatusBadge>
         </View>
-        <Text style={styles.subtitle}>
+        <Text className="text-muted-foreground">
           {formatDate(item.start_date)} – {formatDate(item.end_date)}
         </Text>
-        <Text style={styles.cardPrice}>
+        <Text className="text-sm text-foreground">
           {formatPrice(item.car.price_per_day)} / día · Total{' '}
           {formatPrice((daysBetween(item.start_date, item.end_date) + 1) * item.car.price_per_day)}
         </Text>
         {item.payment && (
-          <Text style={styles.subtitle}>
+          <Text className="text-muted-foreground">
             Pago: {item.payment.method} · {item.payment.status}
           </Text>
         )}
         {item.payment?.proof_url ? (
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text className="text-muted-foreground" numberOfLines={1}>
             Comprobante: {item.payment.proof_url}
           </Text>
         ) : null}
         {item.status === 'pending' && !item.payment && (
-          <Text style={styles.subtitle}>
+          <Text className="text-muted-foreground">
             Esperando pago del comprador
           </Text>
         )}
         {canConfirm(item) && (
-          <Button
-            variant="default"
+          <AppButton
             onPress={() => setConfirmingId(confirming ? null : item.id)}
             disabled={confirm.isPending}
           >
-            <ButtonText>Confirmar</ButtonText>
-          </Button>
+            Confirmar
+          </AppButton>
         )}
         {confirming && canConfirm(item) && (
-          <View style={styles.confirmBox}>
+          <View className="mt-1 gap-2">
             {confirm.isPending ? (
               <ActivityIndicator />
             ) : (
               <>
-                <Text style={styles.subtitle}>
+                <Text className="text-muted-foreground">
                   ¿Confirmar la reserva de {item.car.name}?
                 </Text>
-{confirmError && confirmErrorId === item.id && (
-                  <Text style={styles.error}>{confirmError}</Text>
+                {confirmError && confirmErrorId === item.id && (
+                  <FormError message={confirmError} />
                 )}
-                <View style={styles.confirmActions}>
-                  <Button
-                    variant="default"
+                <View className="flex-row items-center gap-2">
+                  <AppButton
                     onPress={() =>
                       confirm.mutate(item.id, {
                         onSuccess: () => {
@@ -126,71 +129,35 @@ export default function ReservedScreen() {
                     }
                     disabled={confirm.isPending}
                   >
-                    <ButtonText>Confirmar</ButtonText>
-                  </Button>
-                  <Button variant="ghost" onPress={() => setConfirmingId(null)}>
-                    <ButtonText>Volver</ButtonText>
-                  </Button>
+                    Confirmar
+                  </AppButton>
+                  <AppButton
+                    variant="ghost"
+                    onPress={() => setConfirmingId(null)}
+                  >
+                    Volver
+                  </AppButton>
                 </View>
               </>
             )}
           </View>
         )}
-      </View>
+      </AppCard>
     )
   }
 
   return (
     <FlatList
-      style={styles.list}
-      contentContainerStyle={styles.listContent}
+      className="flex-1 bg-background"
+      contentContainerStyle={{ padding: 16, gap: 12 }}
       data={data ?? []}
       keyExtractor={(item) => String(item.id)}
       renderItem={renderItem}
       refreshControl={
         <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
       }
-      ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.subtitle}>No hay reservas</Text>
-        </View>
-      }
+      ListEmptyComponent={<EmptyState message="No hay reservas" />}
     />
   )
 }
 
-const styles = StyleSheet.create({
-  list: { flex: 1 },
-  listContent: { padding: 16, gap: 12 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 12,
-    gap: 6,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#000', flex: 1 },
-  cardPrice: { fontSize: 14, color: '#444' },
-  subtitle: { color: '#aaa' },
-  confirmBox: { gap: 8, marginTop: 4 },
-  confirmActions: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  error: { color: '#ff6467' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    padding: 24,
-  },
-})
