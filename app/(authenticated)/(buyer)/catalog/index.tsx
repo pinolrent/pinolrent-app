@@ -6,13 +6,13 @@ import {
   Pressable,
   ActivityIndicator,
   RefreshControl,
-  useWindowDimensions,
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { CarsListParams } from '@/types/car'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
@@ -24,8 +24,7 @@ const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
 export default function CatalogScreen() {
   const router = useRouter()
-  const { width } = useWindowDimensions()
-  const numColumns = width >= 600 ? 2 : 1
+  const { columns: numColumns } = useBreakpoints()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filterError, setFilterError] = useState<string | null>(null)

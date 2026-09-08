@@ -5,7 +5,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  useWindowDimensions,
 } from 'react-native'
 import {
   useCreateSellerCar,
@@ -15,6 +14,7 @@ import {
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
@@ -28,8 +28,7 @@ function specificToggleError(err: unknown) {
 }
 
 export default function SellerCarsScreen() {
-  const { width } = useWindowDimensions()
-  const numColumns = width >= 600 ? 2 : 1
+  const { columns: numColumns } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
