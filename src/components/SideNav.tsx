@@ -12,6 +12,12 @@ export interface NavItem {
   icon: keyof typeof NAV_ICONS
 }
 
+function isActive(pathname: string, href: string) {
+  const tail = href.split('/').pop() ?? href
+  if (!tail || tail.startsWith('(')) return pathname === '/' || pathname === ''
+  return pathname === `/${tail}` || pathname.startsWith(`/${tail}/`)
+}
+
 export function Sidebar({ items }: { items: NavItem[] }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -20,10 +26,10 @@ export function Sidebar({ items }: { items: NavItem[] }) {
   if (!isDesktop) return null
 
   return (
-    <View className="w-60 gap-1 border-l border-border bg-card p-4">
+    <View className="w-60 gap-1 border-r border-border bg-card p-4">
       {items.map((item) => {
         const Icon = NAV_ICONS[item.icon]
-        const active = pathname.startsWith(item.href)
+        const active = isActive(pathname, item.href)
         return (
           <Pressable
             key={item.href}
@@ -97,7 +103,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
             </Pressable>
             {items.map((item) => {
               const Icon = NAV_ICONS[item.icon]
-              const active = pathname.startsWith(item.href)
+              const active = isActive(pathname, item.href)
               return (
                 <Pressable
                   key={item.href}
