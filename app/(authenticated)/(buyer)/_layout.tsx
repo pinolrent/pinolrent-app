@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
+import { Sidebar, type NavItem } from '@/components/SideNav'
 
 function tabIcon(
   Icon: (typeof NAV_ICONS)[keyof typeof NAV_ICONS],
@@ -26,8 +27,12 @@ export default function BuyerTabsLayout() {
     )
   }
 
+  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(buyer)", icon: "home" }, { label: "Catálogo", href: "/(authenticated)/(buyer)/catalog", icon: "catalog" }, { label: "Reservas", href: "/(authenticated)/(buyer)/reservations", icon: "reservations" }]
+
   return (
-    <Tabs
+    <View className="flex-1 flex-row bg-background">
+      <View className="flex-1">
+        <Tabs
       initialRouteName="catalog"
       screenOptions={{
         headerShown: false,
@@ -79,6 +84,9 @@ export default function BuyerTabsLayout() {
           }}
         />
       </Tabs.Protected>
-    </Tabs>
+        </Tabs>
+      </View>
+      <Sidebar items={items} />
+    </View>
   )
 }
