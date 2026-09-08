@@ -14,6 +14,7 @@ import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
@@ -114,6 +115,7 @@ export default function ReserveScreen() {
         className="flex-1 bg-background"
         contentContainerStyle={{ padding: 24, gap: 12 }}
       >
+        <AppBackButton />
         <Text className="text-2xl font-bold text-foreground">
           Reservar {car.name}
         </Text>

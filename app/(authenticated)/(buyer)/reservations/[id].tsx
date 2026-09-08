@@ -5,6 +5,7 @@ import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, AppCard, EmptyState } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 
@@ -50,6 +51,7 @@ export default function ReservationDetailScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
     >
+        <AppBackButton />
       <AppCard>
         <View className="flex-row items-center justify-between gap-2">
           <Text className="flex-1 text-2xl font-bold text-foreground">

@@ -4,6 +4,7 @@ import { useCar } from '@/hooks/useCars'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
+import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, EmptyState } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 
@@ -46,6 +47,7 @@ export default function CarDetailScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
     >
+        <AppBackButton />
       <CarImage uri={car.photo_url} name={car.name} />
       <View className="flex-row items-center justify-between gap-2">
         <Text className="mt-2 flex-1 text-2xl font-bold text-foreground">
