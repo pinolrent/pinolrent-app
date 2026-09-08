@@ -35,7 +35,7 @@ export default function RootLayout() {
         Uniwind.updateInsets(insets)
       }}
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#0B1220' : '#FFFFFF' }}>
         <QueryClientProvider client={queryClient}>
           <GluestackUIProvider mode={theme}>
             <StatusBar style="auto" />
