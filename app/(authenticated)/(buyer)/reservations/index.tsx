@@ -140,7 +140,7 @@ export default function ReservationsScreen() {
         </Text>
         <Text className="text-sm text-foreground">
           {formatPrice(item.car.price_per_day)} / día · Total{' '}
-          {formatPrice((daysBetween(item.start_date, item.end_date) + 1) * item.car.price_per_day)}
+          {formatPrice(daysBetween(item.start_date, item.end_date) * item.car.price_per_day)}
         </Text>
         {item.payment && (
           <Text className="text-muted-foreground">

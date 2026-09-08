@@ -43,7 +43,7 @@ export default function SellerHomeScreen() {
     .filter((r) => r.status === 'confirmed')
     .reduce(
       (acc, r) =>
-        acc + (daysBetween(r.start_date, r.end_date) + 1) * r.car.price_per_day,
+        acc + daysBetween(r.start_date, r.end_date) * r.car.price_per_day,
       0
     )
 

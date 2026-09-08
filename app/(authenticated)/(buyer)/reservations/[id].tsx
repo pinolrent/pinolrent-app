@@ -44,7 +44,7 @@ export default function ReservationDetailScreen() {
     )
   }
 
-  const days = daysBetween(data.start_date, data.end_date) + 1
+  const days = daysBetween(data.start_date, data.end_date)
   const total = days * data.car.price_per_day
 
   return (
