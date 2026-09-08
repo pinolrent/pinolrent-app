@@ -20,6 +20,7 @@ export default function BuyerTabsLayout() {
   const token = useAuthStore((s) => s.token)
   const user = useAuthStore((s) => s.user)
   const isLoaded = useAuthStore((s) => s.isLoaded)
+  const { isDesktop } = useBreakpoints()
   const theme = useThemeStore((s) => s.theme)
   const dark = theme === 'dark'
 
@@ -32,8 +33,6 @@ export default function BuyerTabsLayout() {
   }
 
   const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(buyer)", icon: "home" }, { label: "Catálogo", href: "/(authenticated)/(buyer)/catalog", icon: "catalog" }, { label: "Reservas", href: "/(authenticated)/(buyer)/reservations", icon: "reservations" }]
-
-  const { isDesktop } = useBreakpoints()
 
   return (
     <View className="flex-1 flex-row bg-background">
