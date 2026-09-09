@@ -38,6 +38,11 @@ export default function BuyerTabsLayout() {
     <View className="flex-1 flex-row bg-background">
       <Sidebar items={items} />
       <View className="flex-1">
+        {!isDesktop && (
+          <View className="z-10 mb-3">
+            <MenuButton items={items} />
+          </View>
+        )}
         <Tabs
       screenOptions={{
         headerShown: false,
@@ -98,11 +103,6 @@ export default function BuyerTabsLayout() {
         />
       </Tabs.Protected>
         </Tabs>
-        {!isDesktop && (
-          <View className="z-10 mb-3">
-            <MenuButton items={items} />
-          </View>
-        )}
       </View>
     </View>
   )
