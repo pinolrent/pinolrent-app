@@ -14,7 +14,7 @@ export function AppInput({
   return (
     <View className="gap-1">
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Input className="rounded-lg border-border bg-card">
+      <Input className="rounded-lg border border-border bg-card shadow-sm">
         <InputField
           accessibilityLabel={label}
           placeholderTextColor="#64748B"
