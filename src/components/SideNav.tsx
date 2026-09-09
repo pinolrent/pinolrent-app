@@ -121,11 +121,12 @@ export function MenuButton({ items }: { items: NavItem[] }) {
         <MenuIcon size={20} color={theme === 'dark' ? '#E2E8F0' : '#0F172A'} />
       </Pressable>
       <Modal visible={open} transparent animationType="fade">
-        <Pressable
-          className="flex-1 bg-overlay opacity-50"
-          onPress={() => setOpen(false)}
-        >
-          <View className="ml-auto h-full w-64 gap-1 bg-card p-4">
+        <View className="flex-1">
+          <Pressable
+            className="absolute inset-0 bg-overlay opacity-70"
+            onPress={() => setOpen(false)}
+          />
+          <View className="mr-auto h-full w-64 gap-1 border-r border-border bg-card p-4">
             <View className="mb-2 flex-row items-center gap-2">
               <Image
                 source={LOGO}
@@ -180,7 +181,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
             })}
             <SidebarFooter />
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </>
   )
