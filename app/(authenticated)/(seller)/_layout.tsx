@@ -78,7 +78,7 @@ export default function SellerTabsLayout() {
       </Tabs.Protected>
         </Tabs>
         {!isDesktop && (
-          <View className="absolute left-4 top-4 z-10">
+          <View className="z-10 mb-3">
             <MenuButton items={items} />
           </View>
         )}
