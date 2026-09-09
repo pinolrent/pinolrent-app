@@ -38,11 +38,6 @@ export default function SellerTabsLayout() {
     <View className="flex-1 flex-row bg-background">
       <Sidebar items={items} />
       <View className="flex-1">
-        {!isDesktop && (
-          <View className="absolute right-4 top-4 z-10">
-            <MenuButton items={items} />
-          </View>
-        )}
         <Tabs
       screenOptions={{
         headerShown: false,
@@ -83,7 +78,7 @@ export default function SellerTabsLayout() {
       </Tabs.Protected>
         </Tabs>
         {!isDesktop && (
-          <View className="absolute right-4 top-4 z-10">
+          <View className="absolute left-4 top-4 z-10">
             <MenuButton items={items} />
           </View>
         )}
