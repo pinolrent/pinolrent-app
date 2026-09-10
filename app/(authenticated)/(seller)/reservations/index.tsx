@@ -19,6 +19,7 @@ import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { SkeletonList } from '@/components/Skeleton'
 
 export default function ReservedScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -43,15 +44,15 @@ export default function ReservedScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={4} />
       </View>
     )
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">{errorMessage}</Text>
         <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>

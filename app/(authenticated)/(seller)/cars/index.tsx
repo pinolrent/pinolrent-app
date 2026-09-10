@@ -17,6 +17,7 @@ import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
+import { SkeletonList } from '@/components/Skeleton'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 
@@ -56,15 +57,15 @@ export default function SellerCarsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={4} />
       </View>
     )
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">{errorMessage}</Text>
         <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
