@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
 } from 'react-native'
+import { SkeletonList } from '@/components/Skeleton'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
 import * as Haptics from 'expo-haptics'
@@ -44,15 +45,15 @@ export default function ReserveScreen() {
 
   if (carLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={2} />
       </View>
     )
   }
 
   if (invalidId || !car) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">
           {invalidId ? 'ID de auto inválido' : (carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto')}
         </Text>
@@ -115,7 +116,7 @@ export default function ReserveScreen() {
     >
       <ScrollView
         className="flex-1 bg-background"
-        contentContainerStyle={{ padding: 24, gap: 12 }}
+        contentContainerStyle={{ padding: 16, gap: 12 }}
       >
         <AppBackButton />
         <Text className="text-2xl font-bold text-foreground">

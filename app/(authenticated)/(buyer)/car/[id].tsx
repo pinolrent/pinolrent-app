@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
+import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
@@ -22,15 +23,15 @@ export default function CarDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={2} />
       </View>
     )
   }
 
   if (invalidId || isError || !car) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">
           {invalidId
             ? 'ID de auto inválido'

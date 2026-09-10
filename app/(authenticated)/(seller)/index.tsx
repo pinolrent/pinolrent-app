@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator } from 'react-native'
+import { View, Text } from 'react-native'
+import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
 import { useSellerCars } from '@/hooks/useSellerCars'
@@ -58,7 +59,7 @@ export default function SellerHomeScreen() {
   ]
 
   return (
-    <View className="flex-1 gap-3 bg-background p-6">
+    <View className="flex-1 gap-3 bg-background p-4">
       <View className="flex-row items-center justify-between">
         <Text className="text-2xl font-bold text-foreground">
           Panel de vendedor
@@ -68,7 +69,7 @@ export default function SellerHomeScreen() {
       <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {carsLoading || resLoading ? (
-        <ActivityIndicator />
+        <SkeletonList count={2} />
       ) : loadError ? (
         <View className="gap-2">
           <FormError message={loadError} />
