@@ -13,6 +13,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
     return { error }
   }
 
+  componentDidCatch(error: Error) {
+    if (__DEV__) {
+      console.error('[ErrorBoundary]', error)
+    }
+  }
+
   render() {
     if (this.state.error) {
       return (

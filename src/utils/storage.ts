@@ -18,7 +18,11 @@ export const storage = {
         return null
       }
     }
-    return SecureStore.getItemAsync(key)
+    try {
+      return await SecureStore.getItemAsync(key)
+    } catch {
+      return null
+    }
   },
   async setItem(key: string, value: string): Promise<void> {
     if (Platform.OS === 'web') {
@@ -29,7 +33,11 @@ export const storage = {
       }
       return
     }
-    await SecureStore.setItemAsync(key, value)
+    try {
+      await SecureStore.setItemAsync(key, value)
+    } catch {
+      // keychain locked/full: keep session in memory only
+    }
   },
   async removeItem(key: string): Promise<void> {
     if (Platform.OS === 'web') {
@@ -40,6 +48,10 @@ export const storage = {
       }
       return
     }
-    await SecureStore.deleteItemAsync(key)
+    try {
+      await SecureStore.deleteItemAsync(key)
+    } catch {
+      // ignore
+    }
   },
 }

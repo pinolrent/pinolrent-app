@@ -29,7 +29,12 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   },
 
   loadTheme: async () => {
-    const saved = await storage.getItem(THEME_KEY)
+    let saved: string | null = null
+    try {
+      saved = await storage.getItem(THEME_KEY)
+    } catch {
+      saved = null
+    }
     const theme: ThemeMode = saved === 'dark' ? 'dark' : 'light'
     Uniwind.setTheme(theme)
     set({ theme, isLoaded: true })

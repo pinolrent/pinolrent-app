@@ -17,7 +17,7 @@ import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import type { Payment } from '@/types/payment'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
-import { getApiErrorMessage } from '@/utils/errors'
+import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 
@@ -85,15 +85,13 @@ export default function ReservationsScreen() {
 
   const submitPayment = (id: number) => {
     const proof = payProofUrl.trim()
-    if (proof.length > 0) {
-      if (proof.length > 2048) {
-        setPayClientError('proof_url es demasiado largo')
-        return
-      }
-      if (!/^https?:\/\/.+/i.test(proof)) {
-        setPayClientError('proof_url inválido')
-        return
-      }
+    if (proof.length > 0 && !isHttpUrl(proof)) {
+      setPayClientError(
+        proof.length > 2048
+          ? 'proof_url es demasiado largo'
+          : 'proof_url inválido'
+      )
+      return
     }
     setPayClientError(null)
     pay.mutate(
