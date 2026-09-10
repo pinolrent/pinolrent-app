@@ -83,7 +83,7 @@ export function useAuth() {
     user,
     token,
     isLoaded,
-    isAuthenticated: !!token,
+    isAuthenticated: !!token && !!user,
     login,
     register,
     logout,
