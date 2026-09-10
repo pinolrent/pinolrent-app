@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native'
+import { useState } from 'react'
+import { View, Text, ScrollView, RefreshControl } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
@@ -9,13 +10,21 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, AppCard, EmptyState } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { SkeletonList } from '@/components/Skeleton'
+import {
+  CancelReservationBlock,
+  PayReservationBlock,
+  PaymentSummary,
+} from '@/components/ReservationActions'
 
 
 export default function ReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { data, isLoading, isError, error, refetch } = useReservation(idNum)
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useReservation(idNum)
+  const [paidMessage, setPaidMessage] = useState<string | null>(null)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar la reserva')
@@ -23,15 +32,15 @@ export default function ReservationDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={2} />
       </View>
     )
   }
 
   if (invalidId || isError || !data) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">
           {invalidId
             ? 'ID de reserva inválido'
@@ -52,6 +61,9 @@ export default function ReservationDetailScreen() {
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
+      refreshControl={
+        <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+      }
     >
         <AppBackButton />
       <AppCard>
@@ -72,24 +84,23 @@ export default function ReservationDetailScreen() {
           {formatPrice(total)}
         </Text>
         {data.payment ? (
-          <Text className="text-muted-foreground">
-            Pago: {data.payment.method} · {data.payment.status}
-            {data.payment.proof_url ? ` · ${data.payment.proof_url}` : ''}
-          </Text>
+          <PaymentSummary payment={data.payment} />
         ) : (
           <Text className="text-muted-foreground">Sin pago registrado</Text>
         )}
-        {data.status === 'pending' && !data.payment && (
-          <Text className="text-muted-foreground">
-            Puedes cancelarla desde la lista mientras no tenga pago.
-          </Text>
+        {paidMessage && (
+          <Text className="text-sm text-foreground">{paidMessage}</Text>
         )}
+        <PayReservationBlock
+          reservation={data}
+          onPaid={() => {
+            setPaidMessage('Pago registrado, queda pendiente de confirmación')
+            refetch()
+          }}
+        />
+        <CancelReservationBlock reservation={data} />
       </AppCard>
     </ScrollView>
     </Animated.View>
   )
-}
-
-export function ReservationDetailEmpty() {
-  return <EmptyState message="No se encontró la reserva" />
 }
