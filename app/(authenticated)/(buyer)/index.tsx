@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMyReservations } from '@/hooks/useReservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError, StatCard } from '@/components/ui-kit'
+import { MenuButton, type NavItem } from '@/components/SideNav'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function BuyerHomeScreen() {
   const { user } = useAuth()
@@ -19,11 +21,22 @@ export default function BuyerHomeScreen() {
   const confirmed = data?.filter((r) => r.status === 'confirmed').length ?? 0
 
 
+  const { isDesktop } = useBreakpoints()
+
+  const items: NavItem[] = [
+    { label: 'Inicio', href: '/(authenticated)/(buyer)', icon: 'home' },
+    { label: 'Catálogo', href: '/(authenticated)/(buyer)/catalog', icon: 'catalog' },
+    { label: 'Reservas', href: '/(authenticated)/(buyer)/reservations', icon: 'reservations' },
+  ]
+
   return (
     <View className="flex-1 gap-3 bg-background p-6">
-      <Text className="text-2xl font-bold text-foreground">
-        Panel de comprador
-      </Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="text-2xl font-bold text-foreground">
+          Panel de comprador
+        </Text>
+        {!isDesktop && <MenuButton items={items} />}
+      </View>
       <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {isLoading ? (

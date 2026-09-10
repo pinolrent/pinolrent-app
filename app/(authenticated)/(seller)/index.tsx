@@ -7,6 +7,8 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError, StatCard } from '@/components/ui-kit'
+import { MenuButton, type NavItem } from '@/components/SideNav'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerHomeScreen() {
   const { user } = useAuth()
@@ -47,11 +49,22 @@ export default function SellerHomeScreen() {
     )
 
 
+  const { isDesktop } = useBreakpoints()
+
+  const items: NavItem[] = [
+    { label: 'Inicio', href: '/(authenticated)/(seller)', icon: 'home' },
+    { label: 'Mis autos', href: '/(authenticated)/(seller)/cars', icon: 'cars' },
+    { label: 'Reservas', href: '/(authenticated)/(seller)/reservations', icon: 'reservations' },
+  ]
+
   return (
     <View className="flex-1 gap-3 bg-background p-6">
-      <Text className="text-2xl font-bold text-foreground">
-        Panel de vendedor
-      </Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="text-2xl font-bold text-foreground">
+          Panel de vendedor
+        </Text>
+        {!isDesktop && <MenuButton items={items} />}
+      </View>
       <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {carsLoading || resLoading ? (
