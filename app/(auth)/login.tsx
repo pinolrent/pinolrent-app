@@ -2,13 +2,18 @@ import { useState } from 'react'
 import {
   ActivityIndicator,
   ImageBackground,
+  Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
-import { getApiErrorMessage } from '@/utils/errors'
+import {
+  getApiErrorMessage,
+  validateEmail,
+  validatePassword,
+} from '@/utils/errors'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
@@ -17,10 +22,21 @@ const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [clientErrors, setClientErrors] = useState<{
+    email?: string | null
+    password?: string | null
+  }>({})
   const { login } = useAuth()
 
   const onLogin = () => {
-    login.mutate({ email, password })
+    const trimmedEmail = email.trim()
+    const emailError = validateEmail(trimmedEmail)
+    const passwordError = validatePassword(password)
+    setClientErrors({ email: emailError, password: passwordError })
+    if (emailError || passwordError) return
+    setEmail(trimmedEmail)
+    login.mutate({ email: trimmedEmail, password })
   }
 
   const error = login.isError
@@ -57,15 +73,26 @@ export default function LoginScreen() {
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
+              error={clientErrors.email}
             />
 
             <AppInput
               label="Contraseña"
               placeholder="Contraseña"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              error={clientErrors.password}
             />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setShowPassword((v) => !v)}
+              className="self-end"
+            >
+              <Text className="text-sm text-primary">
+                {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              </Text>
+            </Pressable>
 
             {error && (
               <Text className="text-center text-sm text-destructive">
@@ -77,7 +104,7 @@ export default function LoginScreen() {
               {login.isPending ? <ActivityIndicator /> : 'Entrar'}
             </AppButton>
 
-            <Link href="/register" className="mt-1 self-center">
+            <Link href="/(auth)/register" className="mt-1 self-center">
               <Text className="text-primary">
                 ¿No tienes cuenta? Regístrate
               </Text>
