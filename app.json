@@ -7,6 +7,11 @@
     "orientation": "default",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
@@ -20,7 +25,8 @@
         "backgroundColor": "#1D4ED8",
         "foregroundImage": "./src/assets/adaptive-icon.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./src/assets/favicon.png"

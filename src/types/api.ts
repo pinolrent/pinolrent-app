@@ -1,3 +1,5 @@
 export interface ApiError {
-  error: string
+  error?: string
+  message?: string
+  errors?: (string | { message?: string })[] | Record<string, string[]>
 }

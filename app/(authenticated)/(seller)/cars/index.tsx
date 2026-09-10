@@ -13,7 +13,7 @@ import {
 } from '@/hooks/useSellerCars'
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
-import { getApiErrorMessage } from '@/utils/errors'
+import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
@@ -87,7 +87,7 @@ export default function SellerCarsScreen() {
         setClientError('photo_url es demasiado largo')
         return
       }
-      if (!/^https?:\/\/.+/i.test(trimmedPhoto)) {
+      if (!isHttpUrl(trimmedPhoto)) {
         setClientError('photo_url inválido')
         return
       }

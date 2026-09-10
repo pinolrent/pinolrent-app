@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth.store'
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
 })
 
 api.interceptors.request.use((config) => {
@@ -57,9 +58,13 @@ api.interceptors.response.use(
         await refreshOnce()
         config.headers.Authorization = `Bearer ${useAuthStore.getState().token}`
         return api(config)
-      } catch {
+      } catch (refreshError) {
         await useAuthStore.getState().clearAuth()
         router.replace('/(auth)/login')
+        if (refreshError instanceof Error && refreshError.message === 'no refresh token') {
+          return Promise.reject(error)
+        }
+        return Promise.reject(refreshError)
       }
     } else if (error.response?.status === 401) {
       const url = error.config?.url ?? ''
