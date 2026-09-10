@@ -15,6 +15,14 @@ export function validatePassword(value: string): string | null {
   return null
 }
 
+const HTTP_URL_RE = /^https?:\/\/.+/i
+
+export function isHttpUrl(value: string): boolean {
+  const trimmed = value.trim()
+  if (!trimmed || trimmed.length > 2048) return false
+  return HTTP_URL_RE.test(trimmed)
+}
+
 export function getApiErrorMessage(err: unknown, fallback: string): string {
   if (axios.isAxiosError<ApiError>(err)) {
     return err.response?.data?.error || err.message || fallback

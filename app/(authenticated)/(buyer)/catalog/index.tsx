@@ -17,12 +17,11 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
+import { isValidISODate } from '@/utils/dates'
 import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
 const PAGE_SIZE = 10
-
-const ISO_RE = /^\d{4}-\d{2}-\d{2}$/
 
 export default function CatalogScreen() {
   const router = useRouter()
@@ -39,8 +38,8 @@ export default function CatalogScreen() {
   const applyFilters = () => {
     const start = startDate.trim()
     const end = endDate.trim()
-    if ((start && !ISO_RE.test(start)) || (end && !ISO_RE.test(end))) {
-      setFilterError('Formato inválido, esperado YYYY-MM-DD')
+    if ((start && !isValidISODate(start)) || (end && !isValidISODate(end))) {
+      setFilterError('Fecha inválida, usa un día real con formato YYYY-MM-DD')
       return
     }
     if ((start && !end) || (!start && end)) {
