@@ -8,7 +8,7 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
-import { AppButton, AppCard, EmptyState } from '@/components/ui-kit'
+import { AppButton, AppCard } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import {
