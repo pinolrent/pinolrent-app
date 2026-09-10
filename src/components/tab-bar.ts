@@ -1,6 +1,5 @@
-export function tabBarOptions(dark: boolean) {
+export function tabBarColors(dark: boolean) {
   return {
-    headerShown: false,
     tabBarStyle: {
       backgroundColor: dark ? '#111C33' : '#FFFFFF',
       borderTopColor: dark ? '#243352' : '#E2E8F0',

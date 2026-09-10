@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   View,
   Text,
@@ -82,7 +82,8 @@ export default function CatalogScreen() {
     )
   }
 
-  const renderItem = ({ item, index }: { item: Car; index: number }) => (
+  const renderItem = useCallback(
+    ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
     <Pressable
       accessibilityRole="button"
@@ -102,6 +103,8 @@ export default function CatalogScreen() {
       </View>
     </Pressable>
     </StaggerCard>
+  ),
+    [numColumns, router]
   )
 
   return (
