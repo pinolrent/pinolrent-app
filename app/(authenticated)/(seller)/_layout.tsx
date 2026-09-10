@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
+import { tabBarColors } from '@/components/tab-bar'
 import { Sidebar, type NavItem } from '@/components/SideNav'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -41,14 +42,9 @@ export default function SellerTabsLayout() {
         <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: isDesktop
-          ? { display: 'none' }
-          : {
-              backgroundColor: dark ? '#111C33' : '#FFFFFF',
-              borderTopColor: dark ? '#243352' : '#E2E8F0',
-            },
-        tabBarActiveTintColor: dark ? '#60A5FA' : '#1D4ED8',
-        tabBarInactiveTintColor: dark ? '#94A3B8' : '#64748B',
+        ...(isDesktop
+          ? { tabBarStyle: { display: 'none' } }
+          : tabBarColors(dark)),
       }}
     >
       <Tabs.Protected guard={!!token && user?.role === 'seller'}>

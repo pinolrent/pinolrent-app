@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   View,
   Text,
@@ -136,7 +136,8 @@ export default function SellerCarsScreen() {
     )
   }
 
-  const renderItem = ({ item, index }: { item: Car; index: number }) => (
+  const renderItem = useCallback(
+    ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
     <AppCard className={numColumns > 1 ? 'flex-1' : undefined}>
       <CarImage uri={item.photo_url} name={item.name} />
@@ -164,6 +165,8 @@ export default function SellerCarsScreen() {
       )}
     </AppCard>
     </StaggerCard>
+  ),
+    [numColumns, onToggle, togglingRowId, toggleCar.isPending]
   )
 
   return (

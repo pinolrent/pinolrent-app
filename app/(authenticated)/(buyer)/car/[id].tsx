@@ -7,7 +7,7 @@ import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
-import { AppButton, EmptyState } from '@/components/ui-kit'
+import { AppButton } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 
 export default function CarDetailScreen() {
@@ -73,6 +73,3 @@ export default function CarDetailScreen() {
   )
 }
 
-export function CarDetailEmpty() {
-  return <EmptyState message="No se encontró el auto" />
-}
