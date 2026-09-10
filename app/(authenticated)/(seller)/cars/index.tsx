@@ -17,6 +17,7 @@ import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
+import { SkeletonList } from '@/components/Skeleton'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 
@@ -56,15 +57,15 @@ export default function SellerCarsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={4} />
       </View>
     )
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">{errorMessage}</Text>
         <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
@@ -94,11 +95,12 @@ export default function SellerCarsScreen() {
     }
     let price: number | undefined
     if (priceText.trim().length > 0) {
-      price = Number(priceText.trim())
-      if (!Number.isInteger(price) || price < 0 || price > 100_000_000) {
-        setClientError('price_per_day debe ser entero entre 0 y 100000000')
+      const dollars = Number(priceText.trim().replace(',', '.'))
+      if (!Number.isFinite(dollars) || dollars < 0 || dollars > 1_000_000) {
+        setClientError('Precio inválido, usa dólares entre 0 y 1000000')
         return
       }
+      price = Math.round(dollars * 100)
     }
     setClientError(null)
     createCar.mutate(
@@ -192,9 +194,9 @@ export default function SellerCarsScreen() {
             onChangeText={setPhotoUrl}
           />
           <AppInput
-            label="Precio"
-            placeholder="price_per_day en centavos (opcional)"
-            keyboardType="numeric"
+            label="Precio por día (USD)"
+            placeholder="Ej. 45.00 (se guarda en centavos)"
+            keyboardType="decimal-pad"
             value={priceText}
             onChangeText={setPriceText}
           />

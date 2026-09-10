@@ -35,14 +35,14 @@ export function StatusBadge({
   children: ReactNode
 }) {
   const tones = {
-    warning: 'bg-tint-warning text-warning',
-    success: 'bg-tint-success text-success',
-    muted: 'bg-muted text-muted-foreground',
-    destructive: 'bg-tint-destructive text-destructive',
+    warning: { bg: 'bg-tint-warning', text: 'text-warning' },
+    success: { bg: 'bg-tint-success', text: 'text-success' },
+    muted: { bg: 'bg-muted', text: 'text-muted-foreground' },
+    destructive: { bg: 'bg-tint-destructive', text: 'text-destructive' },
   } as const
   return (
-    <View className="rounded-full px-2 py-0.5">
-      <Text className={`text-xs font-semibold ${tones[tone]}`}>{children}</Text>
+    <View className={`rounded-full px-2 py-0.5 ${tones[tone].bg}`}>
+      <Text className={`text-xs font-semibold ${tones[tone].text}`}>{children}</Text>
     </View>
   )
 }

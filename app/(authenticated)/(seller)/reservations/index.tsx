@@ -16,9 +16,15 @@ import type { Reservation } from '@/types/reservation'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
-import { getApiErrorMessage } from '@/utils/errors'
+import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS,
+} from '@/constants/payment-ui'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { Linking, Pressable } from 'react-native'
 import { StatusBadge } from '@/components/fields'
+import { SkeletonList } from '@/components/Skeleton'
 
 export default function ReservedScreen() {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -43,15 +49,15 @@ export default function ReservedScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={4} />
       </View>
     )
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">{errorMessage}</Text>
         <AppButton onPress={() => refetch()}>Reintentar</AppButton>
       </View>
@@ -79,13 +85,19 @@ export default function ReservedScreen() {
         </Text>
         {item.payment && (
           <Text className="text-muted-foreground">
-            Pago: {item.payment.method} · {item.payment.status}
+            Pago: {PAYMENT_METHOD_LABELS[item.payment.method]} ·{' '}
+            {PAYMENT_STATUS_LABELS[item.payment.status]}
           </Text>
         )}
-        {item.payment?.proof_url ? (
-          <Text className="text-muted-foreground" numberOfLines={1}>
-            Comprobante: {item.payment.proof_url}
-          </Text>
+        {item.payment?.proof_url && isHttpUrl(item.payment.proof_url) ? (
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(item.payment!.proof_url!.trim())}
+          >
+            <Text className="text-sm text-primary" numberOfLines={1} ellipsizeMode="middle">
+              Ver comprobante
+            </Text>
+          </Pressable>
         ) : null}
         {item.status === 'pending' && !item.payment && (
           <Text className="text-muted-foreground">

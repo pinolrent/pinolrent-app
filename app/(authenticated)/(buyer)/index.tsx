@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator } from 'react-native'
+import { View, Text } from 'react-native'
+import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
 import { useMyReservations } from '@/hooks/useReservations'
@@ -30,7 +31,7 @@ export default function BuyerHomeScreen() {
   ]
 
   return (
-    <View className="flex-1 gap-3 bg-background p-6">
+    <View className="flex-1 gap-3 bg-background p-4">
       <View className="flex-row items-center justify-between">
         <Text className="text-2xl font-bold text-foreground">
           Panel de comprador
@@ -40,7 +41,7 @@ export default function BuyerHomeScreen() {
       <Text className="text-muted-foreground">Hola, {user?.email}</Text>
 
       {isLoading ? (
-        <ActivityIndicator />
+        <SkeletonList count={2} />
       ) : loadError ? (
         <View className="gap-2">
           <FormError message={loadError} />

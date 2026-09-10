@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
 } from 'react-native'
+import { SkeletonList } from '@/components/Skeleton'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
 import * as Haptics from 'expo-haptics'
@@ -17,7 +18,7 @@ import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
-import { AppInput } from '@/components/fields'
+import { DateField } from '@/components/DateField'
 
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -44,15 +45,15 @@ export default function ReserveScreen() {
 
   if (carLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
+      <View className="flex-1 bg-background">
+        <SkeletonList count={2} />
       </View>
     )
   }
 
   if (invalidId || !car) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
         <Text className="text-muted-foreground">
           {invalidId ? 'ID de auto inválido' : (carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto')}
         </Text>
@@ -77,7 +78,7 @@ export default function ReserveScreen() {
   const onSubmit = () => {
     setClientError(null)
     if (!isValidISODate(startDate) || !isValidISODate(endDate)) {
-      setClientError('Formato inválido, esperado YYYY-MM-DD')
+      setClientError('Selecciona fechas válidas en el calendario')
       return
     }
     if (startDate < today) {
@@ -115,7 +116,7 @@ export default function ReserveScreen() {
     >
       <ScrollView
         className="flex-1 bg-background"
-        contentContainerStyle={{ padding: 24, gap: 12 }}
+        contentContainerStyle={{ padding: 16, gap: 12 }}
       >
         <AppBackButton />
         <Text className="text-2xl font-bold text-foreground">
@@ -133,24 +134,18 @@ export default function ReserveScreen() {
           </AppCard>
         )}
 
-        <AppInput
+        <DateField
           label="Fecha inicio"
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
-          autoCorrect={false}
-          maxLength={10}
           value={startDate}
-          onChangeText={editStart}
+          onChange={editStart}
+          minimumDate={new Date()}
         />
 
-        <AppInput
+        <DateField
           label="Fecha fin"
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
-          autoCorrect={false}
-          maxLength={10}
           value={endDate}
-          onChangeText={editEnd}
+          onChange={editEnd}
+          minimumDate={new Date(Date.now() + 86400000)}
         />
 
         <FormError message={clientError ?? serverError} />
