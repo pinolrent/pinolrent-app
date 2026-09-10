@@ -41,7 +41,7 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#0B1220' : '#FFFFFF' }}>
         <QueryClientProvider client={queryClient}>
           <GluestackUIProvider mode={theme}>
-            <StatusBar style="auto" />
+            <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             <ErrorBoundary>
               <Slot />
             </ErrorBoundary>
