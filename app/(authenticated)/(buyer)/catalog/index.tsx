@@ -19,7 +19,7 @@ import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { isValidISODate } from '@/utils/dates'
 import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
-import { AppInput } from '@/components/fields'
+import { DateField } from '@/components/DateField'
 
 const PAGE_SIZE = 10
 
@@ -39,7 +39,7 @@ export default function CatalogScreen() {
     const start = startDate.trim()
     const end = endDate.trim()
     if ((start && !isValidISODate(start)) || (end && !isValidISODate(end))) {
-      setFilterError('Fecha inválida, usa un día real con formato YYYY-MM-DD')
+      setFilterError('Selecciona fechas válidas en el calendario')
       return
     }
     if ((start && !end) || (!start && end)) {
@@ -109,25 +109,17 @@ export default function CatalogScreen() {
       <View className="gap-2 p-4 pb-0">
         <View className="flex-row gap-2">
           <View className="flex-1">
-            <AppInput
+            <DateField
               label="Desde"
-              placeholder="YYYY-MM-DD"
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={10}
               value={startDate}
-              onChangeText={setStartDate}
+              onChange={setStartDate}
             />
           </View>
           <View className="flex-1">
-            <AppInput
+            <DateField
               label="Hasta"
-              placeholder="YYYY-MM-DD"
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={10}
               value={endDate}
-              onChangeText={setEndDate}
+              onChange={setEndDate}
             />
           </View>
         </View>

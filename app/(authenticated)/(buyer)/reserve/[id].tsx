@@ -17,7 +17,7 @@ import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
-import { AppInput } from '@/components/fields'
+import { DateField } from '@/components/DateField'
 
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -77,7 +77,7 @@ export default function ReserveScreen() {
   const onSubmit = () => {
     setClientError(null)
     if (!isValidISODate(startDate) || !isValidISODate(endDate)) {
-      setClientError('Formato inválido, esperado YYYY-MM-DD')
+      setClientError('Selecciona fechas válidas en el calendario')
       return
     }
     if (startDate < today) {
@@ -133,24 +133,18 @@ export default function ReserveScreen() {
           </AppCard>
         )}
 
-        <AppInput
+        <DateField
           label="Fecha inicio"
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
-          autoCorrect={false}
-          maxLength={10}
           value={startDate}
-          onChangeText={editStart}
+          onChange={editStart}
+          minimumDate={new Date()}
         />
 
-        <AppInput
+        <DateField
           label="Fecha fin"
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
-          autoCorrect={false}
-          maxLength={10}
           value={endDate}
-          onChangeText={editEnd}
+          onChange={editEnd}
+          minimumDate={new Date(Date.now() + 86400000)}
         />
 
         <FormError message={clientError ?? serverError} />
