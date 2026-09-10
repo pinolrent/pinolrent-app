@@ -17,6 +17,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
   email: string
   password: string
+  role?: 'buyer' | 'seller'
 }
 
 export interface RefreshRequest {

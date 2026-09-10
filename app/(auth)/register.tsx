@@ -9,7 +9,11 @@ import {
 } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
-import { getApiErrorMessage } from '@/utils/errors'
+import {
+  getApiErrorMessage,
+  validateEmail,
+  validatePassword,
+} from '@/utils/errors'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
@@ -20,11 +24,22 @@ const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 export default function RegisterScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [clientErrors, setClientErrors] = useState<{
+    email?: string | null
+    password?: string | null
+  }>({})
   const [role, setRole] = useState<Role>('buyer')
   const { register } = useAuth()
 
   const onRegister = () => {
-    register.mutate({ email, password, role })
+    const trimmedEmail = email.trim()
+    const emailError = validateEmail(trimmedEmail)
+    const passwordError = validatePassword(password)
+    setClientErrors({ email: emailError, password: passwordError })
+    if (emailError || passwordError) return
+    setEmail(trimmedEmail)
+    register.mutate({ email: trimmedEmail, password, role })
   }
 
   const error = register.isError
@@ -61,15 +76,26 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
+              error={clientErrors.email}
             />
 
             <AppInput
               label="Contraseña"
               placeholder="Contraseña"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              error={clientErrors.password}
             />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setShowPassword((v) => !v)}
+              className="self-end"
+            >
+              <Text className="text-sm text-primary">
+                {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              </Text>
+            </Pressable>
 
             <View className="my-1 flex-row gap-2">
               {(['buyer', 'seller'] as Role[]).map((r) => (
@@ -104,7 +130,7 @@ export default function RegisterScreen() {
               {register.isPending ? <ActivityIndicator /> : 'Registrarse'}
             </AppButton>
 
-            <Link href="/login" className="mt-1 self-center">
+            <Link href="/(auth)/login" className="mt-1 self-center">
               <Text className="text-primary">
                 ¿Ya tienes cuenta? Inicia sesión
               </Text>
