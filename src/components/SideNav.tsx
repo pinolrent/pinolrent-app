@@ -127,27 +127,29 @@ export function MenuButton({ items }: { items: NavItem[] }) {
             onPress={() => setOpen(false)}
           />
           <View className="mr-auto h-full w-64 gap-1 border-r border-border bg-card p-4">
-            <View className="mb-2 flex-row items-center gap-2">
-              <Image
-                source={LOGO}
-                className="h-9 w-9 rounded-lg"
-                resizeMode="cover"
-              />
-              <Text className="text-lg font-bold text-foreground">
-                PinolRent
-              </Text>
+            <View className="mb-2 flex-row items-center justify-between gap-2">
+              <View className="flex-row items-center gap-2">
+                <Image
+                  source={LOGO}
+                  className="h-9 w-9 rounded-lg"
+                  resizeMode="cover"
+                />
+                <Text className="text-lg font-bold text-foreground">
+                  PinolRent
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar menú"
+                onPress={() => setOpen(false)}
+                className="h-10 w-10 items-center justify-center rounded-full border border-border"
+              >
+                <CloseIcon
+                  size={20}
+                  color={theme === 'dark' ? '#E2E8F0' : '#0F172A'}
+                />
+              </Pressable>
             </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Cerrar menú"
-              onPress={() => setOpen(false)}
-              className="mb-2 h-10 w-10 items-center justify-center rounded-full border border-border"
-            >
-              <CloseIcon
-                size={20}
-                color={theme === 'dark' ? '#E2E8F0' : '#0F172A'}
-              />
-            </Pressable>
             {items.map((item) => {
               const Icon = NAV_ICONS[item.icon]
               const active = isActive(pathname, item.href)

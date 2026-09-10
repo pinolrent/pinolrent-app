@@ -37,6 +37,9 @@ yarn-error.*
 # CodeGraph index
 .codegraph/
 
+# local agent scratch (untracked)
+.commandcode/
+
 # typescript
 *.tsbuildinfo
 
