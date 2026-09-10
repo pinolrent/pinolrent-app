@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import {
   View,
   Text,
@@ -9,8 +9,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
-import type { CarsListParams } from '@/types/car'
-import type { Car } from '@/types/car'
+import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { SkeletonList } from '@/components/Skeleton'
@@ -82,8 +81,7 @@ export default function CatalogScreen() {
     )
   }
 
-  const renderItem = useCallback(
-    ({ item, index }: { item: Car; index: number }) => (
+  const renderItem = ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
     <Pressable
       accessibilityRole="button"
@@ -103,8 +101,6 @@ export default function CatalogScreen() {
       </View>
     </Pressable>
     </StaggerCard>
-  ),
-    [numColumns, router]
   )
 
   return (
