@@ -14,7 +14,7 @@ export default function AuthenticatedLayout() {
     if (isLoaded && token && !user) {
       clearAuth()
     }
-  }, [isLoaded, token, user])
+  }, [isLoaded, token, user, clearAuth])
 
   if (!isLoaded) {
     return (
