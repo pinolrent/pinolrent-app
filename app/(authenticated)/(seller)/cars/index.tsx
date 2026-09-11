@@ -13,10 +13,11 @@ import {
 } from '@/hooks/useSellerCars'
 import type { Car } from '@/types/car'
 import { formatPrice } from '@/utils/currency'
-import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
+import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarImage } from '@/components/CarImage'
+import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
@@ -88,8 +89,8 @@ export default function SellerCarsScreen() {
         setClientError('photo_url es demasiado largo')
         return
       }
-      if (!isHttpUrl(trimmedPhoto)) {
-        setClientError('photo_url inválido')
+      if (!isImageUrl(trimmedPhoto)) {
+        setClientError('Foto inválida: sube una imagen o pega una URL válida')
         return
       }
     }
@@ -185,9 +186,14 @@ export default function SellerCarsScreen() {
             value={name}
             onChangeText={setName}
           />
-          <AppInput
+          <ImageUploadField
             label="Foto"
-            placeholder="photo_url (opcional, https://...)"
+            value={photoUrl}
+            onUploaded={setPhotoUrl}
+          />
+          <AppInput
+            label="o pega la URL"
+            placeholder="photo_url (opcional, https://... o /uploads/...)"
             autoCapitalize="none"
             autoCorrect={false}
             value={photoUrl}

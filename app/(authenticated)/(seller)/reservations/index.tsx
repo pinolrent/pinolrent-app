@@ -16,7 +16,7 @@ import type { Reservation } from '@/types/reservation'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
-import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
+import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -89,10 +89,10 @@ export default function ReservedScreen() {
             {PAYMENT_STATUS_LABELS[item.payment.status]}
           </Text>
         )}
-        {item.payment?.proof_url && isHttpUrl(item.payment.proof_url) ? (
+        {item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
           <Pressable
             accessibilityRole="link"
-            onPress={() => Linking.openURL(item.payment!.proof_url!.trim())}
+            onPress={() => { const u = resolveImageUrl(item.payment!.proof_url); if (u) Linking.openURL(u) }}
           >
             <Text className="text-sm text-primary" numberOfLines={1} ellipsizeMode="middle">
               Ver comprobante

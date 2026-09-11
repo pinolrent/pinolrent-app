@@ -11,16 +11,35 @@ export function validateEmail(value: string): string | null {
 
 export function validatePassword(value: string): string | null {
   if (!value) return 'La contraseña es obligatoria'
-  if (value.length < 8) return 'La contraseña debe tener al menos 8 caracteres'
+  if (value.length < 8 || value.length > 72)
+    return 'La contraseña debe tener entre 8 y 72 caracteres'
   return null
 }
 
 const HTTP_URL_RE = /^https?:\/\/.+/i
+const UPLOAD_PATH_RE = /^\/uploads\/[^/\\]+\.(jpg|jpeg|png|webp)$/i
 
 export function isHttpUrl(value: string): boolean {
   const trimmed = value.trim()
   if (!trimmed || trimmed.length > 2048) return false
   return HTTP_URL_RE.test(trimmed)
+}
+
+export function isImageUrl(value: string): boolean {
+  const trimmed = value.trim()
+  if (!trimmed || trimmed.length > 2048) return false
+  return HTTP_URL_RE.test(trimmed) || UPLOAD_PATH_RE.test(trimmed)
+}
+
+export function resolveImageUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  if (trimmed.startsWith('/uploads/')) {
+    const base = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080'
+    return `${base.replace(/\/$/, '')}${trimmed}`
+  }
+  return trimmed
 }
 
 export function getApiErrorMessage(err: unknown, fallback: string): string {
@@ -69,6 +88,23 @@ function translateBackendMessage(msg: string): string {
     return 'El pago ya no está pendiente'
   if (lower.includes('future reservations'))
     return 'No se puede desactivar: tiene reservas futuras'
+  if (lower.includes('reservation cannot be longer'))
+    return 'La reserva no puede superar los 30 días'
+  if (lower.includes('start_date cannot be in the past'))
+    return 'La fecha de inicio no puede ser anterior a hoy'
+  if (lower.includes('invalid email')) return 'Email inválido'
+  if (lower.includes('password must be')) return 'La contraseña debe tener entre 8 y 72 caracteres'
+  if (lower.includes('invalid photo_url') || lower.includes('invalid proof_url'))
+    return 'Imagen inválida: sube una foto o pega una URL válida'
+  if (lower.includes('only jpg, png or webp'))
+    return 'Solo se permiten imágenes JPG, PNG o WebP'
+  if (lower.includes('file is required')) return 'Selecciona una imagen'
+  if (lower.includes('payment already recorded'))
+    return 'Esta reserva ya tiene un pago registrado'
+  if (lower.includes('reservation is not pending'))
+    return 'La reserva ya no está pendiente'
+  if (lower.includes('too many requests'))
+    return 'Demasiados intentos, espera un minuto y reintenta'
   return msg
 }
 

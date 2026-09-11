@@ -5,9 +5,10 @@ import { useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
-import { getApiErrorMessage, isHttpUrl } from '@/utils/errors'
+import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
+import { ImageUploadField } from '@/components/ImageUploadField'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -17,8 +18,9 @@ const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
 
 export function PaymentSummary({ payment }: { payment: Payment }) {
   const openProof = () => {
-    if (payment.proof_url && isHttpUrl(payment.proof_url)) {
-      Linking.openURL(payment.proof_url.trim())
+    const url = resolveImageUrl(payment.proof_url)
+    if (url) {
+      Linking.openURL(url)
     }
   }
   return (
@@ -31,7 +33,7 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
         <Pressable
           accessibilityRole="link"
           onPress={openProof}
-          disabled={!isHttpUrl(payment.proof_url)}
+          disabled={!isImageUrl(payment.proof_url)}
         >
           <Text
             className="text-sm text-primary"
@@ -124,9 +126,11 @@ export function PayReservationBlock({
 
   const submit = () => {
     const proof = proofUrl.trim()
-    if (proof.length > 0 && !isHttpUrl(proof)) {
+    if (proof.length > 0 && !isImageUrl(proof)) {
       setClientError(
-        proof.length > 2048 ? 'proof_url es demasiado largo' : 'proof_url inválido'
+        proof.length > 2048
+          ? 'Comprobante demasiado largo'
+          : 'Comprobante inválido: sube una foto o pega una URL válida'
       )
       return
     }
@@ -177,8 +181,13 @@ export function PayReservationBlock({
               </Pressable>
             ))}
           </View>
-          <AppInput
+          <ImageUploadField
             label="Comprobante"
+            value={proofUrl}
+            onUploaded={setProofUrl}
+          />
+          <AppInput
+            label="o pega la URL"
             placeholder="URL del comprobante (opcional)"
             autoCapitalize="none"
             autoCorrect={false}
