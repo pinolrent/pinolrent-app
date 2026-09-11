@@ -32,16 +32,24 @@ export function ImageUploadField({
     })
     if (result.canceled || !result.assets[0]) return
     const asset = result.assets[0]
+    const fileName = asset.fileName ?? 'foto.jpg'
+    const mimeType = asset.mimeType ?? 'image/jpeg'
+    if (!mimeType.startsWith('image/')) {
+      setError('Solo se permiten imágenes JPG, PNG o WebP')
+      return
+    }
     setUploading(true)
     try {
       const form = new FormData()
-      const name = asset.fileName ?? 'foto.jpg'
-      const type = asset.mimeType ?? 'image/jpeg'
-      form.append('file', {
-        uri: asset.uri,
-        name,
-        type,
-      } as unknown as Blob)
+      if (asset.file) {
+        form.append('file', asset.file, fileName)
+      } else {
+        form.append('file', {
+          uri: asset.uri,
+          name: fileName,
+          type: mimeType,
+        } as unknown as Blob)
+      }
       const token = useAuthStore.getState().token
       const res = await fetch(`${API_URL}/uploads`, {
         method: 'POST',
