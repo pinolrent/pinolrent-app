@@ -11,7 +11,8 @@ export function validateEmail(value: string): string | null {
 
 export function validatePassword(value: string): string | null {
   if (!value) return 'La contraseña es obligatoria'
-  if (value.length < 8) return 'La contraseña debe tener al menos 8 caracteres'
+  if (value.length < 8 || value.length > 72)
+    return 'La contraseña debe tener entre 8 y 72 caracteres'
   return null
 }
 

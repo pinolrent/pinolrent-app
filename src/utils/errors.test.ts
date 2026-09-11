@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import {
   getApiErrorMessage,
   isHttpUrl,
+  isImageUrl,
+  resolveImageUrl,
   validateEmail,
   validatePassword,
 } from './errors'
@@ -81,14 +83,50 @@ describe('validators', () => {
   it('validates password length', () => {
     expect(validatePassword('')).toBe('La contraseña es obligatoria')
     expect(validatePassword('1234567')).toBe(
-      'La contraseña debe tener al menos 8 caracteres'
+      'La contraseña debe tener entre 8 y 72 caracteres'
     )
     expect(validatePassword('12345678')).toBeNull()
+    expect(validatePassword('x'.repeat(73))).toBe(
+      'La contraseña debe tener entre 8 y 72 caracteres'
+    )
   })
 
   it('validates http urls', () => {
     expect(isHttpUrl('https://x.com/a.jpg')).toBe(true)
     expect(isHttpUrl('nota-url')).toBe(false)
     expect(isHttpUrl('')).toBe(false)
+  })
+
+  it('accepts backend upload paths as images', () => {
+    expect(isImageUrl('/uploads/abc123.jpg')).toBe(true)
+    expect(isImageUrl('/uploads/abc123.png')).toBe(true)
+    expect(isImageUrl('/uploads/../evil.jpg')).toBe(false)
+    expect(isImageUrl('/uploads/doc.pdf')).toBe(false)
+    expect(isImageUrl('nota-url')).toBe(false)
+  })
+
+  it('resolves upload paths against the api url', () => {
+    expect(resolveImageUrl('/uploads/a.jpg')).toContain('/uploads/a.jpg')
+    expect(resolveImageUrl('https://x.com/a.jpg')).toBe('https://x.com/a.jpg')
+    expect(resolveImageUrl('')).toBeUndefined()
+  })
+
+  it('translates new backend messages', () => {
+    const tooLong = {
+      isAxiosError: true,
+      response: { data: { error: 'reservation cannot be longer than 30 days' } },
+      message: 'axios',
+    }
+    expect(getApiErrorMessage(tooLong, 'fallback')).toBe(
+      'La reserva no puede superar los 30 días'
+    )
+    const throttled = {
+      isAxiosError: true,
+      response: { data: { error: 'too many requests' } },
+      message: 'axios',
+    }
+    expect(getApiErrorMessage(throttled, 'fallback')).toBe(
+      'Demasiados intentos, espera un minuto y reintenta'
+    )
   })
 })
