@@ -6,6 +6,7 @@ import type {
   RefreshResponse,
   RegisterRequest,
   RegisterResponse,
+  UpdateProfileRequest,
   User,
 } from '@/types/auth'
 
@@ -31,4 +32,7 @@ export const authService = {
       : {}
     return api.get<User>('/auth/me', config).then((r) => r.data)
   },
+
+  updateProfile: (data: UpdateProfileRequest) =>
+    api.patch<User>('/auth/me', data).then((r) => r.data),
 }

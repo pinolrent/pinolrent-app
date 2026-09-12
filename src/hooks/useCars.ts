@@ -27,3 +27,11 @@ export function useCar(id: number) {
     enabled: Number.isFinite(id),
   })
 }
+
+export function useCarContact(id: number) {
+  return useQuery({
+    queryKey: [...queryKeys.car(id), 'contact'],
+    queryFn: () => carsService.contact(id),
+    enabled: Number.isFinite(id),
+  })
+}
