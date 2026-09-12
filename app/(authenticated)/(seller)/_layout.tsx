@@ -33,7 +33,7 @@ export default function SellerTabsLayout() {
     )
   }
 
-  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(seller)", icon: "home" }, { label: "Mis autos", href: "/(authenticated)/(seller)/cars", icon: "cars" }, { label: "Reservas", href: "/(authenticated)/(seller)/reservations", icon: "reservations" }]
+  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(seller)", icon: "home" }, { label: "Mis autos", href: "/(authenticated)/(seller)/cars", icon: "cars" }, { label: "Reservas", href: "/(authenticated)/(seller)/reservations", icon: "reservations" }, { label: "Perfil", href: "/(authenticated)/(seller)/profile", icon: "profile" }]
 
   return (
     <View className="flex-1 flex-row bg-background">
@@ -69,6 +69,13 @@ export default function SellerTabsLayout() {
             tabBarIcon: ({ color }) => (
               <TabIcon Icon={NAV_ICONS.reservations} color={color} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Perfil',
+            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.profile} color={color} />,
           }}
         />
       </Tabs.Protected>

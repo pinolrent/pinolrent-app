@@ -33,7 +33,7 @@ export default function BuyerTabsLayout() {
     )
   }
 
-  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(buyer)", icon: "home" }, { label: "Catálogo", href: "/(authenticated)/(buyer)/catalog", icon: "catalog" }, { label: "Reservas", href: "/(authenticated)/(buyer)/reservations", icon: "reservations" }]
+  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(buyer)", icon: "home" }, { label: "Catálogo", href: "/(authenticated)/(buyer)/catalog", icon: "catalog" }, { label: "Reservas", href: "/(authenticated)/(buyer)/reservations", icon: "reservations" }, { label: "Perfil", href: "/(authenticated)/(buyer)/profile", icon: "profile" }]
 
   return (
     <View className="flex-1 flex-row bg-background">
@@ -90,6 +90,13 @@ export default function BuyerTabsLayout() {
           options={{
             title: 'Reservar',
             href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Perfil',
+            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.profile} color={color} />,
           }}
         />
       </Tabs.Protected>
