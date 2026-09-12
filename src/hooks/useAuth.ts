@@ -1,7 +1,8 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
+import { queryKeys } from '@/constants/query-keys'
 
 interface LoginInput {
   email: string
@@ -11,6 +12,7 @@ interface LoginInput {
 interface RegisterInput {
   email: string
   password: string
+  phone?: string
   role: 'buyer' | 'seller'
 }
 
@@ -42,11 +44,12 @@ export function useAuth() {
   })
 
   const register = useMutation({
-    mutationFn: async ({ email, password, role }: RegisterInput) => {
+    mutationFn: async ({ email, password, phone, role }: RegisterInput) => {
+      const payload = phone ? { email, password, phone } : { email, password }
       if (role === 'seller') {
-        await authService.registerSeller({ email, password })
+        await authService.registerSeller(payload)
       } else {
-        await authService.register({ email, password })
+        await authService.register(payload)
       }
       const { token, refresh_token } = await authService.login({
         email,
@@ -87,5 +90,17 @@ export function useAuth() {
     login,
     register,
     logout,
+    useUpdateProfile,
   }
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (phone: string) => authService.updateProfile({ phone }),
+    onSuccess: (user) => {
+      useAuthStore.getState().setUser(user)
+      queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
+    },
+  })
 }
