@@ -13,6 +13,7 @@ import {
   getApiErrorMessage,
   validateEmail,
   validatePassword,
+  validatePhone,
 } from '@/utils/errors'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
@@ -24,22 +25,31 @@ const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 export default function RegisterScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [clientErrors, setClientErrors] = useState<{
     email?: string | null
     password?: string | null
+    phone?: string | null
   }>({})
   const [role, setRole] = useState<Role>('buyer')
   const { register } = useAuth()
 
   const onRegister = () => {
     const trimmedEmail = email.trim()
+    const trimmedPhone = phone.trim()
     const emailError = validateEmail(trimmedEmail)
     const passwordError = validatePassword(password)
-    setClientErrors({ email: emailError, password: passwordError })
-    if (emailError || passwordError) return
+    const phoneError = validatePhone(trimmedPhone, role === 'seller')
+    setClientErrors({ email: emailError, password: passwordError, phone: phoneError })
+    if (emailError || passwordError || phoneError) return
     setEmail(trimmedEmail)
-    register.mutate({ email: trimmedEmail, password, role })
+    register.mutate({
+      email: trimmedEmail,
+      password,
+      ...(trimmedPhone ? { phone: trimmedPhone } : {}),
+      role,
+    })
   }
 
   const error = register.isError
@@ -96,6 +106,17 @@ export default function RegisterScreen() {
                 {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               </Text>
             </Pressable>
+
+            <AppInput
+              label="Teléfono"
+              placeholder="WhatsApp (obligatorio para vendedor)"
+              keyboardType="phone-pad"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={phone}
+              onChangeText={setPhone}
+              error={clientErrors.phone}
+            />
 
             <View className="my-1 flex-row gap-2">
               {(['buyer', 'seller'] as Role[]).map((r) => (

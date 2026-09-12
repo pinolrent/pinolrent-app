@@ -20,7 +20,7 @@ async function main() {
     buyerMe.body
   )
 
-  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true)
+  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true, '+56912345678')
   const sellerMe = await me(seller.token)
   check('login seller devuelve token', !!seller.token)
   check(
@@ -37,13 +37,29 @@ async function main() {
 
   const regSell = await api('/auth/register/seller', {
     method: 'POST',
-    body: JSON.stringify({ email: SELLER_EMAIL, password: 'secret123' }),
+    body: JSON.stringify({ email: SELLER_EMAIL, password: 'secret123', phone: '+56912345678' }),
   })
   check(
     'register/seller responde 201',
     regSell.status === 201,
     regSell.status
   )
+
+  const regSellNoPhone = await api('/auth/register/seller', {
+    method: 'POST',
+    body: JSON.stringify({ email: `nophone_${stamp}@example.com`, password: 'secret123' }),
+  })
+  check(
+    'register/seller sin telefono -> 400',
+    regSellNoPhone.status === 400,
+    regSellNoPhone.status
+  )
+
+  const patchPhone = await api('/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ phone: '+56987654321' }),
+  }, seller.token)
+  check('PATCH /auth/me actualiza telefono', patchPhone.status === 200, patchPhone.status)
 
   const badLogin = await api('/auth/login', {
     method: 'POST',

@@ -3,7 +3,7 @@ import { api, check, createCar, registerOrLogin, summary } from './_helpers'
 const STAMP = Date.now()
 
 async function main() {
-  const seller = await registerOrLogin(`vende_${Date.now()}@example.com`, 'secret123', true)
+  const seller = await registerOrLogin(`vende_${Date.now()}@example.com`, 'secret123', true, '+56912345678')
   check('login seller devuelve token', !!seller.token)
 
   const carA = await createCar(seller.token, `catalogo_${STAMP}_A`)

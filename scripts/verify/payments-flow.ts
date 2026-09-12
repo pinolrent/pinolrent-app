@@ -12,7 +12,8 @@ async function main() {
   const seller = await registerOrLogin(
     `vende_pay_${stamp}@example.com`,
     'secret123',
-    true
+    true,
+    '+56912345678'
   )
   const buyer = await registerOrLogin(
     `compra_pay_${stamp}@example.com`,
@@ -204,7 +205,8 @@ async function main() {
   const otherSeller = await registerOrLogin(
     `vende2_${stamp}@example.com`,
     'secret123',
-    true
+    true,
+    '+56912345678'
   )
   const lonelyCar = await createCar(otherSeller.token, `ajeno_${stamp}`)
   const foreignPatch = await api(

@@ -56,6 +56,7 @@ export default function SellerHomeScreen() {
     { label: 'Inicio', href: '/(authenticated)/(seller)', icon: 'home' },
     { label: 'Mis autos', href: '/(authenticated)/(seller)/cars', icon: 'cars' },
     { label: 'Reservas', href: '/(authenticated)/(seller)/reservations', icon: 'reservations' },
+    { label: 'Perfil', href: '/(authenticated)/(seller)/profile', icon: 'profile' },
   ]
 
   return (

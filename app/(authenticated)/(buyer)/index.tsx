@@ -28,6 +28,7 @@ export default function BuyerHomeScreen() {
     { label: 'Inicio', href: '/(authenticated)/(buyer)', icon: 'home' },
     { label: 'Catálogo', href: '/(authenticated)/(buyer)/catalog', icon: 'catalog' },
     { label: 'Reservas', href: '/(authenticated)/(buyer)/reservations', icon: 'reservations' },
+    { label: 'Perfil', href: '/(authenticated)/(buyer)/profile', icon: 'profile' },
   ]
 
   return (

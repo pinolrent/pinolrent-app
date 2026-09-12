@@ -2,6 +2,7 @@ export interface User {
   id: number
   email: string
   role: 'buyer' | 'seller'
+  phone?: string
 }
 
 export interface LoginRequest {
@@ -17,6 +18,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
   email: string
   password: string
+  phone?: string
   role?: 'buyer' | 'seller'
 }
 
@@ -31,4 +33,8 @@ export interface RefreshResponse {
 
 export interface RegisterResponse {
   email: string
+}
+
+export interface UpdateProfileRequest {
+  phone: string
 }
