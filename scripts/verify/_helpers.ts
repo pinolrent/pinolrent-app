@@ -22,9 +22,10 @@ export function summary() {
 export async function api(
   path: string,
   init?: RequestInit,
-  token?: string
+  token?: string,
+  retries = 5
 ): Promise<Response> {
-  return fetch(`${API_URL}${path}`, {
+  let res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -32,6 +33,19 @@ export async function api(
       ...(init?.headers ?? {}),
     },
   })
+  for (let i = 0; i < retries && res.status === 429; i++) {
+    const wait = Number(res.headers.get('Retry-After') ?? 2)
+    await new Promise((r) => setTimeout(r, (Number.isFinite(wait) ? wait : 2) * 1000))
+    res = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+    })
+  }
+  return res
 }
 
 export async function registerOrLogin(
