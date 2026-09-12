@@ -37,11 +37,14 @@ export async function api(
 export async function registerOrLogin(
   email: string,
   password: string,
-  seller: boolean
+  seller: boolean,
+  phone?: string
 ): Promise<{ token: string }> {
   await api(seller ? '/auth/register/seller' : '/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(
+      phone ? { email, password, phone } : { email, password }
+    ),
   })
   const res = await api('/auth/login', {
     method: 'POST',

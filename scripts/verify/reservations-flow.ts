@@ -9,7 +9,7 @@ import {
 
 async function main() {
   const stamp = Date.now()
-  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true)
+  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true, '+56912345678')
   const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123', false)
   check('login buyer y seller entregan token', !!buyer.token && !!seller.token)
 
