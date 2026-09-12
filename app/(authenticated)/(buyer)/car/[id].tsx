@@ -1,8 +1,8 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, Linking, Pressable } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCar } from '@/hooks/useCars'
+import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -16,6 +16,7 @@ export default function CarDetailScreen() {
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { data: car, isLoading, isError, error, refetch } = useCar(idNum)
+  const contact = useCarContact(idNum)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar el auto')
@@ -63,6 +64,17 @@ export default function CarDetailScreen() {
       <Text className="text-muted-foreground">
         {formatPrice(car.price_per_day)} / día
       </Text>
+      {contact.data?.whatsapp_url ? (
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel="Contactar al vendedor por WhatsApp"
+          onPress={() => Linking.openURL(contact.data.whatsapp_url)}
+        >
+          <Text className="text-center text-sm text-primary">
+            Contactar al vendedor por WhatsApp
+          </Text>
+        </Pressable>
+      ) : null}
       <AppButton
         onPress={() => router.push(`/(authenticated)/(buyer)/reserve/${car.id}`)}
       >
