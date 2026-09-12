@@ -7,6 +7,7 @@ import {
   resolveImageUrl,
   validateEmail,
   validatePassword,
+  validatePhone,
 } from './errors'
 
 describe('getApiErrorMessage', () => {
@@ -128,5 +129,23 @@ describe('validators', () => {
     expect(getApiErrorMessage(throttled, 'fallback')).toBe(
       'Demasiados intentos, espera un minuto y reintenta'
     )
+    const noPhone = {
+      isAxiosError: true,
+      response: { data: { error: 'phone is required for sellers' } },
+      message: 'axios',
+    }
+    expect(getApiErrorMessage(noPhone, 'fallback')).toBe(
+      'El teléfono es obligatorio para vendedores'
+    )
+  })
+
+  it('validates phone numbers', () => {
+    expect(validatePhone('', true)).toBe(
+      'El teléfono es obligatorio para vendedores'
+    )
+    expect(validatePhone('', false)).toBeNull()
+    expect(validatePhone('912345678', true)).toBeNull()
+    expect(validatePhone('+56912345678', true)).toBeNull()
+    expect(validatePhone('abc', true)).toBe('Teléfono inválido')
   })
 })
