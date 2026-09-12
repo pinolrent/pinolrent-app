@@ -16,6 +16,20 @@ export function validatePassword(value: string): string | null {
   return null
 }
 
+export function validatePhone(value: string, required: boolean): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return required ? 'El teléfono es obligatorio para vendedores' : null
+  }
+  if (trimmed.length > 32) return 'Teléfono inválido'
+  if (/[^0-9+ ().-]/.test(trimmed)) return 'Teléfono inválido'
+  const digits = trimmed.replace(/\D/g, '')
+  if (digits.length === 9 || digits.length === 11) return null
+  if (trimmed.startsWith('+') && digits.length >= 8 && digits.length <= 15)
+    return null
+  return 'Teléfono inválido'
+}
+
 const HTTP_URL_RE = /^https?:\/\/.+/i
 const UPLOAD_PATH_RE = /^\/uploads\/[^/\\]+\.(jpg|jpeg|png|webp)$/i
 
@@ -93,6 +107,9 @@ function translateBackendMessage(msg: string): string {
   if (lower.includes('start_date cannot be in the past'))
     return 'La fecha de inicio no puede ser anterior a hoy'
   if (lower.includes('invalid email')) return 'Email inválido'
+  if (lower.includes('invalid phone')) return 'Teléfono inválido'
+  if (lower.includes('phone is required for sellers'))
+    return 'El teléfono es obligatorio para vendedores'
   if (lower.includes('password must be')) return 'La contraseña debe tener entre 8 y 72 caracteres'
   if (lower.includes('invalid photo_url') || lower.includes('invalid proof_url'))
     return 'Imagen inválida: sube una foto o pega una URL válida'
