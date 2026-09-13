@@ -87,6 +87,20 @@ export function FormError({
   )
 }
 
+export function SuccessNote({ message }: { message: string | null }) {
+  if (!message) return null
+  return (
+    <View className="rounded-lg bg-tint-success px-3 py-2">
+      <Text
+        accessibilityLiveRegion="polite"
+        className="text-sm font-medium text-success"
+      >
+        {message}
+      </Text>
+    </View>
+  )
+}
+
 export function EmptyState({
   message,
   action,

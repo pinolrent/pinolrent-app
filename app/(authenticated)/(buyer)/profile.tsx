@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
+import * as Haptics from 'expo-haptics'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, FormError, SuccessNote } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
 export default function ProfileScreen() {
@@ -23,7 +24,16 @@ export default function ProfileScreen() {
     setClientError(error)
     if (error) return
     setSaved(false)
-    update.mutate(trimmed, { onSuccess: () => setSaved(true) })
+    update.mutate(trimmed, {
+      onSuccess: () => {
+        setSaved(true)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      },
+      onError: () => {
+        setSaved(false)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      },
+    })
   }
 
   return (
@@ -61,14 +71,7 @@ export default function ProfileScreen() {
             }}
           />
           <FormError message={clientError ?? serverError} />
-          {saved && (
-            <Text
-              accessibilityLiveRegion="polite"
-              className="text-sm text-foreground"
-            >
-              Teléfono actualizado
-            </Text>
-          )}
+          <SuccessNote message={saved ? 'Teléfono actualizado' : null} />
           <AppButton onPress={onSave} loading={update.isPending}>
             Guardar teléfono
           </AppButton>

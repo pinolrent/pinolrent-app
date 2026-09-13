@@ -64,7 +64,7 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
     <View className="gap-2">
       {!confirming ? (
         <AppButton
-          variant="destructive"
+          variant="outline"
           onPress={() => setConfirming(true)}
           loading={cancel.isPending}
         >
@@ -88,6 +88,11 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
                     setConfirming(false)
                     Haptics.notificationAsync(
                       Haptics.NotificationFeedbackType.Success
+                    )
+                  },
+                  onError: () => {
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Error
                     )
                   },
                 })
@@ -147,6 +152,9 @@ export function PayReservationBlock({
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
           onPaid?.()
         },
+        onError: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        },
       }
     )
   }
@@ -178,6 +186,7 @@ export function PayReservationBlock({
                       ? 'border-primary bg-primary'
                       : 'border-border bg-card'
                   }`}
+                  style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                 >
                   {selected ? <Check size={16} color="#FFFFFF" /> : null}
                   <Text

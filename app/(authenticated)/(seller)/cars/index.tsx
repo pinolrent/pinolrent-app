@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { View, Text, FlatList, RefreshControl } from 'react-native'
+import * as Haptics from 'expo-haptics'
 import {
   useCreateSellerCar,
   useSellerCars,
@@ -12,7 +13,7 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { CarCard } from '@/components/rows'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
-import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, EmptyState, FormError, SuccessNote } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -37,6 +38,7 @@ export default function SellerCarsScreen() {
   const [priceText, setPriceText] = useState('')
   const [clientError, setClientError] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<number | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus autos')
@@ -57,11 +59,19 @@ export default function SellerCarsScreen() {
 
   const onToggle = (car: Car) => {
     setTogglingId(car.id)
+    setNotice(null)
     toggleCar.mutate(
       { id: car.id, active: !car.active },
       {
-        onSuccess: () => setTogglingId(null),
-        onError: () => setTogglingId(null),
+        onSuccess: () => {
+          setTogglingId(null)
+          setNotice(car.active ? 'Auto desactivado' : 'Auto activado')
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        },
+        onError: () => {
+          setTogglingId(null)
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        },
       }
     )
   }
@@ -109,6 +119,11 @@ export default function SellerCarsScreen() {
           setName('')
           setPhotoUrl('')
           setPriceText('')
+          setNotice(`${trimmedName} publicado`)
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        },
+        onError: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         },
       }
     )
@@ -150,6 +165,7 @@ export default function SellerCarsScreen() {
           onPress={() => {
             setClientError(null)
             createCar.reset()
+            setNotice(null)
             setFormOpen(!formOpen)
           }}
         >
@@ -218,6 +234,7 @@ export default function SellerCarsScreen() {
             </AppCard>
           )}
           <FormError message={toggleError} />
+          <SuccessNote message={notice} />
           <FlatList
             key={numColumns}
             numColumns={numColumns}
