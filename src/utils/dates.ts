@@ -3,6 +3,14 @@ export function formatDate(iso: string): string {
   return `${day}/${month}/${year}`
 }
 
+export function formatDateRange(start: string, end: string): string {
+  return `${formatDate(start)} → ${formatDate(end)}`
+}
+
+export function formatDays(days: number): string {
+  return `${days} ${days === 1 ? 'día' : 'días'}`
+}
+
 export function toISO(date: Date): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')

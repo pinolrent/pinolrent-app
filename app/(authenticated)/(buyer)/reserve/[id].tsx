@@ -13,9 +13,9 @@ import { useCar } from '@/hooks/useCars'
 import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
-import { daysBetween, isValidISODate, toISO } from '@/utils/dates'
+import { daysBetween, formatDays, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-import { AppBackButton } from '@/components/nav-icons'
+import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { DateField } from '@/components/DateField'
 
@@ -44,22 +44,30 @@ export default function ReserveScreen() {
 
   if (carLoading) {
     return (
-      <View className="flex-1 bg-background">
+      <ScreenShell back title="Reservar" width="form">
         <SkeletonList count={2} />
-      </View>
+      </ScreenShell>
     )
   }
 
   if (invalidId || !car) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
-        <Text className="text-muted-foreground">
-          {invalidId ? 'ID de auto inválido' : (carError ? getApiErrorMessage(carErr, 'Error al cargar el auto') : 'No se encontró el auto')}
-        </Text>
-        {!invalidId && (
-          <AppButton onPress={() => refetchCar()}>Reintentar</AppButton>
-        )}
-      </View>
+      <ScreenShell back title="Reservar" width="form">
+        <View className="items-center gap-3 py-8">
+          <FormError
+            message={
+              invalidId
+                ? 'ID de auto inválido'
+                : carError
+                  ? getApiErrorMessage(carErr, 'Error al cargar el auto')
+                  : 'No se encontró el auto'
+            }
+          />
+          {!invalidId && (
+            <AppButton onPress={() => refetchCar()}>Reintentar</AppButton>
+          )}
+        </View>
+      </ScreenShell>
     )
   }
 
@@ -117,50 +125,47 @@ export default function ReserveScreen() {
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView
-        className="flex-1 bg-background"
-        contentContainerStyle={{ padding: 16, gap: 12 }}
+      <ScreenShell
+        back
+        title="Reservar"
+        subtitle={`${car.name} · ${formatPrice(car.price_per_day)} / día`}
+        width="form"
       >
-        <AppBackButton />
-        <Text
-          accessibilityRole="header"
-          className="text-2xl font-bold text-foreground"
+        <ScrollView
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 16 }}
         >
-          Reservar {car.name}
-        </Text>
-        <Text className="text-muted-foreground">
-          {formatPrice(car.price_per_day)} / día
-        </Text>
-        {validRange && (
-          <AppCard>
-            <Text className="text-muted-foreground">
-              {previewDays} {previewDays === 1 ? 'día' : 'días'} · Total
-              estimado {formatPrice(previewTotal)}
-            </Text>
+          <AppCard className="gap-4">
+            <DateField
+              label="Fecha inicio"
+              value={startDate}
+              onChange={editStart}
+              minimumDate={new Date()}
+            />
+            <DateField
+              label="Fecha fin"
+              value={endDate}
+              onChange={editEnd}
+              minimumDate={new Date(Date.now() + 86400000)}
+            />
+            <FormError message={clientError ?? serverError} />
+            {validRange && (
+              <View className="flex-row items-center justify-between gap-3 border-t border-border pt-3">
+                <Text className="text-sm text-muted-foreground">
+                  {formatDays(previewDays)}
+                </Text>
+                <Text className="text-lg font-bold text-foreground">
+                  {formatPrice(previewTotal)}
+                </Text>
+              </View>
+            )}
+            <AppButton onPress={onSubmit} loading={createReservation.isPending}>
+              Reservar
+            </AppButton>
           </AppCard>
-        )}
-
-        <DateField
-          label="Fecha inicio"
-          value={startDate}
-          onChange={editStart}
-          minimumDate={new Date()}
-        />
-
-        <DateField
-          label="Fecha fin"
-          value={endDate}
-          onChange={editEnd}
-          minimumDate={new Date(Date.now() + 86400000)}
-        />
-
-        <FormError message={clientError ?? serverError} />
-
-        <AppButton onPress={onSubmit} loading={createReservation.isPending}>
-          Reservar
-        </AppButton>
-      </ScrollView>
+        </ScrollView>
+      </ScreenShell>
     </KeyboardAvoidingView>
   )
 }
-

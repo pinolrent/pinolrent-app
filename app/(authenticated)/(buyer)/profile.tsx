@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
-import { AppBackButton } from '@/components/nav-icons'
+import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 
@@ -27,58 +27,53 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 16, gap: 12 }}
-    >
-      <AppBackButton />
-      <Text
-        accessibilityRole="header"
-        className="text-2xl font-bold text-foreground"
+    <ScreenShell back title="Mi perfil" width="form">
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 16 }}
       >
-        Mi perfil
-      </Text>
-      <AppCard>
-        <View className="gap-1">
-          <Text className="text-sm text-muted-foreground">Email</Text>
-          <Text className="text-base text-foreground">{user?.email}</Text>
-        </View>
-        <View className="gap-1">
-          <Text className="text-sm text-muted-foreground">Rol</Text>
-          <Text className="text-base text-foreground">
-            {user?.role === 'seller' ? 'Vendedor' : 'Comprador'}
-          </Text>
-        </View>
-        <AppInput
-          label="Teléfono (WhatsApp)"
-          placeholder="Ej. 9 1234 5678"
-          autoComplete="tel"
-          textContentType="telephoneNumber"
-          keyboardType="phone-pad"
-          autoCapitalize="none"
-          autoCorrect={false}
-          returnKeyType="done"
-          onSubmitEditing={onSave}
-          value={phone}
-          onChangeText={(v) => {
-            setPhone(v)
-            setSaved(false)
-            update.reset()
-          }}
-        />
-        <FormError message={clientError ?? serverError} />
-        {saved && (
-          <Text
-            accessibilityLiveRegion="polite"
-            className="text-sm text-foreground"
-          >
-            Teléfono actualizado
-          </Text>
-        )}
-        <AppButton onPress={onSave} loading={update.isPending}>
-          Guardar teléfono
-        </AppButton>
-      </AppCard>
-    </ScrollView>
+        <AppCard>
+          <View className="gap-1">
+            <Text className="text-sm text-muted-foreground">Email</Text>
+            <Text className="text-base text-foreground">{user?.email}</Text>
+          </View>
+          <View className="gap-1">
+            <Text className="text-sm text-muted-foreground">Rol</Text>
+            <Text className="text-base text-foreground">
+              {user?.role === 'seller' ? 'Vendedor' : 'Comprador'}
+            </Text>
+          </View>
+          <AppInput
+            label="Teléfono (WhatsApp)"
+            placeholder="Ej. 9 1234 5678"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
+            keyboardType="phone-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={onSave}
+            value={phone}
+            onChangeText={(v) => {
+              setPhone(v)
+              setSaved(false)
+              update.reset()
+            }}
+          />
+          <FormError message={clientError ?? serverError} />
+          {saved && (
+            <Text
+              accessibilityLiveRegion="polite"
+              className="text-sm text-foreground"
+            >
+              Teléfono actualizado
+            </Text>
+          )}
+          <AppButton onPress={onSave} loading={update.isPending}>
+            Guardar teléfono
+          </AppButton>
+        </AppCard>
+      </ScrollView>
+    </ScreenShell>
   )
 }

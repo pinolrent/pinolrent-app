@@ -1,10 +1,12 @@
 import * as Haptics from 'expo-haptics'
 import { useState } from 'react'
 import {
-  View,
-  Text,
+  Linking,
+  Pressable,
   FlatList,
   RefreshControl,
+  Text,
+  View,
   Alert,
 } from 'react-native'
 import {
@@ -12,26 +14,26 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
-import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
-import { formatPrice } from '@/utils/currency'
-import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
-import {
-  PAYMENT_METHOD_LABELS,
-  PAYMENT_STATUS_LABELS,
-} from '@/constants/payment-ui'
-import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
-import { Linking, Pressable } from 'react-native'
-import { StatusBadge } from '@/components/fields'
+import { ScreenShell } from '@/components/ScreenShell'
+import { ReservationColumns, ReservationRow } from '@/components/rows'
+import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
-export default function ReservedScreen() {
+export default function SellerReservationsScreen() {
+  const { isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerReservations()
   const confirm = useConfirmReservation()
 
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
   const [confirmErrorId, setConfirmErrorId] = useState<number | null>(null)
+
+  const reservations = data ?? []
+  const pending = reservations.filter(
+    (r) => r.status === 'pending' && r.payment?.status === 'pending'
+  ).length
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar las reservas')
@@ -45,140 +47,153 @@ export default function ReservedScreen() {
   const canConfirm = (r: Reservation) =>
     r.status === 'pending' && r.payment?.status === 'pending'
 
+  const onConfirm = (id: number) =>
+    confirm.mutate(id, {
+      onSuccess: () => {
+        setConfirmErrorId(null)
+        setConfirmingId(null)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        Alert.alert('Reserva confirmada', `Reserva #${id} confirmada`, [
+          { text: 'Aceptar' },
+        ])
+      },
+      onError: () => setConfirmErrorId(id),
+    })
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background">
-        <SkeletonList count={4} />
-      </View>
-    )
-  }
+  const proofLink = (item: Reservation) =>
+    item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="Ver comprobante del pago"
+        onPress={() => {
+          const url = resolveImageUrl(item.payment!.proof_url)
+          if (url) Linking.openURL(url)
+        }}
+        className="min-h-11 justify-center"
+      >
+        <Text
+          className="text-sm text-primary"
+          numberOfLines={1}
+          ellipsizeMode="middle"
+        >
+          Ver comprobante
+        </Text>
+      </Pressable>
+    ) : null
 
-  if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
-        <Text className="text-muted-foreground">{errorMessage}</Text>
-        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
+  const confirmBlock = (item: Reservation) => (
+    <View className="gap-2">
+      <Text
+        accessibilityLiveRegion="polite"
+        className="text-sm text-foreground"
+      >
+        ¿Confirmar la reserva de {item.car.name}?
+      </Text>
+      <View className="flex-row items-center gap-2">
+        <AppButton onPress={() => onConfirm(item.id)} loading={confirm.isPending}>
+          Sí, confirmar
+        </AppButton>
+        <AppButton variant="ghost" onPress={() => setConfirmingId(null)}>
+          Volver
+        </AppButton>
       </View>
-    )
-  }
+      {confirmError && confirmErrorId === item.id && (
+        <FormError message={confirmError} />
+      )}
+    </View>
+  )
 
   const renderItem = ({ item }: { item: Reservation }) => {
-    const confirming = confirmingId === item.id
-    return (
-      <AppCard>
-        <View className="flex-row items-center justify-between gap-2">
-          <Text className="flex-1 text-base font-bold text-foreground">
-            {item.car.name}
-          </Text>
-          <StatusBadge tone={STATUS_TONES[item.status]}>
-            {STATUS_LABELS[item.status]}
-          </StatusBadge>
-        </View>
-        <Text className="text-muted-foreground">
-          {formatDate(item.start_date)} – {formatDate(item.end_date)}
-        </Text>
-        <Text className="text-sm text-foreground">
-          {formatPrice(item.car.price_per_day)} / día · Total{' '}
-          {formatPrice(daysBetween(item.start_date, item.end_date) * item.car.price_per_day)}
-        </Text>
-        {item.payment && (
-          <Text className="text-muted-foreground">
-            Pago: {PAYMENT_METHOD_LABELS[item.payment.method]} ·{' '}
-            {PAYMENT_STATUS_LABELS[item.payment.status]}
-          </Text>
-        )}
-        {item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
-          <Pressable
-            accessibilityRole="link"
-            accessibilityLabel="Ver comprobante del pago"
-            onPress={() => {
-              const u = resolveImageUrl(item.payment!.proof_url)
-              if (u) Linking.openURL(u)
-            }}
-            className="min-h-11 justify-center self-start"
-          >
-            <Text
-              className="text-sm text-primary"
-              numberOfLines={1}
-              ellipsizeMode="middle"
-            >
-              Ver comprobante
-            </Text>
-          </Pressable>
-        ) : null}
-        {item.status === 'pending' && !item.payment && (
-          <Text className="text-muted-foreground">
-            Esperando pago del comprador
-          </Text>
-        )}
-        {canConfirm(item) && (
-          <AppButton
-            onPress={() => setConfirmingId(confirming ? null : item.id)}
-            disabled={confirm.isPending}
-          >
-            Confirmar
-          </AppButton>
-        )}
-        {confirming && canConfirm(item) && (
-          <View className="mt-1 gap-2">
-            <Text
-              accessibilityLiveRegion="polite"
-              className="text-muted-foreground"
-            >
-              ¿Confirmar la reserva de {item.car.name}?
-            </Text>
-            {confirmError && confirmErrorId === item.id && (
-              <FormError message={confirmError} />
-            )}
-            <View className="flex-row items-center gap-2">
-              <AppButton
-                onPress={() =>
-                  confirm.mutate(item.id, {
-                    onSuccess: () => {
-                      setConfirmErrorId(null)
-                      setConfirmingId(null)
-                      Haptics.notificationAsync(
-                        Haptics.NotificationFeedbackType.Success
-                      )
-                      Alert.alert(
-                        'Reserva confirmada',
-                        `Reserva #${item.id} confirmada`,
-                        [{ text: 'Aceptar' }]
-                      )
-                    },
-                    onError: () => setConfirmErrorId(item.id),
-                  })
-                }
-                loading={confirm.isPending}
-              >
-                Sí, confirmar
-              </AppButton>
-              <AppButton
-                variant="ghost"
-                onPress={() => setConfirmingId(null)}
-              >
-                Volver
-              </AppButton>
+    const confirming = confirmingId === item.id && canConfirm(item)
+    const actionable = canConfirm(item)
+
+    if (isDesktop) {
+      return (
+        <View className="border-b border-border">
+          <ReservationRow
+            reservation={item}
+            columns
+            action={
+              actionable && !confirming ? (
+                <View className="items-end gap-1">
+                  <AppButton
+                    size="sm"
+                    onPress={() => setConfirmingId(item.id)}
+                  >
+                    Confirmar
+                  </AppButton>
+                  {proofLink(item)}
+                </View>
+              ) : (
+                <View className="items-end">{proofLink(item)}</View>
+              )
+            }
+          />
+          {confirming && (
+            <View className="border-t border-border bg-muted/40 px-4 py-3">
+              {confirmBlock(item)}
             </View>
-          </View>
-        )}
-      </AppCard>
+          )}
+        </View>
+      )
+    }
+
+    return (
+      <ReservationRow
+        reservation={item}
+        action={
+          confirming ? (
+            confirmBlock(item)
+          ) : actionable ? (
+            <View className="gap-1">
+              <AppButton onPress={() => setConfirmingId(item.id)}>
+                Confirmar
+              </AppButton>
+              {proofLink(item)}
+            </View>
+          ) : (
+            proofLink(item)
+          )
+        }
+      />
     )
   }
 
   return (
-    <FlatList
-      className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 16, gap: 12 }}
-      data={data ?? []}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={renderItem}
-      refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+    <ScreenShell
+      title="Reservas"
+      subtitle={
+        isLoading
+          ? undefined
+          : `${reservations.length} en total · ${pending} por confirmar`
       }
-      ListEmptyComponent={<EmptyState message="No hay reservas" />}
-    />
+    >
+      {isLoading ? (
+        <SkeletonList count={4} />
+      ) : isError ? (
+        <View className="items-center gap-3 py-8">
+          <FormError message={errorMessage} />
+          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
+        </View>
+      ) : (
+        <FlatList
+          className="flex-1"
+          contentContainerStyle={
+            isDesktop ? { paddingBottom: 16 } : { gap: 12, paddingBottom: 16 }
+          }
+          data={reservations}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          ListHeaderComponent={isDesktop ? <ReservationColumns /> : null}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => refetch()}
+            />
+          }
+          ListEmptyComponent={<EmptyState message="No hay reservas" />}
+        />
+      )}
+    </ScreenShell>
   )
 }
-

@@ -1,20 +1,22 @@
-import { View, Text, ScrollView, Linking, Pressable } from 'react-native'
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
-import { CarImage } from '@/components/CarImage'
+import { CarPhoto } from '@/components/rows'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
-import { AppBackButton } from '@/components/nav-icons'
 import { useReduceMotion } from '@/components/PressScale'
-import { AppButton } from '@/components/ui-kit'
+import { ScreenShell } from '@/components/ScreenShell'
+import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
   const reduceMotion = useReduceMotion()
+  const { isPhone } = useBreakpoints()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { data: car, isLoading, isError, error, refetch } = useCar(idNum)
@@ -26,71 +28,87 @@ export default function CarDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background">
+      <ScreenShell back title="Detalle del auto">
         <SkeletonList count={2} />
-      </View>
+      </ScreenShell>
     )
   }
 
   if (invalidId || isError || !car) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
-        <Text className="text-muted-foreground">
-          {invalidId
-            ? 'ID de auto inválido'
-            : (errorMessage ?? 'No se encontró el auto')}
-        </Text>
-        {!invalidId && (
-          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-        )}
-      </View>
+      <ScreenShell back title="Detalle del auto">
+        <View className="items-center gap-3 py-8">
+          <FormError
+            message={
+              invalidId
+                ? 'ID de auto inválido'
+                : (errorMessage ?? 'No se encontró el auto')
+            }
+          />
+          {!invalidId && (
+            <AppButton onPress={() => refetch()}>Reintentar</AppButton>
+          )}
+        </View>
+      </ScreenShell>
     )
   }
 
   return (
     <Animated.View
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
-      className="flex-1 bg-background"
+      className="flex-1"
     >
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 16, gap: 12 }}
-    >
-        <AppBackButton />
-      <CarImage uri={car.photo_url} name={car.name} />
-      <View className="flex-row items-center justify-between gap-2">
-        <Text
-          accessibilityRole="header"
-          className="mt-2 flex-1 text-2xl font-bold text-foreground"
-        >
-          {car.name}
-        </Text>
-        <StatusBadge tone={car.active ? 'success' : 'muted'}>
-          {car.active ? 'Activo' : 'Inactivo'}
-        </StatusBadge>
-      </View>
-      <Text className="text-muted-foreground">
-        {formatPrice(car.price_per_day)} / día
-      </Text>
-      {contact.data?.whatsapp_url ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="Contactar al vendedor por WhatsApp"
-          onPress={() => Linking.openURL(contact.data.whatsapp_url)}
-          className="min-h-11 justify-center"
-        >
-          <Text className="text-center text-sm text-primary">
-            Contactar al vendedor por WhatsApp
-          </Text>
-        </Pressable>
-      ) : null}
-      <AppButton
-        onPress={() => router.push(`/(authenticated)/(buyer)/reserve/${car.id}`)}
+      <ScreenShell
+        back
+        title={car.name}
+        subtitle={`${formatPrice(car.price_per_day)} / día`}
+        action={
+          <StatusBadge tone={car.active ? 'success' : 'muted'}>
+            {car.active ? 'Activo' : 'Inactivo'}
+          </StatusBadge>
+        }
       >
-        Reservar este auto
-      </AppButton>
-    </ScrollView>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 16 }}
+        >
+          <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
+            <View className="flex-1">
+              <CarPhoto uri={car.photo_url} name={car.name} />
+            </View>
+            <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
+              <AppCard className="gap-3">
+                <Text className="text-sm text-muted-foreground">Contacto</Text>
+                {contact.data?.whatsapp_url ? (
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel="Contactar al vendedor por WhatsApp"
+                    onPress={() =>
+                      Linking.openURL(contact.data!.whatsapp_url)
+                    }
+                    className="min-h-11 justify-center"
+                  >
+                    <Text className="text-base font-semibold text-primary">
+                      Contactar al vendedor por WhatsApp
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Text className="text-base text-foreground">
+                    El vendedor todavía no cargó un teléfono.
+                  </Text>
+                )}
+              </AppCard>
+              <AppButton
+                onPress={() =>
+                  router.push(`/(authenticated)/(buyer)/reserve/${car.id}`)
+                }
+              >
+                Reservar este auto
+              </AppButton>
+            </View>
+          </View>
+        </ScrollView>
+      </ScreenShell>
     </Animated.View>
   )
 }
-
