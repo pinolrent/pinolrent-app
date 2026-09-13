@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Image, Pressable, Text, View } from 'react-native'
 import { resolveImageUrl } from '@/utils/errors'
+import { useHover } from '@/hooks/useHover'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDateRange, formatDays } from '@/utils/dates'
 import { StatusBadge } from '@/components/fields'
@@ -65,14 +66,13 @@ export function CarCard({
   onPress?: () => void
   footer?: ReactNode
 }) {
-  const body = (
-    <View
-      className="flex-1 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
-      style={{ maxWidth: 360 }}
-    >
+  const { hovered, hoverProps } = useHover()
+
+  const content = (
+    <>
       <CarPhoto uri={car.photo_url} name={car.name} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={1} className="text-base font-bold text-foreground">
+        <Text numberOfLines={2} className="text-base font-bold text-foreground">
           {car.name}
         </Text>
         <Text className="text-sm font-semibold text-foreground">
@@ -80,19 +80,34 @@ export function CarCard({
         </Text>
       </View>
       {footer}
-    </View>
+    </>
   )
 
-  if (!onPress) return body
+  if (!onPress) {
+    return (
+      <View
+        className="flex-1 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+        style={{ maxWidth: 360 }}
+      >
+        {content}
+      </View>
+    )
+  }
 
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      className="flex-1"
-      style={{ maxWidth: 360 }}
+      {...hoverProps}
+      className={`flex-1 gap-3 rounded-xl border bg-card p-3 shadow-sm ${
+        hovered ? 'border-primary/40' : 'border-border'
+      }`}
+      style={({ pressed }) => [
+        { maxWidth: 360 },
+        pressed ? { opacity: 0.9 } : null,
+      ]}
     >
-      {body}
+      {content}
     </Pressable>
   )
 }

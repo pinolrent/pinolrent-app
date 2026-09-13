@@ -112,6 +112,9 @@ export default function ReserveScreen() {
           )
           router.replace('/(authenticated)/(buyer)/reservations')
         },
+        onError: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        },
       }
     )
   }

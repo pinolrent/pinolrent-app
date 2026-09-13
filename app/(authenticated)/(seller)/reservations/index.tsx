@@ -57,7 +57,10 @@ export default function SellerReservationsScreen() {
           { text: 'Aceptar' },
         ])
       },
-      onError: () => setConfirmErrorId(id),
+      onError: () => {
+        setConfirmErrorId(id)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      },
     })
 
   const proofLink = (item: Reservation) =>
@@ -191,7 +194,9 @@ export default function SellerReservationsScreen() {
               onRefresh={() => refetch()}
             />
           }
-          ListEmptyComponent={<EmptyState message="No hay reservas" />}
+          ListEmptyComponent={
+            <EmptyState message="Cuando alguien reserve uno de tus autos, vas a verla acá" />
+          }
         />
       )}
     </ScreenShell>

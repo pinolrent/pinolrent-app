@@ -158,6 +158,7 @@ export default function RegisterScreen() {
               className={`min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-lg px-3 py-2 ${
                 selected ? 'bg-primary' : 'bg-muted'
               }`}
+              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >
               {selected ? <Check size={16} color="#FFFFFF" /> : null}
               <Text

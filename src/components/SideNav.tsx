@@ -3,6 +3,7 @@ import { Image, Modal, Pressable, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
 import type { NavItem } from '@/constants/nav'
+import { useHover } from '@/hooks/useHover'
 import { useThemeStore } from '@/stores/theme.store'
 import { ThemeToggle } from './ThemeToggle'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -55,6 +56,41 @@ function isActive(pathname: string, href: string) {
   return pathname === `/${tail}` || pathname.startsWith(`/${tail}/`)
 }
 
+function NavRow({
+  item,
+  active,
+  onPress,
+}: {
+  item: NavItem
+  active: boolean
+  onPress: () => void
+}) {
+  const { hovered, hoverProps } = useHover()
+  const Icon = NAV_ICONS[item.icon]
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      {...hoverProps}
+      className={`min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 ${
+        active ? 'bg-primary' : hovered ? 'bg-accent' : ''
+      }`}
+      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+    >
+      <Icon size={20} color={active ? '#fff' : '#64748B'} />
+      <Text
+        className={
+          active ? 'font-semibold text-primary-foreground' : 'text-foreground'
+        }
+      >
+        {item.label}
+      </Text>
+    </Pressable>
+  )
+}
+
 export function Sidebar({ items }: { items: NavItem[] }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -77,32 +113,14 @@ export function Sidebar({ items }: { items: NavItem[] }) {
         />
         <Text className="text-lg font-bold text-foreground">PinolRent</Text>
       </View>
-      {items.map((item) => {
-        const Icon = NAV_ICONS[item.icon]
-        const active = isActive(pathname, item.href)
-        return (
-          <Pressable
-            key={item.href}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            onPress={() => router.push(item.href as never)}
-            className={`min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 ${
-              active ? 'bg-primary' : ''
-            }`}
-          >
-            <Icon size={20} color={active ? '#fff' : '#64748B'} />
-            <Text
-              className={
-                active
-                  ? 'font-semibold text-primary-foreground'
-                  : 'text-foreground'
-              }
-            >
-              {item.label}
-            </Text>
-          </Pressable>
-        )
-      })}
+      {items.map((item) => (
+        <NavRow
+          key={item.href}
+          item={item}
+          active={isActive(pathname, item.href)}
+          onPress={() => router.push(item.href as never)}
+        />
+      ))}
       <SidebarFooter />
     </View>
   )
@@ -187,35 +205,17 @@ export function MenuButton({ items }: { items: NavItem[] }) {
                 />
               </Pressable>
             </View>
-            {items.map((item) => {
-              const Icon = NAV_ICONS[item.icon]
-              const active = isActive(pathname, item.href)
-              return (
-                <Pressable
-                  key={item.href}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  onPress={() => {
-                    setOpen(false)
-                    router.push(item.href as never)
-                  }}
-                  className={`min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 ${
-                    active ? 'bg-primary' : ''
-                  }`}
-                >
-                  <Icon size={20} color={active ? '#fff' : '#64748B'} />
-                  <Text
-                    className={
-                      active
-                        ? 'font-semibold text-primary-foreground'
-                        : 'text-foreground'
-                    }
-                  >
-                    {item.label}
-                  </Text>
-                </Pressable>
-              )
-            })}
+            {items.map((item) => (
+              <NavRow
+                key={item.href}
+                item={item}
+                active={isActive(pathname, item.href)}
+                onPress={() => {
+                  setOpen(false)
+                  router.push(item.href as never)
+                }}
+              />
+            ))}
             <SidebarFooter />
           </View>
         </View>

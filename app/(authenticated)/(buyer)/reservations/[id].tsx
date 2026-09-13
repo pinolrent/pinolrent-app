@@ -10,7 +10,7 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/components/PressScale'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
-import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, FormError, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -127,12 +127,7 @@ export default function ReservationDetailScreen() {
                 </Text>
               </AppCard>
               {paidMessage && (
-                <Text
-                  accessibilityLiveRegion="polite"
-                  className="text-sm text-foreground"
-                >
-                  {paidMessage}
-                </Text>
+                <SuccessNote message={paidMessage} />
               )}
               <PayReservationBlock
                 reservation={data}
