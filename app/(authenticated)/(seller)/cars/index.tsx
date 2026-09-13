@@ -1,25 +1,20 @@
 import { useState } from 'react'
-import {
-  View,
-  Text,
-  FlatList,
-  RefreshControl,
-} from 'react-native'
+import { View, Text, FlatList, RefreshControl } from 'react-native'
 import {
   useCreateSellerCar,
   useSellerCars,
   useToggleSellerCar,
 } from '@/hooks/useSellerCars'
 import type { Car } from '@/types/car'
-import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { CarImage } from '@/components/CarImage'
+import { ScreenShell } from '@/components/ScreenShell'
+import { CarCard } from '@/components/rows'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 function specificToggleError(err: unknown) {
   const msg = getApiErrorMessage(err, 'Error al actualizar el auto')
@@ -30,7 +25,7 @@ function specificToggleError(err: unknown) {
 }
 
 export default function SellerCarsScreen() {
-  const { columns: numColumns } = useBreakpoints()
+  const { columns: numColumns, isPhone } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
@@ -55,20 +50,19 @@ export default function SellerCarsScreen() {
     ? specificToggleError(toggleCar.error)
     : null
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background">
-        <SkeletonList count={4} />
-      </View>
-    )
-  }
+  const togglingRowId =
+    toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
+      ? toggleCar.variables.id
+      : togglingId
 
-  if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background p-4">
-        <Text className="text-muted-foreground">{errorMessage}</Text>
-        <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-      </View>
+  const onToggle = (car: Car) => {
+    setTogglingId(car.id)
+    toggleCar.mutate(
+      { id: car.id, active: !car.active },
+      {
+        onSuccess: () => setTogglingId(null),
+        onError: () => setTogglingId(null),
+      }
     )
   }
 
@@ -120,120 +114,140 @@ export default function SellerCarsScreen() {
     )
   }
 
-  const togglingRowId =
-    toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
-      ? toggleCar.variables.id
-      : togglingId
-
-  const onToggle = (car: Car) => {
-    setTogglingId(car.id)
-    toggleCar.mutate(
-      { id: car.id, active: !car.active },
-      {
-        onSuccess: () => setTogglingId(null),
-        onError: () => setTogglingId(null),
-      }
-    )
-  }
+  const cars = data ?? []
+  const activeCount = cars.filter((car) => car.active).length
 
   const renderItem = ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
-    <AppCard className={numColumns > 1 ? 'flex-1' : undefined}>
-      <CarImage uri={item.photo_url} name={item.name} />
-      <View className="flex-row items-center justify-between gap-2">
-        <Text numberOfLines={1} className="flex-1 text-base font-bold text-foreground">
-          {item.name}
-        </Text>
-        <StatusBadge tone={item.active ? 'success' : 'muted'}>
-          {item.active ? 'Activo' : 'Inactivo'}
-        </StatusBadge>
-      </View>
-      <Text className="text-sm text-muted-foreground">
-        {formatPrice(item.price_per_day)} / día
-      </Text>
-      {togglingRowId === item.id && toggleCar.isPending ? (
-        <AppButton
-          variant={item.active ? 'destructive' : 'default'}
-          onPress={() => onToggle(item)}
-          loading
-        >
-          {item.active ? 'Desactivar' : 'Activar'}
-        </AppButton>
-      ) : (
-        <AppButton
-          variant={item.active ? 'destructive' : 'default'}
-          onPress={() => onToggle(item)}
-        >
-          {item.active ? 'Desactivar' : 'Activar'}
-        </AppButton>
-      )}
-    </AppCard>
+      <CarCard
+        car={item}
+        footer={
+          <View className="flex-row items-center justify-between gap-2">
+            <StatusBadge tone={item.active ? 'success' : 'muted'}>
+              {item.active ? 'Activo' : 'Inactivo'}
+            </StatusBadge>
+            <AppButton
+              size="sm"
+              variant={item.active ? 'outline' : 'default'}
+              onPress={() => onToggle(item)}
+              loading={togglingRowId === item.id && toggleCar.isPending}
+            >
+              {item.active ? 'Desactivar' : 'Activar'}
+            </AppButton>
+          </View>
+        }
+      />
     </StaggerCard>
   )
 
   return (
-    <View className="flex-1 gap-3 bg-background p-4">
-      <AppButton
-        onPress={() => {
-          setClientError(null)
-          createCar.reset()
-          setFormOpen(!formOpen)
-        }}
-      >
-        {formOpen ? 'Cerrar formulario' : 'Agregar auto'}
-      </AppButton>
-      {formOpen && (
-        <AppCard>
-          <AppInput
-            label="Nombre"
-            placeholder="Nombre (obligatorio)"
-            value={name}
-            onChangeText={setName}
+    <ScreenShell
+      title="Mis autos"
+      subtitle={`${cars.length} ${cars.length === 1 ? 'publicado' : 'publicados'} · ${activeCount} ${activeCount === 1 ? 'activo' : 'activos'}`}
+      action={
+        <AppButton
+          variant={formOpen ? 'outline' : 'default'}
+          onPress={() => {
+            setClientError(null)
+            createCar.reset()
+            setFormOpen(!formOpen)
+          }}
+        >
+          {formOpen ? 'Cerrar' : 'Agregar auto'}
+        </AppButton>
+      }
+    >
+      {isLoading ? (
+        <SkeletonList count={4} />
+      ) : isError ? (
+        <View className="items-center gap-3 py-8">
+          <FormError message={errorMessage} />
+          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
+        </View>
+      ) : (
+        <>
+          {formOpen && (
+            <AppCard className="gap-4">
+              <Text
+                accessibilityRole="header"
+                className="text-lg font-bold text-foreground"
+              >
+                Nuevo auto
+              </Text>
+              <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
+                <View className="flex-1">
+                  <AppInput
+                    label="Nombre"
+                    placeholder="Ej. Toyota Corolla 2020"
+                    value={name}
+                    onChangeText={setName}
+                  />
+                </View>
+                <View className={isPhone ? '' : 'w-56'}>
+                  <AppInput
+                    label="Precio por día (USD)"
+                    placeholder="Ej. 45.00"
+                    keyboardType="decimal-pad"
+                    value={priceText}
+                    onChangeText={setPriceText}
+                  />
+                </View>
+              </View>
+              <ImageUploadField
+                label="Foto"
+                value={photoUrl}
+                onUploaded={setPhotoUrl}
+              />
+              <AppInput
+                label="o pega la URL"
+                placeholder="https://... o /uploads/..."
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={photoUrl}
+                onChangeText={setPhotoUrl}
+              />
+              <FormError message={clientError ?? createError} />
+              <View className="flex-row items-center gap-3">
+                <AppButton onPress={onSubmit} loading={createCar.isPending}>
+                  Crear auto
+                </AppButton>
+                <AppButton variant="ghost" onPress={() => setFormOpen(false)}>
+                  Cancelar
+                </AppButton>
+              </View>
+            </AppCard>
+          )}
+          <FormError message={toggleError} />
+          <FlatList
+            key={numColumns}
+            numColumns={numColumns}
+            columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
+            className="flex-1"
+            contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
+            data={cars}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={renderItem}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={() => refetch()}
+              />
+            }
+            ListEmptyComponent={
+              <EmptyState
+                message="Todavía no publicaste autos"
+                action={
+                  formOpen ? null : (
+                    <AppButton onPress={() => setFormOpen(true)}>
+                      Agregar auto
+                    </AppButton>
+                  )
+                }
+              />
+            }
           />
-          <ImageUploadField
-            label="Foto"
-            value={photoUrl}
-            onUploaded={setPhotoUrl}
-          />
-          <AppInput
-            label="o pega la URL"
-            placeholder="photo_url (opcional, https://... o /uploads/...)"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={photoUrl}
-            onChangeText={setPhotoUrl}
-          />
-          <AppInput
-            label="Precio por día (USD)"
-            placeholder="Ej. 45.00 (se guarda en centavos)"
-            keyboardType="decimal-pad"
-            value={priceText}
-            onChangeText={setPriceText}
-          />
-          <FormError message={clientError ?? createError} />
-          <AppButton onPress={onSubmit} loading={createCar.isPending}>
-            Crear auto
-          </AppButton>
-        </AppCard>
+        </>
       )}
-      <FormError message={toggleError} />
-      <FlatList
-        key={numColumns}
-        numColumns={numColumns}
-        columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
-        className="flex-1"
-        contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
-        data={data ?? []}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
-        }
-        ListEmptyComponent={
-          <EmptyState message="No hay autos publicados" />
-        }
-      />
-    </View>
+    </ScreenShell>
   )
 }
-

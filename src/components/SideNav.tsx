@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Image, Modal, Pressable, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
+import type { NavItem } from '@/constants/nav'
 import { useThemeStore } from '@/stores/theme.store'
 import { ThemeToggle } from './ThemeToggle'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -46,12 +47,6 @@ function SidebarFooter() {
       </Pressable>
     </View>
   )
-}
-
-export interface NavItem {
-  label: string
-  href: string
-  icon: keyof typeof NAV_ICONS
 }
 
 function isActive(pathname: string, href: string) {

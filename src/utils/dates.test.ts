@@ -1,9 +1,27 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, formatDate, toISO } from './dates'
+import { daysBetween, formatDate, formatDateRange, formatDays, toISO } from './dates'
 
 describe('formatDate', () => {
   it('formats YYYY-MM-DD as DD/MM/YYYY', () => {
     expect(formatDate('2026-10-01')).toBe('01/10/2026')
+  })
+})
+
+describe('formatDateRange', () => {
+  it('joins both ends of the range with an arrow', () => {
+    expect(formatDateRange('2026-09-20', '2026-09-22')).toBe(
+      '20/09/2026 → 22/09/2026'
+    )
+  })
+})
+
+describe('formatDays', () => {
+  it('uses the singular for one day', () => {
+    expect(formatDays(1)).toBe('1 día')
+  })
+
+  it('uses the plural for any other count', () => {
+    expect(formatDays(3)).toBe('3 días')
   })
 })
 

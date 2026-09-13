@@ -4,7 +4,8 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
 import { tabBarColors } from '@/components/tab-bar'
-import { Sidebar, type NavItem } from '@/components/SideNav'
+import { Sidebar } from '@/components/SideNav'
+import { buyerNav } from '@/constants/nav'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 function TabIcon({
@@ -33,11 +34,9 @@ export default function BuyerTabsLayout() {
     )
   }
 
-  const items: NavItem[] = [{ label: "Inicio", href: "/(authenticated)/(buyer)", icon: "home" }, { label: "Catálogo", href: "/(authenticated)/(buyer)/catalog", icon: "catalog" }, { label: "Reservas", href: "/(authenticated)/(buyer)/reservations", icon: "reservations" }, { label: "Perfil", href: "/(authenticated)/(buyer)/profile", icon: "profile" }]
-
   return (
     <View className="flex-1 flex-row bg-background">
-      <Sidebar items={items} />
+      <Sidebar items={buyerNav} />
       <View className="flex-1">
         <Tabs
       screenOptions={{
