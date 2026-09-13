@@ -3,7 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native'
 import {
@@ -153,12 +152,17 @@ export default function SellerCarsScreen() {
         {formatPrice(item.price_per_day)} / día
       </Text>
       {togglingRowId === item.id && toggleCar.isPending ? (
-        <ActivityIndicator />
+        <AppButton
+          variant={item.active ? 'destructive' : 'default'}
+          onPress={() => onToggle(item)}
+          loading
+        >
+          {item.active ? 'Desactivar' : 'Activar'}
+        </AppButton>
       ) : (
         <AppButton
           variant={item.active ? 'destructive' : 'default'}
           onPress={() => onToggle(item)}
-          disabled={toggleCar.isPending && togglingRowId === item.id}
         >
           {item.active ? 'Desactivar' : 'Activar'}
         </AppButton>
@@ -207,8 +211,8 @@ export default function SellerCarsScreen() {
             onChangeText={setPriceText}
           />
           <FormError message={clientError ?? createError} />
-          <AppButton onPress={onSubmit} disabled={createCar.isPending}>
-            {createCar.isPending ? <ActivityIndicator /> : 'Crear auto'}
+          <AppButton onPress={onSubmit} loading={createCar.isPending}>
+            Crear auto
           </AppButton>
         </AppCard>
       )}

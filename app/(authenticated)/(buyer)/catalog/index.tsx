@@ -152,7 +152,7 @@ export default function CatalogScreen() {
         ListFooterComponent={
           isFetchingNextPage ? (
             <View className="py-4">
-              <ActivityIndicator />
+              <ActivityIndicator accessibilityLabel="Cargando más autos" />
             </View>
           ) : null
         }
