@@ -73,7 +73,7 @@ export default function SellerHomeScreen() {
           <View className="flex-1 gap-3">
             <View className="flex-row gap-3">
               <StatCard label="Autos" value={String(cars?.length ?? 0)} />
-              <StatCard label="Por confirmar" value={String(pendingPay)} />
+              <StatCard label="Pendientes" value={String(pendingPay)} />
             </View>
             <View className="flex-row gap-3">
               <StatCard label="Confirmadas" value={String(confirmed)} />

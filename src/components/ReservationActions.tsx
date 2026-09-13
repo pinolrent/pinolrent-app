@@ -99,7 +99,7 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
               }
               loading={cancel.isPending}
             >
-              Sí, cancelar
+              Cancelar reserva
             </AppButton>
             <AppButton variant="ghost" onPress={() => setConfirming(false)}>
               Volver
@@ -134,8 +134,8 @@ export function PayReservationBlock({
     if (proof.length > 0 && !isImageUrl(proof)) {
       setClientError(
         proof.length > 2048
-          ? 'Comprobante demasiado largo'
-          : 'Comprobante inválido: sube una foto o pega una URL válida'
+          ? 'La URL del comprobante es demasiado larga'
+          : 'Sube una foto o pega una URL válida'
       )
       return
     }
@@ -163,7 +163,7 @@ export function PayReservationBlock({
     <View className="gap-2">
       {!open ? (
         <AppButton onPress={() => setOpen(true)} loading={pay.isPending}>
-          Pagar
+          Registrar pago
         </AppButton>
       ) : (
         <View className="gap-2">
@@ -208,8 +208,8 @@ export function PayReservationBlock({
             onUploaded={setProofUrl}
           />
           <AppInput
-            label="o pega la URL"
-            placeholder="URL del comprobante (opcional)"
+            label="URL del comprobante"
+            placeholder="https://... o /uploads/..."
             autoComplete="url"
             autoCapitalize="none"
             autoCorrect={false}

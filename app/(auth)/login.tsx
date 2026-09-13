@@ -115,11 +115,11 @@ export default function LoginScreen() {
       )}
 
       <AppButton onPress={onLogin} loading={login.isPending}>
-        Entrar
+        Iniciar sesión
       </AppButton>
 
       <Link href="/(auth)/register" className="mt-1 self-center px-3 py-3.5">
-        <Text className="text-primary">¿No tienes cuenta? Regístrate</Text>
+        <Text className="text-primary">Crear cuenta</Text>
       </Link>
     </>
   )

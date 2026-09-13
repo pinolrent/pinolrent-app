@@ -39,11 +39,7 @@ export default function CarDetailScreen() {
       <ScreenShell back title="Detalle del auto">
         <View className="items-center gap-3 py-8">
           <FormError
-            message={
-              invalidId
-                ? 'ID de auto inválido'
-                : (errorMessage ?? 'No se encontró el auto')
-            }
+            message={errorMessage ?? 'No encontramos ese auto'}
           />
           {!invalidId && (
             <AppButton onPress={() => refetch()}>Reintentar</AppButton>

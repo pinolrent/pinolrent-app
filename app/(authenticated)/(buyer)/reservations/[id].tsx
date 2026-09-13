@@ -49,8 +49,8 @@ export default function ReservationDetailScreen() {
           <FormError
             message={
               invalidId
-                ? 'ID de reserva inválido'
-                : (errorMessage ?? 'No se encontró la reserva')
+                ? 'No encontramos esa reserva'
+                : (errorMessage ?? 'No encontramos esa reserva')
             }
           />
           {!invalidId && (

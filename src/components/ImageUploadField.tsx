@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { useAuthStore } from '@/stores/auth.store'
 import { API_URL } from '@/constants/config'
@@ -22,7 +22,7 @@ export function ImageUploadField({
     setError(null)
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!permission.granted) {
-      setError('Necesitamos acceso a tus fotos para subir la imagen')
+      setError('Habilita el acceso a tus fotos para subir la imagen')
       return
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -82,17 +82,17 @@ export function ImageUploadField({
       <Text className="text-sm text-muted-foreground">{label}</Text>
       <View className="flex-row items-center gap-2">
         <AppButton onPress={pick} loading={uploading}>
-          Subir foto
+          {value ? 'Cambiar foto' : 'Subir foto'}
         </AppButton>
         {value ? (
-          <Text
-            className="flex-1 text-sm text-muted-foreground"
-            numberOfLines={1}
-          >
-            {value}
+          <Text className="flex-1 text-sm text-muted-foreground">
+            Foto lista
           </Text>
         ) : null}
       </View>
+      <Text className="text-sm text-muted-foreground">
+        JPG, PNG o WebP, hasta 5 MB
+      </Text>
       <FormError message={error} />
       {uploading ? (
         <Text
@@ -102,20 +102,6 @@ export function ImageUploadField({
           Subiendo imagen
         </Text>
       ) : null}
-      <Pressable
-        accessibilityRole="button"
-        onPress={pick}
-        disabled={uploading}
-        className={`min-h-11 justify-center self-start rounded-lg px-2 ${
-          uploading ? 'opacity-40' : ''
-        }`}
-      >
-        <Text className="text-sm text-primary">
-          {value
-            ? 'Cambiar imagen'
-            : 'Elegir de la galería (JPG, PNG o WebP, máx 5 MB)'}
-        </Text>
-      </Pressable>
     </View>
   )
 }
