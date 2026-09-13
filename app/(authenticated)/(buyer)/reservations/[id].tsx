@@ -8,6 +8,7 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDate } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
+import { useReduceMotion } from '@/components/PressScale'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
@@ -24,6 +25,7 @@ export default function ReservationDetailScreen() {
   const invalidId = !Number.isFinite(idNum)
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
+  const reduceMotion = useReduceMotion()
   const [paidMessage, setPaidMessage] = useState<string | null>(null)
 
   const errorMessage = isError
@@ -57,7 +59,10 @@ export default function ReservationDetailScreen() {
   const total = days * data.car.price_per_day
 
   return (
-    <Animated.View entering={FadeIn.duration(200)} className="flex-1 bg-background">
+    <Animated.View
+      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      className="flex-1 bg-background"
+    >
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
@@ -68,7 +73,10 @@ export default function ReservationDetailScreen() {
         <AppBackButton />
       <AppCard>
         <View className="flex-row items-center justify-between gap-2">
-          <Text className="flex-1 text-2xl font-bold text-foreground">
+          <Text
+            accessibilityRole="header"
+            className="flex-1 text-2xl font-bold text-foreground"
+          >
             {data.car.name}
           </Text>
           <StatusBadge tone={STATUS_TONES[data.status]}>
@@ -89,7 +97,12 @@ export default function ReservationDetailScreen() {
           <Text className="text-muted-foreground">Sin pago registrado</Text>
         )}
         {paidMessage && (
-          <Text className="text-sm text-foreground">{paidMessage}</Text>
+          <Text
+            accessibilityLiveRegion="polite"
+            className="text-sm text-foreground"
+          >
+            {paidMessage}
+          </Text>
         )}
         <PayReservationBlock
           reservation={data}

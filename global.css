@@ -1,5 +1,15 @@
 @import "tailwindcss";
 @import 'uniwind';
+@layer base {
+  [role='button']:focus-visible,
+  [role='radio']:focus-visible,
+  [role='link']:focus-visible,
+  [role='tab']:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
 /* ─── UniWind theme variants ─────────────────────────────────────
    Switched at runtime via Uniwind.setTheme('light' | 'dark').
    Hex tokens per variant (no rgb(var()) indirection): utilities like

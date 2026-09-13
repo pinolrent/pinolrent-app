@@ -7,12 +7,14 @@ import { CarImage } from '@/components/CarImage'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
+import { useReduceMotion } from '@/components/PressScale'
 import { AppButton } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
+  const reduceMotion = useReduceMotion()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { data: car, isLoading, isError, error, refetch } = useCar(idNum)
@@ -46,7 +48,10 @@ export default function CarDetailScreen() {
   }
 
   return (
-    <Animated.View entering={FadeIn.duration(200)} className="flex-1 bg-background">
+    <Animated.View
+      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      className="flex-1 bg-background"
+    >
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 12 }}
@@ -54,7 +59,10 @@ export default function CarDetailScreen() {
         <AppBackButton />
       <CarImage uri={car.photo_url} name={car.name} />
       <View className="flex-row items-center justify-between gap-2">
-        <Text className="mt-2 flex-1 text-2xl font-bold text-foreground">
+        <Text
+          accessibilityRole="header"
+          className="mt-2 flex-1 text-2xl font-bold text-foreground"
+        >
           {car.name}
         </Text>
         <StatusBadge tone={car.active ? 'success' : 'muted'}>
@@ -69,6 +77,7 @@ export default function CarDetailScreen() {
           accessibilityRole="link"
           accessibilityLabel="Contactar al vendedor por WhatsApp"
           onPress={() => Linking.openURL(contact.data.whatsapp_url)}
+          className="min-h-11 justify-center"
         >
           <Text className="text-center text-sm text-primary">
             Contactar al vendedor por WhatsApp

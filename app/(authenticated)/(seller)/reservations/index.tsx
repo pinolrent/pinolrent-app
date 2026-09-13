@@ -4,7 +4,6 @@ import {
   View,
   Text,
   FlatList,
-  ActivityIndicator,
   RefreshControl,
   Alert,
 } from 'react-native'
@@ -92,9 +91,18 @@ export default function ReservedScreen() {
         {item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
           <Pressable
             accessibilityRole="link"
-            onPress={() => { const u = resolveImageUrl(item.payment!.proof_url); if (u) Linking.openURL(u) }}
+            accessibilityLabel="Ver comprobante del pago"
+            onPress={() => {
+              const u = resolveImageUrl(item.payment!.proof_url)
+              if (u) Linking.openURL(u)
+            }}
+            className="min-h-11 justify-center self-start"
           >
-            <Text className="text-sm text-primary" numberOfLines={1} ellipsizeMode="middle">
+            <Text
+              className="text-sm text-primary"
+              numberOfLines={1}
+              ellipsizeMode="middle"
+            >
               Ver comprobante
             </Text>
           </Pressable>
@@ -114,42 +122,45 @@ export default function ReservedScreen() {
         )}
         {confirming && canConfirm(item) && (
           <View className="mt-1 gap-2">
-            {confirm.isPending ? (
-              <ActivityIndicator />
-            ) : (
-              <>
-                <Text className="text-muted-foreground">
-                  ¿Confirmar la reserva de {item.car.name}?
-                </Text>
-                {confirmError && confirmErrorId === item.id && (
-                  <FormError message={confirmError} />
-                )}
-                <View className="flex-row items-center gap-2">
-                  <AppButton
-                    onPress={() =>
-                      confirm.mutate(item.id, {
-                        onSuccess: () => {
-                          setConfirmErrorId(null)
-                          setConfirmingId(null)
-                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-                          Alert.alert('Reserva confirmada', `Reserva #${item.id} confirmada`)
-                        },
-                        onError: () => setConfirmErrorId(item.id),
-                      })
-                    }
-                    disabled={confirm.isPending}
-                  >
-                    Confirmar
-                  </AppButton>
-                  <AppButton
-                    variant="ghost"
-                    onPress={() => setConfirmingId(null)}
-                  >
-                    Volver
-                  </AppButton>
-                </View>
-              </>
+            <Text
+              accessibilityLiveRegion="polite"
+              className="text-muted-foreground"
+            >
+              ¿Confirmar la reserva de {item.car.name}?
+            </Text>
+            {confirmError && confirmErrorId === item.id && (
+              <FormError message={confirmError} />
             )}
+            <View className="flex-row items-center gap-2">
+              <AppButton
+                onPress={() =>
+                  confirm.mutate(item.id, {
+                    onSuccess: () => {
+                      setConfirmErrorId(null)
+                      setConfirmingId(null)
+                      Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                      )
+                      Alert.alert(
+                        'Reserva confirmada',
+                        `Reserva #${item.id} confirmada`,
+                        [{ text: 'Aceptar' }]
+                      )
+                    },
+                    onError: () => setConfirmErrorId(item.id),
+                  })
+                }
+                loading={confirm.isPending}
+              >
+                Sí, confirmar
+              </AppButton>
+              <AppButton
+                variant="ghost"
+                onPress={() => setConfirmingId(null)}
+              >
+                Volver
+              </AppButton>
+            </View>
           </View>
         )}
       </AppCard>

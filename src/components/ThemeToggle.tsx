@@ -13,7 +13,7 @@ export function ThemeToggle() {
       accessibilityRole="button"
       accessibilityLabel={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
       onPress={() => toggle()}
-      className="flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5"
+      className="min-h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-2"
     >
       <Icon size={16} color={dark ? '#E2E8F0' : '#0F172A'} />
       <View>

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import {
   View,
   Text,
-  ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -98,7 +97,11 @@ export default function ReserveScreen() {
       {
         onSuccess: (res) => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-          Alert.alert('Reserva creada', `Reserva #${res.id} en estado pendiente`)
+          Alert.alert(
+            'Reserva creada',
+            `Reserva #${res.id} en estado pendiente`,
+            [{ text: 'Aceptar' }]
+          )
           router.replace('/(authenticated)/(buyer)/reservations')
         },
       }
@@ -119,7 +122,10 @@ export default function ReserveScreen() {
         contentContainerStyle={{ padding: 16, gap: 12 }}
       >
         <AppBackButton />
-        <Text className="text-2xl font-bold text-foreground">
+        <Text
+          accessibilityRole="header"
+          className="text-2xl font-bold text-foreground"
+        >
           Reservar {car.name}
         </Text>
         <Text className="text-muted-foreground">
@@ -150,8 +156,8 @@ export default function ReserveScreen() {
 
         <FormError message={clientError ?? serverError} />
 
-        <AppButton onPress={onSubmit} disabled={createReservation.isPending}>
-          {createReservation.isPending ? <ActivityIndicator /> : 'Reservar'}
+        <AppButton onPress={onSubmit} loading={createReservation.isPending}>
+          Reservar
         </AppButton>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -18,24 +18,18 @@ export default function AuthenticatedLayout() {
 
   if (!isLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" accessibilityLabel="Cargando" />
       </View>
     )
   }
 
   if (token && !user) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 12,
-          padding: 24,
-        }}
-      >
-        <Text>Sesión inválida, vuelve a iniciar sesión</Text>
+      <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
+        <Text accessibilityRole="alert" className="text-center text-foreground">
+          Sesión inválida, vuelve a iniciar sesión
+        </Text>
         <AppButton onPress={() => clearAuth()}>Cerrar sesión</AppButton>
       </View>
     )

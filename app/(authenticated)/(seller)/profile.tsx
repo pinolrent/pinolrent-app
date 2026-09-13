@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
 import { AppBackButton } from '@/components/nav-icons'
@@ -32,7 +32,12 @@ export default function SellerProfileScreen() {
       contentContainerStyle={{ padding: 16, gap: 12 }}
     >
       <AppBackButton />
-      <Text className="text-2xl font-bold text-foreground">Mi perfil</Text>
+      <Text
+        accessibilityRole="header"
+        className="text-2xl font-bold text-foreground"
+      >
+        Mi perfil
+      </Text>
       <AppCard>
         <View className="gap-1">
           <Text className="text-sm text-muted-foreground">Email</Text>
@@ -47,9 +52,13 @@ export default function SellerProfileScreen() {
         <AppInput
           label="Teléfono (WhatsApp)"
           placeholder="Ej. 9 1234 5678"
+          autoComplete="tel"
+          textContentType="telephoneNumber"
           keyboardType="phone-pad"
           autoCapitalize="none"
           autoCorrect={false}
+          returnKeyType="done"
+          onSubmitEditing={onSave}
           value={phone}
           onChangeText={(v) => {
             setPhone(v)
@@ -59,12 +68,15 @@ export default function SellerProfileScreen() {
         />
         <FormError message={clientError ?? serverError} />
         {saved && (
-          <Text className="text-sm text-foreground">
+          <Text
+            accessibilityLiveRegion="polite"
+            className="text-sm text-foreground"
+          >
             Teléfono actualizado
           </Text>
         )}
-        <AppButton onPress={onSave} disabled={update.isPending}>
-          {update.isPending ? <ActivityIndicator /> : 'Guardar teléfono'}
+        <AppButton onPress={onSave} loading={update.isPending}>
+          Guardar teléfono
         </AppButton>
       </AppCard>
     </ScrollView>

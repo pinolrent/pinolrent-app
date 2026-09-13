@@ -1,4 +1,6 @@
 import Animated, { FadeInDown } from 'react-native-reanimated'
+import { View } from 'react-native'
+import { useReduceMotion } from './PressScale'
 
 export function StaggerCard({
   index,
@@ -7,6 +9,12 @@ export function StaggerCard({
   index: number
   children: React.ReactNode
 }) {
+  const reduce = useReduceMotion()
+
+  if (reduce) {
+    return <View className="flex-1">{children}</View>
+  }
+
   return (
     <Animated.View
       entering={FadeInDown.duration(250).delay(Math.min(index, 10) * 30)}

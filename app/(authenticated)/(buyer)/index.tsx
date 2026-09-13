@@ -34,7 +34,10 @@ export default function BuyerHomeScreen() {
   return (
     <View className="flex-1 gap-3 bg-background p-4">
       <View className="flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-foreground">
+        <Text
+          accessibilityRole="header"
+          className="text-2xl font-bold text-foreground"
+        >
           Panel de comprador
         </Text>
         {!isDesktop && <MenuButton items={items} />}
@@ -46,7 +49,7 @@ export default function BuyerHomeScreen() {
       ) : loadError ? (
         <View className="gap-2">
           <FormError message={loadError} />
-          <AppButton onPress={() => refetch()} disabled={isRefetching}>
+          <AppButton onPress={() => refetch()} loading={isRefetching}>
             Reintentar
           </AppButton>
         </View>

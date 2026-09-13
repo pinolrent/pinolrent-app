@@ -31,6 +31,7 @@ export function CarImage({ uri, name }: { uri?: string; name: string }) {
         className="aspect-[4/3] w-full rounded-lg"
         source={{ uri: resolved }}
         resizeMode="cover"
+        accessible={false}
         onError={() => setFailed(true)}
       />
     </View>

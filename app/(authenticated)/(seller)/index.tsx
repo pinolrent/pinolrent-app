@@ -62,7 +62,10 @@ export default function SellerHomeScreen() {
   return (
     <View className="flex-1 gap-3 bg-background p-4">
       <View className="flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-foreground">
+        <Text
+          accessibilityRole="header"
+          className="text-2xl font-bold text-foreground"
+        >
           Panel de vendedor
         </Text>
         {!isDesktop && <MenuButton items={items} />}
@@ -79,7 +82,7 @@ export default function SellerHomeScreen() {
               refetchCars()
               refetchRes()
             }}
-            disabled={carsRefetching || resRefetching}
+            loading={carsRefetching || resRefetching}
           >
             Reintentar
           </AppButton>

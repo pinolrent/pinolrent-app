@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
+import { Linking, Pressable, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
+import { Check } from 'lucide-react-native'
 import { useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
@@ -23,17 +24,19 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
       Linking.openURL(url)
     }
   }
+  const hasProof = Boolean(payment.proof_url && isImageUrl(payment.proof_url))
   return (
     <View className="gap-1">
       <Text className="text-muted-foreground">
         Pago: {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
         {PAYMENT_STATUS_LABELS[payment.status]}
       </Text>
-      {payment.proof_url ? (
+      {hasProof ? (
         <Pressable
           accessibilityRole="link"
+          accessibilityLabel="Ver comprobante del pago"
           onPress={openProof}
-          disabled={!isImageUrl(payment.proof_url)}
+          className="min-h-11 justify-center self-start"
         >
           <Text
             className="text-sm text-primary"
@@ -63,43 +66,40 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
         <AppButton
           variant="destructive"
           onPress={() => setConfirming(true)}
-          disabled={cancel.isPending}
+          loading={cancel.isPending}
         >
           Cancelar reserva
         </AppButton>
       ) : (
         <View className="gap-2">
-          {cancel.isPending ? (
-            <ActivityIndicator />
-          ) : (
-            <>
-              <Text className="text-muted-foreground">
-                ¿Cancelar la reserva de {reservation.car.name}?
-              </Text>
-              <FormError message={cancelError} />
-              <View className="flex-row items-center gap-2">
-                <AppButton
-                  variant="destructive"
-                  onPress={() =>
-                    cancel.mutate(reservation.id, {
-                      onSuccess: () => {
-                        setConfirming(false)
-                        Haptics.notificationAsync(
-                          Haptics.NotificationFeedbackType.Success
-                        )
-                      },
-                    })
-                  }
-                  disabled={cancel.isPending}
-                >
-                  Confirmar
-                </AppButton>
-                <AppButton variant="ghost" onPress={() => setConfirming(false)}>
-                  Volver
-                </AppButton>
-              </View>
-            </>
-          )}
+          <Text
+            accessibilityLiveRegion="polite"
+            className="text-muted-foreground"
+          >
+            ¿Cancelar la reserva de {reservation.car.name}?
+          </Text>
+          <FormError message={cancelError} />
+          <View className="flex-row items-center gap-2">
+            <AppButton
+              variant="destructive"
+              onPress={() =>
+                cancel.mutate(reservation.id, {
+                  onSuccess: () => {
+                    setConfirming(false)
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success
+                    )
+                  },
+                })
+              }
+              loading={cancel.isPending}
+            >
+              Sí, cancelar
+            </AppButton>
+            <AppButton variant="ghost" onPress={() => setConfirming(false)}>
+              Volver
+            </AppButton>
+          </View>
         </View>
       )}
     </View>
@@ -154,32 +154,44 @@ export function PayReservationBlock({
   return (
     <View className="gap-2">
       {!open ? (
-        <AppButton onPress={() => setOpen(true)} disabled={pay.isPending}>
+        <AppButton onPress={() => setOpen(true)} loading={pay.isPending}>
           Pagar
         </AppButton>
       ) : (
         <View className="gap-2">
-          <View className="flex-row gap-2">
-            {PAYMENT_METHODS.map((m) => (
-              <Pressable
-                key={m}
-                accessibilityRole="button"
-                onPress={() => setMethod(m)}
-                className={`rounded-lg border px-3 py-1.5 ${
-                  method === m
-                    ? 'border-primary bg-primary'
-                    : 'border-border bg-card'
-                }`}
-              >
-                <Text
-                  className={
-                    method === m ? 'text-primary-foreground' : 'text-foreground'
-                  }
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel="Método de pago"
+            className="flex-row gap-2"
+          >
+            {PAYMENT_METHODS.map((m) => {
+              const selected = method === m
+              return (
+                <Pressable
+                  key={m}
+                  accessibilityRole="radio"
+                  aria-checked={selected}
+                  accessibilityState={{ checked: selected }}
+                  onPress={() => setMethod(m)}
+                  className={`min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-2 ${
+                    selected
+                      ? 'border-primary bg-primary'
+                      : 'border-border bg-card'
+                  }`}
                 >
-                  {PAYMENT_METHOD_LABELS[m]}
-                </Text>
-              </Pressable>
-            ))}
+                  {selected ? <Check size={16} color="#FFFFFF" /> : null}
+                  <Text
+                    className={
+                      selected
+                        ? 'text-primary-foreground'
+                        : 'text-foreground'
+                    }
+                  >
+                    {PAYMENT_METHOD_LABELS[m]}
+                  </Text>
+                </Pressable>
+              )
+            })}
           </View>
           <ImageUploadField
             label="Comprobante"
@@ -189,15 +201,18 @@ export function PayReservationBlock({
           <AppInput
             label="o pega la URL"
             placeholder="URL del comprobante (opcional)"
+            autoComplete="url"
             autoCapitalize="none"
             autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={submit}
             value={proofUrl}
             onChangeText={setProofUrl}
           />
           <FormError message={clientError ?? payError} />
           <View className="flex-row items-center gap-2">
-            <AppButton onPress={submit} disabled={pay.isPending}>
-              {pay.isPending ? <ActivityIndicator /> : 'Registrar pago'}
+            <AppButton onPress={submit} loading={pay.isPending}>
+              Registrar pago
             </AppButton>
             <AppButton variant="ghost" onPress={() => setOpen(false)}>
               Volver
