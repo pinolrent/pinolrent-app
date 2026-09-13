@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import {
-  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -19,13 +18,12 @@ import {
   validatePhone,
 } from '@/utils/errors'
 import { Brand } from '@/components/Brand'
+import { RouteScene } from '@/components/RouteScene'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 type Role = 'buyer' | 'seller'
-
-const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 
 export default function RegisterScreen() {
   const { isPhone } = useBreakpoints()
@@ -197,7 +195,6 @@ export default function RegisterScreen() {
       {isPhone ? (
         <AppCard className="gap-3 p-6">
           <Brand />
-          <View className="h-px bg-border" />
           {cardContent}
         </AppCard>
       ) : (
@@ -212,12 +209,9 @@ export default function RegisterScreen() {
   if (!isPhone) {
     return (
       <View className="flex-1 flex-row bg-background">
-        <ImageBackground
-          source={LOGIN_BG}
-          resizeMode="cover"
-          accessible={false}
-          className="flex-1"
-        />
+        <View className="flex-1">
+          <RouteScene />
+        </View>
         <View className="w-[520px] items-center justify-center bg-background p-8">
           {form}
         </View>
@@ -227,17 +221,13 @@ export default function RegisterScreen() {
 
   return (
     <View className="flex-1 overflow-hidden bg-background">
-      <ImageBackground
-        source={LOGIN_BG}
-        resizeMode="cover"
-        accessible={false}
-        className="absolute inset-0 h-full w-full"
-      />
       <View
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        className="absolute inset-0 bg-overlay opacity-70"
-      />
+        className="absolute inset-0"
+      >
+        <RouteScene />
+      </View>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -247,7 +237,7 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             flexGrow: 1,
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             padding: 24,
           }}
