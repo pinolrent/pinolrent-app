@@ -6,7 +6,7 @@
   [role='link']:focus-visible,
   [role='tab']:focus-visible,
   a:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-ring);
     outline-offset: 2px;
   }
 }
@@ -36,14 +36,14 @@
       --color-popover: #FFFFFF;
       --color-popover-foreground: #0F172A;
       --color-muted: #F1F5F9;
-      --color-muted-foreground: #64748B;
-      --color-destructive: #DC2626;
+      --color-muted-foreground: #5F6C80;
+      --color-destructive: #C81E1E;
       --color-success: #15803D;
       --color-warning: #B45309;
       --color-foreground: #0F172A;
       --color-border: #E2E8F0;
       --color-input: #E2E8F0;
-      --color-ring: #93C5FD;
+      --color-ring: #1D4ED8;
       --color-accent: #EFF6FF;
       --color-accent-foreground: #1E3A8A;
       --color-overlay: #0F172A;
@@ -81,7 +81,7 @@
       --color-input: #243352;
       --color-accent: #16213A;
       --color-accent-foreground: #E2E8F0;
-      --color-ring: #3B82F6;
+      --color-ring: #60A5FA;
       --color-overlay: #020617;
       --color-tint-warning: #422006;
       --color-tint-success: #052E16;

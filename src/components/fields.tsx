@@ -1,6 +1,7 @@
 import { forwardRef, useId, type ReactNode } from 'react'
 import { Text, View, type TextInput } from 'react-native'
 import { Input, InputField } from '../../components/ui/input'
+import { THEME_COLORS } from '@/constants/theme-colors'
 import { useThemeStore } from '@/stores/theme.store'
 import { FormError } from './ui-kit'
 
@@ -25,7 +26,7 @@ export const AppInput = forwardRef<
           aria-label={label}
           aria-describedby={error ? errorId : undefined}
           accessibilityLabel={label}
-          placeholderTextColor={theme === 'dark' ? '#94A3B8' : '#64748B'}
+          placeholderTextColor={THEME_COLORS[theme].mutedText}
           className="text-foreground"
           {...props}
         />

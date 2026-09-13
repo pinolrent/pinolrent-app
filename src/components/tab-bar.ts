@@ -1,10 +1,13 @@
-export function tabBarColors(dark: boolean) {
+import { THEME_COLORS, type ThemeName } from '@/constants/theme-colors'
+
+export function tabBarColors(theme: ThemeName) {
+  const colors = THEME_COLORS[theme]
   return {
     tabBarStyle: {
-      backgroundColor: dark ? '#111C33' : '#FFFFFF',
-      borderTopColor: dark ? '#243352' : '#E2E8F0',
+      backgroundColor: colors.card,
+      borderTopColor: colors.border,
     },
-    tabBarActiveTintColor: dark ? '#60A5FA' : '#1D4ED8',
-    tabBarInactiveTintColor: dark ? '#94A3B8' : '#64748B',
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.mutedText,
   }
 }

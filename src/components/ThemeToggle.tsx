@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
 import { Moon, Sun } from 'lucide-react-native'
+import { THEME_COLORS } from '@/constants/theme-colors'
 import { useThemeStore } from '@/stores/theme.store'
 
 export function ThemeToggle() {
@@ -15,7 +16,7 @@ export function ThemeToggle() {
       onPress={() => toggle()}
       className="min-h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-2"
     >
-      <Icon size={16} color={dark ? '#E2E8F0' : '#0F172A'} />
+      <Icon size={16} color={THEME_COLORS[theme].text} />
       <View>
         <Text className="text-sm text-foreground">
           {dark ? 'Claro' : 'Oscuro'}

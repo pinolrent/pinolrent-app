@@ -6,6 +6,7 @@ import { SafeAreaListener } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Uniwind } from 'uniwind'
 import { GluestackUIProvider } from '../components/ui/gluestack-ui-provider'
+import { THEME_COLORS } from '@/constants/theme-colors'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -38,7 +39,9 @@ export default function RootLayout() {
         Uniwind.updateInsets(insets)
       }}
     >
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#0B1220' : '#FFFFFF' }}>
+      <GestureHandlerRootView
+        style={{ flex: 1, backgroundColor: THEME_COLORS[theme].background }}
+      >
         <QueryClientProvider client={queryClient}>
           <GluestackUIProvider mode={theme}>
             <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
