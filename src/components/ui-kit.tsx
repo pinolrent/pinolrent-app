@@ -1,19 +1,37 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { Text, View } from 'react-native'
-import { Button, ButtonText } from '../../components/ui/button'
+import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 
 type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
 
 export function AppButton({
   children,
   variant = 'default',
+  loading = false,
+  disabled,
   ...props
 }: {
   children: ReactNode
   variant?: Variant
+  loading?: boolean
 } & Omit<ComponentProps<typeof Button>, 'variant' | 'children'>) {
   return (
-    <Button variant={variant} {...props}>
+    <Button
+      variant={variant}
+      {...props}
+      disabled={disabled || loading}
+      accessibilityState={{
+        ...props.accessibilityState,
+        busy: loading,
+        disabled: Boolean(disabled || loading),
+      }}
+    >
+      {loading ? (
+        <ButtonSpinner
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+        />
+      ) : null}
       <ButtonText>{children}</ButtonText>
     </Button>
   )
@@ -49,9 +67,24 @@ export function StatCard({
   )
 }
 
-export function FormError({ message }: { message: string | null }) {
+export function FormError({
+  message,
+  nativeID,
+}: {
+  message: string | null
+  nativeID?: string
+}) {
   if (!message) return null
-  return <Text className="text-sm text-destructive">{message}</Text>
+  return (
+    <Text
+      nativeID={nativeID}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      className="text-sm text-destructive"
+    >
+      {message}
+    </Text>
+  )
 }
 
 export function EmptyState({

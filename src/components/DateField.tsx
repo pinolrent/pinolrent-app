@@ -59,7 +59,7 @@ export function DateField({
         accessibilityRole="button"
         accessibilityLabel={label}
         onPress={() => setOpen(true)}
-        className="rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
+        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
       >
         <Text className={value ? 'text-foreground' : 'text-muted-foreground'}>
           {value ? formatDate(value) : 'Seleccionar fecha'}

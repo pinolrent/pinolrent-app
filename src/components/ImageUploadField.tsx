@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActivityIndicator, Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { useAuthStore } from '@/stores/auth.store'
 import { API_URL } from '@/constants/config'
@@ -81,19 +81,39 @@ export function ImageUploadField({
     <View className="gap-1">
       <Text className="text-sm text-muted-foreground">{label}</Text>
       <View className="flex-row items-center gap-2">
-        <AppButton onPress={pick} disabled={uploading}>
-          {uploading ? <ActivityIndicator /> : 'Subir foto'}
+        <AppButton onPress={pick} loading={uploading}>
+          Subir foto
         </AppButton>
         {value ? (
-          <Text className="flex-1 text-sm text-muted-foreground" numberOfLines={1}>
+          <Text
+            className="flex-1 text-sm text-muted-foreground"
+            numberOfLines={1}
+          >
             {value}
           </Text>
         ) : null}
       </View>
       <FormError message={error} />
-      <Pressable accessibilityRole="button" onPress={pick} disabled={uploading}>
+      {uploading ? (
+        <Text
+          accessibilityLiveRegion="polite"
+          className="text-sm text-muted-foreground"
+        >
+          Subiendo imagen
+        </Text>
+      ) : null}
+      <Pressable
+        accessibilityRole="button"
+        onPress={pick}
+        disabled={uploading}
+        className={`min-h-11 justify-center self-start rounded-lg px-2 ${
+          uploading ? 'opacity-40' : ''
+        }`}
+      >
         <Text className="text-sm text-primary">
-          {value ? 'Cambiar imagen' : 'Elegir de la galería (JPG, PNG o WebP, máx 5 MB)'}
+          {value
+            ? 'Cambiar imagen'
+            : 'Elegir de la galería (JPG, PNG o WebP, máx 5 MB)'}
         </Text>
       </Pressable>
     </View>

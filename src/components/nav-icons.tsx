@@ -35,7 +35,7 @@ export function AppBackButton() {
       accessibilityRole="button"
       accessibilityLabel="Regresar"
       onPress={() => router.back()}
-      className="h-10 w-10 items-center justify-center rounded-full border border-border bg-card"
+      className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card"
     >
       <Icon size={20} color="#1D4ED8" />
     </Pressable>
