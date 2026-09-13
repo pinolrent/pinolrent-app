@@ -3,6 +3,7 @@ import { Image, Modal, Pressable, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
 import type { NavItem } from '@/constants/nav'
+import { THEME_COLORS } from '@/constants/theme-colors'
 import { useHover } from '@/hooks/useHover'
 import { useThemeStore } from '@/stores/theme.store'
 import { ThemeToggle } from './ThemeToggle'
@@ -40,7 +41,9 @@ function SidebarFooter() {
         accessibilityLabel="Cerrar sesión"
         onPress={() => logout.mutate()}
         disabled={logout.isPending}
-        className="min-h-11 flex-row items-center justify-center gap-2 rounded-lg bg-destructive px-3 py-2 opacity-100 disabled:opacity-50"
+        className={`min-h-11 flex-row items-center justify-center gap-2 rounded-lg bg-destructive px-3 py-2 ${
+          logout.isPending ? 'opacity-40' : ''
+        }`}
       >
         <Text className="font-semibold text-white">
           {logout.isPending ? 'Cerrando sesión' : 'Cerrar sesión'}
@@ -66,6 +69,7 @@ function NavRow({
   onPress: () => void
 }) {
   const { hovered, hoverProps } = useHover()
+  const theme = useThemeStore((s) => s.theme)
   const Icon = NAV_ICONS[item.icon]
 
   return (
@@ -79,7 +83,14 @@ function NavRow({
       }`}
       style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
     >
-      <Icon size={20} color={active ? '#fff' : '#64748B'} />
+      <Icon
+        size={20}
+        color={
+          active
+            ? THEME_COLORS[theme].primaryForeground
+            : THEME_COLORS[theme].mutedText
+        }
+      />
       <Text
         className={
           active ? 'font-semibold text-primary-foreground' : 'text-foreground'
@@ -160,7 +171,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
         onPress={() => setOpen(true)}
         className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card"
       >
-        <MenuIcon size={20} color={theme === 'dark' ? '#E2E8F0' : '#0F172A'} />
+        <MenuIcon size={20} color={THEME_COLORS[theme].text} />
       </Pressable>
       <Modal
         visible={open}
@@ -199,10 +210,7 @@ export function MenuButton({ items }: { items: NavItem[] }) {
                 onPress={() => setOpen(false)}
                 className="h-11 w-11 items-center justify-center rounded-full border border-border"
               >
-                <CloseIcon
-                  size={20}
-                  color={theme === 'dark' ? '#E2E8F0' : '#0F172A'}
-                />
+                <CloseIcon size={20} color={THEME_COLORS[theme].text} />
               </Pressable>
             </View>
             {items.map((item) => (

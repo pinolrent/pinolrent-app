@@ -24,7 +24,6 @@ export default function SellerTabsLayout() {
   const isLoaded = useAuthStore((s) => s.isLoaded)
   const { isDesktop } = useBreakpoints()
   const theme = useThemeStore((s) => s.theme)
-  const dark = theme === 'dark'
 
   if (!isLoaded) {
     return (
@@ -43,7 +42,7 @@ export default function SellerTabsLayout() {
         headerShown: false,
         ...(isDesktop
           ? { tabBarStyle: { display: 'none' } }
-          : tabBarColors(dark)),
+          : tabBarColors(theme)),
       }}
     >
       <Tabs.Protected guard={!!token && user?.role === 'seller'}>
