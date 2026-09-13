@@ -56,11 +56,9 @@ export default function ReserveScreen() {
         <View className="items-center gap-3 py-8">
           <FormError
             message={
-              invalidId
-                ? 'ID de auto inválido'
-                : carError
-                  ? getApiErrorMessage(carErr, 'Error al cargar el auto')
-                  : 'No se encontró el auto'
+              carError
+                ? getApiErrorMessage(carErr, 'Error al cargar el auto')
+                : 'No encontramos ese auto'
             }
           />
           {!invalidId && (

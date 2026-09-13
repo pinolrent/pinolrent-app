@@ -77,7 +77,7 @@ describe('getApiErrorMessage', () => {
 describe('validators', () => {
   it('validates email', () => {
     expect(validateEmail('')).toBe('El email es obligatorio')
-    expect(validateEmail('no-es-email')).toBe('Email inválido')
+    expect(validateEmail('no-es-email')).toBe('Ingresa un email válido')
     expect(validateEmail('  user@mail.com  ')).toBeNull()
   })
 
@@ -146,6 +146,6 @@ describe('validators', () => {
     expect(validatePhone('', false)).toBeNull()
     expect(validatePhone('912345678', true)).toBeNull()
     expect(validatePhone('+56912345678', true)).toBeNull()
-    expect(validatePhone('abc', true)).toBe('Teléfono inválido')
+    expect(validatePhone('abc', true)).toBe('Ingresa un teléfono válido')
   })
 })

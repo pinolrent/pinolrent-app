@@ -5,7 +5,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function validateEmail(value: string): string | null {
   if (!value.trim()) return 'El email es obligatorio'
-  if (!EMAIL_RE.test(value.trim())) return 'Email inválido'
+  if (!EMAIL_RE.test(value.trim())) return 'Ingresa un email válido'
   return null
 }
 
@@ -21,13 +21,13 @@ export function validatePhone(value: string, required: boolean): string | null {
   if (!trimmed) {
     return required ? 'El teléfono es obligatorio para vendedores' : null
   }
-  if (trimmed.length > 32) return 'Teléfono inválido'
-  if (/[^0-9+ ().-]/.test(trimmed)) return 'Teléfono inválido'
+  if (trimmed.length > 32) return 'Ingresa un teléfono válido'
+  if (/[^0-9+ ().-]/.test(trimmed)) return 'Ingresa un teléfono válido'
   const digits = trimmed.replace(/\D/g, '')
   if (digits.length === 9 || digits.length === 11) return null
   if (trimmed.startsWith('+') && digits.length >= 8 && digits.length <= 15)
     return null
-  return 'Teléfono inválido'
+  return 'Ingresa un teléfono válido'
 }
 
 const HTTP_URL_RE = /^https?:\/\/.+/i
@@ -106,8 +106,8 @@ function translateBackendMessage(msg: string): string {
     return 'La reserva no puede superar los 30 días'
   if (lower.includes('start_date cannot be in the past'))
     return 'La fecha de inicio no puede ser anterior a hoy'
-  if (lower.includes('invalid email')) return 'Email inválido'
-  if (lower.includes('invalid phone')) return 'Teléfono inválido'
+  if (lower.includes('invalid email')) return 'Ingresa un email válido'
+  if (lower.includes('invalid phone')) return 'Ingresa un teléfono válido'
   if (lower.includes('phone is required for sellers'))
     return 'El teléfono es obligatorio para vendedores'
   if (lower.includes('password must be')) return 'La contraseña debe tener entre 8 y 72 caracteres'
@@ -126,11 +126,12 @@ function translateBackendMessage(msg: string): string {
 }
 
 function statusFallback(status?: number): string | null {
-  if (status === 400) return 'Solicitud inválida, revisa los datos'
-  if (status === 401) return 'Sesión expirada, inicia sesión de nuevo'
+  if (status === 400) return 'Revisa los datos e inténtalo de nuevo'
+  if (status === 401) return 'Tu sesión expiró, inicia sesión de nuevo'
   if (status === 403) return 'No tienes permiso para esta acción'
-  if (status === 404) return 'No encontrado, puede que ya no exista'
-  if (status === 409) return 'Conflicto con el estado actual, recarga e reintenta'
-  if (status && status >= 500) return 'Error del servidor, reintenta más tarde'
+  if (status === 404) return 'No encontramos lo que buscabas'
+  if (status === 409) return 'El estado cambió, recarga e inténtalo de nuevo'
+  if (status && status >= 500)
+    return 'No pudimos completar la acción, reintenta en unos minutos'
   return null
 }

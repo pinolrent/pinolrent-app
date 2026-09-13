@@ -183,11 +183,11 @@ export default function RegisterScreen() {
       )}
 
       <AppButton onPress={onRegister} loading={register.isPending}>
-        Registrarse
+        Crear cuenta
       </AppButton>
 
       <Link href="/(auth)/login" className="mt-1 self-center px-3 py-3.5">
-        <Text className="text-primary">¿Ya tienes cuenta? Inicia sesión</Text>
+        <Text className="text-primary">Iniciar sesión</Text>
       </Link>
     </>
   )

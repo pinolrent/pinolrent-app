@@ -42,11 +42,11 @@ export default function CatalogScreen() {
       return
     }
     if ((start && !end) || (!start && end)) {
-      setFilterError('start_date y end_date deben ir juntos')
+      setFilterError('Elige la fecha de inicio y la de fin')
       return
     }
     if (start && end && end < start) {
-      setFilterError('La fecha de fin debe ser posterior o igual a la de inicio')
+      setFilterError('La fecha de fin tiene que ser posterior a la de inicio')
       return
     }
     setFilterError(null)
@@ -153,7 +153,7 @@ export default function CatalogScreen() {
                 message={
                   filtered
                     ? 'Ningún auto libre en esas fechas'
-                    : 'No hay autos disponibles'
+                    : 'Todavía no hay autos publicados'
                 }
                 action={
                   filtered ? (

@@ -84,16 +84,16 @@ export default function SellerCarsScreen() {
       return
     }
     if (trimmedName.length > 200) {
-      setClientError('El nombre es demasiado largo (máx. 200)')
+      setClientError('El nombre no puede superar los 200 caracteres')
       return
     }
     if (trimmedPhoto.length > 0) {
       if (trimmedPhoto.length > 2048) {
-        setClientError('photo_url es demasiado largo')
+        setClientError('La URL de la foto es demasiado larga')
         return
       }
       if (!isImageUrl(trimmedPhoto)) {
-        setClientError('Foto inválida: sube una imagen o pega una URL válida')
+        setClientError('Sube una foto o pega una URL válida')
         return
       }
     }
@@ -101,7 +101,7 @@ export default function SellerCarsScreen() {
     if (priceText.trim().length > 0) {
       const dollars = Number(priceText.trim().replace(',', '.'))
       if (!Number.isFinite(dollars) || dollars < 0 || dollars > 1_000_000) {
-        setClientError('Precio inválido, usa dólares entre 0 y 1000000')
+        setClientError('Ingresa un precio en dólares de hasta 1.000.000')
         return
       }
       price = Math.round(dollars * 100)
@@ -169,7 +169,7 @@ export default function SellerCarsScreen() {
             setFormOpen(!formOpen)
           }}
         >
-          {formOpen ? 'Cerrar' : 'Agregar auto'}
+          {formOpen ? 'Cancelar' : 'Publicar auto'}
         </AppButton>
       }
     >
@@ -215,7 +215,7 @@ export default function SellerCarsScreen() {
                 onUploaded={setPhotoUrl}
               />
               <AppInput
-                label="o pega la URL"
+                label="URL de la foto"
                 placeholder="https://... o /uploads/..."
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -225,7 +225,7 @@ export default function SellerCarsScreen() {
               <FormError message={clientError ?? createError} />
               <View className="flex-row items-center gap-3">
                 <AppButton onPress={onSubmit} loading={createCar.isPending}>
-                  Crear auto
+                  Publicar auto
                 </AppButton>
                 <AppButton variant="ghost" onPress={() => setFormOpen(false)}>
                   Cancelar
@@ -256,7 +256,7 @@ export default function SellerCarsScreen() {
                 action={
                   formOpen ? null : (
                     <AppButton onPress={() => setFormOpen(true)}>
-                      Agregar auto
+                      Publicar auto
                     </AppButton>
                   )
                 }

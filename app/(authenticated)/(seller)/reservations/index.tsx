@@ -94,7 +94,7 @@ export default function SellerReservationsScreen() {
       </Text>
       <View className="flex-row items-center gap-2">
         <AppButton onPress={() => onConfirm(item.id)} loading={confirm.isPending}>
-          Sí, confirmar
+          Confirmar reserva
         </AppButton>
         <AppButton variant="ghost" onPress={() => setConfirmingId(null)}>
           Volver
@@ -123,7 +123,7 @@ export default function SellerReservationsScreen() {
                     size="sm"
                     onPress={() => setConfirmingId(item.id)}
                   >
-                    Confirmar
+                    Confirmar reserva
                   </AppButton>
                   {proofLink(item)}
                 </View>
@@ -150,7 +150,7 @@ export default function SellerReservationsScreen() {
           ) : actionable ? (
             <View className="gap-1">
               <AppButton onPress={() => setConfirmingId(item.id)}>
-                Confirmar
+                Confirmar reserva
               </AppButton>
               {proofLink(item)}
             </View>
@@ -168,7 +168,7 @@ export default function SellerReservationsScreen() {
       subtitle={
         isLoading
           ? undefined
-          : `${reservations.length} en total · ${pending} por confirmar`
+          : `${reservations.length} en total · ${pending} pendientes`
       }
     >
       {isLoading ? (
