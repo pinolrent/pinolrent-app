@@ -20,7 +20,7 @@ import {
   validatePhone,
 } from '@/utils/errors'
 import { Brand } from '@/components/Brand'
-import { AppButton, AppCard } from '@/components/ui-kit'
+import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
@@ -177,14 +177,7 @@ export default function RegisterScreen() {
         })}
       </View>
 
-      {error && (
-        <Text
-          accessibilityRole="alert"
-          className="text-center text-sm text-destructive"
-        >
-          {error}
-        </Text>
-      )}
+      <FormError message={error} className="text-center" />
 
       <AppButton onPress={onRegister} loading={register.isPending}>
         Crear cuenta

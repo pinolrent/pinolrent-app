@@ -18,7 +18,7 @@ import {
   validatePassword,
 } from '@/utils/errors'
 import { Brand } from '@/components/Brand'
-import { AppButton, AppCard } from '@/components/ui-kit'
+import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -107,19 +107,11 @@ export default function LoginScreen() {
         </Text>
       </Pressable>
 
-      {error && (
-        <Text
-          accessibilityRole="alert"
-          className="text-center text-sm text-destructive"
-        >
-          {error}
-        </Text>
-      )}
+      <FormError message={error} className="text-center" />
 
       <AppButton onPress={onLogin} loading={login.isPending}>
         Iniciar sesión
       </AppButton>
-
       <Link href="/(auth)/register" className="mt-1 self-center px-3 py-3.5">
         <Text className="text-primary">Crear cuenta</Text>
       </Link>

@@ -111,9 +111,11 @@ export function ListRow({
 export function FormError({
   message,
   nativeID,
+  className = '',
 }: {
   message: string | null
   nativeID?: string
+  className?: string
 }) {
   if (!message) return null
   return (
@@ -121,7 +123,7 @@ export function FormError({
       nativeID={nativeID}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
-      className="text-sm text-destructive"
+      className={`text-sm text-destructive ${className}`}
     >
       {message}
     </Text>
