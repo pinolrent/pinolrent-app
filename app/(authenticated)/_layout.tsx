@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Text, View, ActivityIndicator } from 'react-native'
+import { Text, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
-import { AppButton } from '@/components/ui-kit'
+import { AppButton, LoadingState } from '@/components/ui-kit'
 
 export default function AuthenticatedLayout() {
   const token = useAuthStore((s) => s.token)
@@ -17,11 +17,7 @@ export default function AuthenticatedLayout() {
   }, [isLoaded, token, user, clearAuth])
 
   if (!isLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" accessibilityLabel="Cargando" />
-      </View>
-    )
+    return <LoadingState />
   }
 
   if (token && !user) {

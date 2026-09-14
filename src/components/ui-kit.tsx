@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react'
-import { Text, View } from 'react-native'
+import { ActivityIndicator, Text, View } from 'react-native'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 
 type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
@@ -153,6 +153,18 @@ export function EmptyState({
     <View className="flex-1 items-center justify-center gap-3 p-6">
       <Text className="text-center text-muted-foreground">{message}</Text>
       {action}
+    </View>
+  )
+}
+
+export function LoadingState() {
+  return (
+    <View className="flex-1 items-center justify-center bg-background">
+      <ActivityIndicator
+        size="large"
+        accessibilityRole="progressbar"
+        accessibilityLabel="Cargando"
+      />
     </View>
   )
 }

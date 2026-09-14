@@ -1,8 +1,8 @@
-import { View, ActivityIndicator } from 'react-native'
 import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { headerColors } from '@/components/tab-bar'
+import { LoadingState } from '@/components/ui-kit'
 
 export default function BuyerLayout() {
   const token = useAuthStore((s) => s.token)
@@ -11,11 +11,7 @@ export default function BuyerLayout() {
   const theme = useThemeStore((s) => s.theme)
 
   if (!isLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" accessibilityLabel="Cargando" />
-      </View>
-    )
+    return <LoadingState />
   }
 
   return (
