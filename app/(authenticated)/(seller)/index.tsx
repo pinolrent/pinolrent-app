@@ -8,9 +8,8 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import {
-  AppButton,
   AppCard,
-  FormError,
+  ErrorState,
   ListGroup,
   ListRow,
 } from '@/components/ui-kit'
@@ -62,18 +61,14 @@ export default function SellerHomeScreen() {
       {carsLoading || resLoading ? (
         <SkeletonList count={2} />
       ) : loadError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={loadError} />
-          <AppButton
-            onPress={() => {
-              refetchCars()
-              refetchRes()
-            }}
-            loading={carsRefetching || resRefetching}
-          >
-            Reintentar
-          </AppButton>
-        </View>
+        <ErrorState
+          message={loadError}
+          onRetry={() => {
+            refetchCars()
+            refetchRes()
+          }}
+          retrying={carsRefetching || resRefetching}
+        />
       ) : (
         <View className="gap-6">
           {pendingPay > 0 ? (

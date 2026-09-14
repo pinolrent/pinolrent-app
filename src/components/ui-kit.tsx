@@ -156,3 +156,24 @@ export function EmptyState({
     </View>
   )
 }
+
+export function ErrorState({
+  message,
+  onRetry,
+  retrying = false,
+}: {
+  message: string | null
+  onRetry?: () => void
+  retrying?: boolean
+}) {
+  return (
+    <View className="items-center gap-3 py-8">
+      <FormError message={message} />
+      {onRetry ? (
+        <AppButton onPress={onRetry} loading={retrying}>
+          Reintentar
+        </AppButton>
+      ) : null}
+    </View>
+  )
+}

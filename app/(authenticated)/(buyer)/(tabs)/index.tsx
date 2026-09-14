@@ -6,7 +6,7 @@ import { useCars } from '@/hooks/useCars'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDateRange, formatDays, toISO } from '@/utils/dates'
-import { AppButton, AppCard, FormError, ListGroup } from '@/components/ui-kit'
+import { AppButton, AppCard, ErrorState, ListGroup } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -41,12 +41,11 @@ export default function BuyerHomeScreen() {
       {isLoading ? (
         <SkeletonList count={2} />
       ) : loadError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={loadError} />
-          <AppButton onPress={() => refetch()} loading={isRefetching}>
-            Reintentar
-          </AppButton>
-        </View>
+        <ErrorState
+          message={loadError}
+          onRetry={() => refetch()}
+          retrying={isRefetching}
+        />
       ) : (
         <View className="gap-6">
           <View className="gap-2">

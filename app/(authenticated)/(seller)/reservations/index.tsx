@@ -17,7 +17,7 @@ import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
-import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
+import { AppButton, EmptyState, ErrorState, FormError } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -174,10 +174,11 @@ export default function SellerReservationsScreen() {
       {isLoading ? (
         <SkeletonList count={4} />
       ) : isError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={errorMessage} />
-          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-        </View>
+        <ErrorState
+          message={errorMessage}
+          onRetry={() => refetch()}
+          retrying={isRefetching}
+        />
       ) : (
         <FlatList
           className="flex-1"

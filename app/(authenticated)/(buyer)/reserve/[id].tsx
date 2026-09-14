@@ -16,7 +16,7 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDays, isValidISODate, toISO } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
 import { DateField } from '@/components/DateField'
 
 export default function ReserveScreen() {
@@ -24,7 +24,7 @@ export default function ReserveScreen() {
   const router = useRouter()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar } =
+  const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar, isRefetching: carRefetching } =
     useCar(idNum)
   const createReservation = useCreateReservation()
 
@@ -53,18 +53,15 @@ export default function ReserveScreen() {
   if (invalidId || !car) {
     return (
       <ScreenShell width="form">
-        <View className="items-center gap-3 py-8">
-          <FormError
-            message={
-              carError
-                ? getApiErrorMessage(carErr, 'Error al cargar el auto')
-                : 'No encontramos ese auto'
-            }
-          />
-          {!invalidId && (
-            <AppButton onPress={() => refetchCar()}>Reintentar</AppButton>
-          )}
-        </View>
+        <ErrorState
+          message={
+            carError
+              ? getApiErrorMessage(carErr, 'Error al cargar el auto')
+              : 'No encontramos ese auto'
+          }
+          onRetry={invalidId ? undefined : () => refetchCar()}
+          retrying={carRefetching}
+        />
       </ScreenShell>
     )
   }

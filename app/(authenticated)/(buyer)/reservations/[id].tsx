@@ -10,7 +10,7 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/components/PressScale'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
-import { AppButton, AppCard, FormError, SuccessNote } from '@/components/ui-kit'
+import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -45,18 +45,15 @@ export default function ReservationDetailScreen() {
   if (invalidId || isError || !data) {
     return (
       <ScreenShell>
-        <View className="items-center gap-3 py-8">
-          <FormError
-            message={
-              invalidId
-                ? 'No encontramos esa reserva'
-                : (errorMessage ?? 'No encontramos esa reserva')
-            }
-          />
-          {!invalidId && (
-            <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-          )}
-        </View>
+        <ErrorState
+          message={
+            invalidId
+              ? 'No encontramos esa reserva'
+              : (errorMessage ?? 'No encontramos esa reserva')
+          }
+          onRetry={invalidId ? undefined : () => refetch()}
+          retrying={isRefetching}
+        />
       </ScreenShell>
     )
   }

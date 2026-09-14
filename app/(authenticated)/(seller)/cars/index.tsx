@@ -13,7 +13,7 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { CarCard } from '@/components/rows'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
-import { AppButton, AppCard, EmptyState, FormError, SuccessNote } from '@/components/ui-kit'
+import { AppButton, AppCard, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -176,10 +176,11 @@ export default function SellerCarsScreen() {
       {isLoading ? (
         <SkeletonList count={4} />
       ) : isError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={errorMessage} />
-          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-        </View>
+        <ErrorState
+          message={errorMessage}
+          onRetry={() => refetch()}
+          retrying={isRefetching}
+        />
       ) : (
         <>
           {formOpen && (

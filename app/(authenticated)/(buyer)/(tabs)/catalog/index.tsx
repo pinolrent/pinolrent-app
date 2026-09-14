@@ -16,7 +16,7 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
 import { isValidISODate } from '@/utils/dates'
-import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, EmptyState, ErrorState, FormError } from '@/components/ui-kit'
 import { DateField } from '@/components/DateField'
 
 const PAGE_SIZE = 10
@@ -86,10 +86,11 @@ export default function CatalogScreen() {
       {isLoading ? (
         <SkeletonList count={4} />
       ) : isError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={errorMessage} />
-          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-        </View>
+        <ErrorState
+          message={errorMessage}
+          onRetry={() => refetch()}
+          retrying={isRefetching}
+        />
       ) : (
         <>
           <AppCard className="gap-3 p-3">
