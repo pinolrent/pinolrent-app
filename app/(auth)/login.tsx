@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react'
 import {
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native'
 import type { TextInput } from 'react-native'
 import { Link } from 'expo-router'
@@ -16,13 +18,15 @@ import {
   validatePassword,
 } from '@/utils/errors'
 import { Brand } from '@/components/Brand'
-import { RouteScene } from '@/components/RouteScene'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
+const LOGIN_BG = require('../../src/assets/login-background.jpeg')
+
 export default function LoginScreen() {
   const { isPhone } = useBreakpoints()
+  const { width, height } = useWindowDimensions()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -125,8 +129,9 @@ export default function LoginScreen() {
   const form = (
     <View className="w-full max-w-md gap-4">
       {isPhone ? (
-        <AppCard className="gap-3 p-6">
+        <AppCard className="gap-3 p-5">
           <Brand />
+          <View className="h-px bg-border" />
           {cardContent}
         </AppCard>
       ) : (
@@ -141,9 +146,12 @@ export default function LoginScreen() {
   if (!isPhone) {
     return (
       <View className="flex-1 flex-row bg-background">
-        <View className="flex-1">
-          <RouteScene />
-        </View>
+        <ImageBackground
+          source={LOGIN_BG}
+          resizeMode="cover"
+          accessible={false}
+          className="flex-1"
+        />
         <View className="w-[520px] items-center justify-center bg-background p-8">
           {form}
         </View>
@@ -152,14 +160,18 @@ export default function LoginScreen() {
   }
 
   return (
-    <View className="flex-1 overflow-hidden bg-background">
-      <View
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        className="absolute inset-0"
-      >
-        <RouteScene />
-      </View>
+    <View className="flex-1 bg-background">
+      <ImageBackground
+        source={LOGIN_BG}
+        resizeMode="cover"
+        accessible={false}
+        style={{
+          width: '100%',
+          height: Math.round(Math.min(width / 1.5, height * 0.42)),
+          flexGrow: 0,
+          flexShrink: 0,
+        }}
+      />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -169,9 +181,9 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             flexGrow: 1,
-            justifyContent: 'flex-end',
+            justifyContent: 'center',
             alignItems: 'center',
-            padding: 24,
+            padding: 16,
           }}
         >
           {form}
