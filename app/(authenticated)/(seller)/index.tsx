@@ -16,12 +16,11 @@ import {
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { ScreenShell } from '@/components/ScreenShell'
-import { THEME_COLORS } from '@/constants/theme-colors'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerHomeScreen() {
   const router = useRouter()
-  const theme = useThemeStore((s) => s.theme)
+  const colors = useThemeColors()
   const {
     data: cars,
     isLoading: carsLoading,
@@ -93,10 +92,7 @@ export default function SellerHomeScreen() {
                       ? '1 reserva espera tu confirmación'
                       : `${pendingPay} reservas esperan tu confirmación`}
                   </Text>
-                  <ChevronRight
-                    size={20}
-                    color={THEME_COLORS[theme].mutedText}
-                  />
+                  <ChevronRight size={20} color={colors.mutedText} />
                 </View>
                 <Text className="text-sm text-muted-foreground">
                   Revisa el comprobante y confirma para cerrar la reserva.
