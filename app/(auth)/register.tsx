@@ -124,6 +124,9 @@ export default function RegisterScreen() {
       />
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={
+          showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+        }
         onPress={() => setShowPassword((v) => !v)}
         className="self-end rounded-lg px-2 py-3"
       >

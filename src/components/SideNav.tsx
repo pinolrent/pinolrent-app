@@ -31,6 +31,7 @@ function NavRow({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={item.label}
       accessibilityState={{ selected: active }}
       onPress={onPress}
       {...hoverProps}

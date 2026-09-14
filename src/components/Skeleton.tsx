@@ -21,7 +21,10 @@ export function SkeletonCard() {
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }))
 
   return (
-    <View className="gap-2 rounded-xl border border-border bg-card p-3">
+    <View
+      importantForAccessibility="no-hide-descendants"
+      className="gap-2 rounded-xl border border-border bg-card p-3"
+    >
       <Animated.View
         style={style}
         className="aspect-[4/3] w-full rounded-lg bg-muted"
@@ -34,7 +37,12 @@ export function SkeletonCard() {
 
 export function SkeletonList({ count = 4 }: { count?: number }) {
   return (
-    <View className="gap-3 p-4">
+    <View
+      accessible
+      accessibilityLabel="Cargando"
+      accessibilityLiveRegion="polite"
+      className="gap-3 p-4"
+    >
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}

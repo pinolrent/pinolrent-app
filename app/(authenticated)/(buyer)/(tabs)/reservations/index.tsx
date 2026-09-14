@@ -43,6 +43,7 @@ export default function ReservationsScreen() {
             >
               <Pressable
                 accessibilityRole="link"
+                accessibilityLabel="Ver detalle de la reserva"
                 className="min-h-11 justify-center"
               >
                 <Text className="text-sm text-primary">Ver detalle</Text>

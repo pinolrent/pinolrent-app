@@ -99,6 +99,7 @@ export function CarCard({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={car.name}
       onPress={onPress}
       {...hoverProps}
       className={`flex-1 gap-3 rounded-xl border bg-card p-3 shadow-sm ${
