@@ -6,7 +6,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import { useReduceMotion } from './PressScale'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 
 export function SkeletonCard() {
   const reduce = useReduceMotion()

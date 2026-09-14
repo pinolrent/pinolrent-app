@@ -52,21 +52,6 @@ export function AppCard({
   )
 }
 
-export function StatCard({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
-  return (
-    <View className="flex-1 rounded-xl border border-border bg-card p-3 shadow-sm">
-      <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Text className="text-lg font-bold text-foreground">{value}</Text>
-    </View>
-  )
-}
-
 export function ListGroup({
   title,
   children,
