@@ -11,3 +11,12 @@ export function tabBarColors(theme: ThemeName) {
     tabBarInactiveTintColor: colors.mutedText,
   }
 }
+
+export function headerColors(theme: ThemeName) {
+  const colors = THEME_COLORS[theme]
+  return {
+    headerStyle: { backgroundColor: colors.card },
+    headerTintColor: colors.primary,
+    headerTitleStyle: { color: colors.text, fontWeight: '600' as const },
+  }
+}

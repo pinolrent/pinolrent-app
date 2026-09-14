@@ -1,7 +1,10 @@
 import { useState, type ReactNode } from 'react'
 import { Image, Pressable, Text, View } from 'react-native'
+import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useHover } from '@/hooks/useHover'
+import { useThemeStore } from '@/stores/theme.store'
+import { THEME_COLORS } from '@/constants/theme-colors'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDateRange, formatDays } from '@/utils/dates'
 import { StatusBadge } from '@/components/fields'
@@ -138,6 +141,46 @@ export function CarRow({
   )
 }
 
+export function CarListRow({
+  car,
+  onPress,
+  last = false,
+  meta,
+}: {
+  car: Car
+  onPress?: () => void
+  last?: boolean
+  meta?: ReactNode
+}) {
+  const { hovered, hoverProps } = useHover()
+  const theme = useThemeStore((s) => s.theme)
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={car.name}
+      onPress={onPress}
+      {...hoverProps}
+      className={`min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
+        last ? '' : 'border-b'
+      } ${hovered ? 'bg-accent' : ''}`}
+      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+    >
+      <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
+      <View className="flex-1 gap-1">
+        <Text numberOfLines={1} className="text-base font-semibold text-foreground">
+          {car.name}
+        </Text>
+        <Text className="text-sm text-muted-foreground">
+          {formatPrice(car.price_per_day)} / día
+        </Text>
+        {meta}
+      </View>
+      <ChevronRight size={20} color={THEME_COLORS[theme].mutedText} />
+    </Pressable>
+  )
+}
+
 const COLUMN = {
   car: 'flex-1 min-w-0',
   dates: 'w-48',
@@ -184,12 +227,15 @@ function reservationTotal(reservation: Reservation) {
 export function ReservationRow({
   reservation,
   action,
+  onPress,
   columns = false,
 }: {
   reservation: Reservation
   action?: ReactNode
+  onPress?: () => void
   columns?: boolean
 }) {
+  const { hovered, hoverProps } = useHover()
   const { days, total } = reservationTotal(reservation)
   const badge = (
     <StatusBadge tone={STATUS_TONES[reservation.status]}>
@@ -240,8 +286,8 @@ export function ReservationRow({
     )
   }
 
-  return (
-    <View className="gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
+  const body = (
+    <>
       <View className="flex-row items-start gap-3">
         <CarPhoto
           uri={reservation.car.photo_url}
@@ -270,6 +316,29 @@ export function ReservationRow({
         </Text>
       </View>
       {action}
+    </>
+  )
+
+  if (onPress) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Ver la reserva de ${reservation.car.name}`}
+        onPress={onPress}
+        {...hoverProps}
+        className={`gap-3 rounded-xl border bg-card p-3 shadow-sm ${
+          hovered ? 'border-primary/40' : 'border-border'
+        }`}
+        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+      >
+        {body}
+      </Pressable>
+    )
+  }
+
+  return (
+    <View className="gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
+      {body}
     </View>
   )
 }

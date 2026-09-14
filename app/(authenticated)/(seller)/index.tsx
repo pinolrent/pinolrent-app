@@ -1,20 +1,27 @@
-import { Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
-import { useAuth } from '@/hooks/useAuth'
+import { ChevronRight } from 'lucide-react-native'
 import { useSellerCars } from '@/hooks/useSellerCars'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
-import { AppButton, AppCard, FormError, StatCard } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  FormError,
+  ListGroup,
+  ListRow,
+} from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
 import { ScreenShell } from '@/components/ScreenShell'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { THEME_COLORS } from '@/constants/theme-colors'
+import { useThemeStore } from '@/stores/theme.store'
 
 export default function SellerHomeScreen() {
-  const { user } = useAuth()
   const router = useRouter()
-  const { isPhone } = useBreakpoints()
+  const theme = useThemeStore((s) => s.theme)
   const {
     data: cars,
     isLoading: carsLoading,
@@ -52,7 +59,7 @@ export default function SellerHomeScreen() {
     )
 
   return (
-    <ScreenShell title="Panel de vendedor" subtitle={`Hola, ${user?.email}`}>
+    <ScreenShell title="Inicio" width="form">
       {carsLoading || resLoading ? (
         <SkeletonList count={2} />
       ) : loadError ? (
@@ -69,46 +76,67 @@ export default function SellerHomeScreen() {
           </AppButton>
         </View>
       ) : (
-        <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
-          <View className="flex-1 gap-3">
-            <View className="flex-row gap-3">
-              <StatCard label="Autos" value={String(cars?.length ?? 0)} />
-              <StatCard label="Pendientes" value={String(pendingPay)} />
-            </View>
-            <View className="flex-row gap-3">
-              <StatCard label="Confirmadas" value={String(confirmed)} />
-              <StatCard label="Ingresos" value={formatPrice(earnings)} />
-            </View>
-          </View>
-          <View className={isPhone ? 'gap-4' : 'w-80 gap-4'}>
-            <AppCard className="gap-2">
+        <View className="gap-6">
+          {pendingPay > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ver las reservas por confirmar"
+              onPress={() =>
+                router.push('/(authenticated)/(seller)/reservations')
+              }
+              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+            >
+              <AppCard>
+                <View className="flex-row items-center justify-between gap-3">
+                  <Text className="flex-1 text-base font-semibold text-foreground">
+                    {pendingPay === 1
+                      ? '1 reserva espera tu confirmación'
+                      : `${pendingPay} reservas esperan tu confirmación`}
+                  </Text>
+                  <ChevronRight
+                    size={20}
+                    color={THEME_COLORS[theme].mutedText}
+                  />
+                </View>
+                <Text className="text-sm text-muted-foreground">
+                  Revisa el comprobante y confirma para cerrar la reserva.
+                </Text>
+              </AppCard>
+            </Pressable>
+          ) : null}
+
+          <ListGroup title="Resumen">
+            <ListRow>
               <Text className="text-sm text-muted-foreground">
-                {pendingPay > 0
-                  ? `${pendingPay} ${pendingPay === 1 ? 'reserva espera' : 'reservas esperan'} tu confirmación`
-                  : 'Todo confirmado'}
+                Autos publicados
               </Text>
               <Text className="text-base text-foreground">
-                {pendingPay > 0
-                  ? 'Revisa el comprobante y confirma para cerrar la reserva.'
-                  : 'No hay pagos pendientes de revisar.'}
+                {cars?.length ?? 0}
               </Text>
-            </AppCard>
-            <View className="gap-3">
-              <AppButton
-                onPress={() =>
-                  router.push('/(authenticated)/(seller)/reservations')
-                }
-              >
-                Revisar reservas
-              </AppButton>
-              <AppButton
-                variant="outline"
-                onPress={() => router.push('/(authenticated)/(seller)/cars')}
-              >
-                Mis autos
-              </AppButton>
-            </View>
-          </View>
+            </ListRow>
+            <ListRow>
+              <Text className="text-sm text-muted-foreground">
+                Por confirmar
+              </Text>
+              {pendingPay > 0 ? (
+                <StatusBadge tone="warning">{pendingPay}</StatusBadge>
+              ) : (
+                <Text className="text-base text-foreground">0</Text>
+              )}
+            </ListRow>
+            <ListRow>
+              <Text className="text-sm text-muted-foreground">Confirmadas</Text>
+              <Text className="text-base text-foreground">{confirmed}</Text>
+            </ListRow>
+            <ListRow last>
+              <Text className="text-sm text-muted-foreground">
+                Ingresos confirmados
+              </Text>
+              <Text className="text-base font-semibold text-foreground">
+                {formatPrice(earnings)}
+              </Text>
+            </ListRow>
+          </ListGroup>
         </View>
       )}
     </ScreenShell>

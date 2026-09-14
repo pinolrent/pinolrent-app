@@ -13,7 +13,7 @@ import { formatDate } from '@/utils/dates'
 import { StaggerCard } from '@/components/StaggerCard'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { CarCard } from '@/components/rows'
+import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
 import { isValidISODate } from '@/utils/dates'
 import { AppButton, AppCard, EmptyState, FormError } from '@/components/ui-kit'
@@ -23,7 +23,7 @@ const PAGE_SIZE = 10
 
 export default function CatalogScreen() {
   const router = useRouter()
-  const { columns: numColumns, isPhone } = useBreakpoints()
+  const { isPhone } = useBreakpoints()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [filterError, setFilterError] = useState<string | null>(null)
@@ -73,8 +73,9 @@ export default function CatalogScreen() {
 
   const renderItem = ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
-      <CarCard
+      <CarListRow
         car={item}
+        last={index === cars.length - 1}
         onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
       />
     </StaggerCard>
@@ -129,49 +130,47 @@ export default function CatalogScreen() {
             </View>
             <FormError message={filterError} />
           </AppCard>
-          <FlatList
-            key={numColumns}
-            numColumns={numColumns}
-            columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
-            className="flex-1"
-            contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
-            data={cars}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={renderItem}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={() => refetch()}
-              />
-            }
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage()
-            }}
-            onEndReachedThreshold={0.4}
-            ListEmptyComponent={
-              <EmptyState
-                message={
-                  filtered
-                    ? 'Ningún auto libre en esas fechas'
-                    : 'Todavía no hay autos publicados'
-                }
-                action={
-                  filtered ? (
-                    <AppButton variant="outline" onPress={clearFilters}>
-                      Limpiar fechas
-                    </AppButton>
-                  ) : null
-                }
-              />
-            }
-            ListFooterComponent={
-              isFetchingNextPage ? (
-                <View className="py-4">
-                  <ActivityIndicator accessibilityLabel="Cargando más autos" />
-                </View>
-              ) : null
-            }
-          />
+          <View className="flex-1">
+            <FlatList
+              className="flex-1"
+              data={cars}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={renderItem}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefetching}
+                  onRefresh={() => refetch()}
+                />
+              }
+              onEndReached={() => {
+                if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+              }}
+              onEndReachedThreshold={0.4}
+              ListEmptyComponent={
+                <EmptyState
+                  message={
+                    filtered
+                      ? 'Ningún auto libre en esas fechas'
+                      : 'Todavía no hay autos publicados'
+                  }
+                  action={
+                    filtered ? (
+                      <AppButton variant="outline" onPress={clearFilters}>
+                        Limpiar fechas
+                      </AppButton>
+                    ) : null
+                  }
+                />
+              }
+              ListFooterComponent={
+                isFetchingNextPage ? (
+                  <View className="py-4">
+                    <ActivityIndicator accessibilityLabel="Cargando más autos" />
+                  </View>
+                ) : null
+              }
+            />
+          </View>
         </>
       )}
     </ScreenShell>

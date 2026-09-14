@@ -1,28 +1,13 @@
 import { View, ActivityIndicator } from 'react-native'
-import { Tabs } from 'expo-router'
+import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
-import { NAV_ICONS } from '@/components/nav-icons'
-import { tabBarColors } from '@/components/tab-bar'
-import { Sidebar } from '@/components/SideNav'
-import { buyerNav } from '@/constants/nav'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { headerColors } from '@/components/tab-bar'
 
-function TabIcon({
-  Icon,
-  color,
-}: {
-  Icon: (typeof NAV_ICONS)[keyof typeof NAV_ICONS]
-  color: string
-}) {
-  return <Icon size={22} color={color} />
-}
-
-export default function BuyerTabsLayout() {
+export default function BuyerLayout() {
   const token = useAuthStore((s) => s.token)
   const user = useAuthStore((s) => s.user)
   const isLoaded = useAuthStore((s) => s.isLoaded)
-  const { isDesktop } = useBreakpoints()
   const theme = useThemeStore((s) => s.theme)
 
   if (!isLoaded) {
@@ -34,72 +19,27 @@ export default function BuyerTabsLayout() {
   }
 
   return (
-    <View className="flex-1 flex-row bg-background">
-      <Sidebar items={buyerNav} />
-      <View className="flex-1">
-        <Tabs
+    <Stack
       screenOptions={{
         headerShown: false,
-        ...(isDesktop
-          ? { tabBarStyle: { display: 'none' } }
-          : tabBarColors(theme)),
+        headerBackButtonDisplayMode: 'minimal',
       }}
     >
-      <Tabs.Protected guard={!!token && user?.role === 'buyer'}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Inicio',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.home} color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="catalog/index"
-          options={{
-            title: 'Catálogo',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.catalog} color={color} />,
-          }}
-        />
-        <Tabs.Screen
+      <Stack.Protected guard={!!token && user?.role === 'buyer'}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
           name="car/[id]"
-          options={{
-            title: 'Detalle',
-            href: null,
-          }}
+          options={{ headerShown: true, ...headerColors(theme) }}
         />
-        <Tabs.Screen
-          name="reservations/index"
-          options={{
-            title: 'Reservas',
-            tabBarIcon: ({ color }) => (
-              <TabIcon Icon={NAV_ICONS.reservations} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="reservations/[id]"
-          options={{
-            title: 'Detalle',
-            href: null,
-          }}
-        />
-        <Tabs.Screen
+        <Stack.Screen
           name="reserve/[id]"
-          options={{
-            title: 'Reservar',
-            href: null,
-          }}
+          options={{ headerShown: true, title: 'Reservar', ...headerColors(theme) }}
         />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Perfil',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.profile} color={color} />,
-          }}
+        <Stack.Screen
+          name="reservations/[id]"
+          options={{ headerShown: true, title: 'Reserva', ...headerColors(theme) }}
         />
-      </Tabs.Protected>
-        </Tabs>
-      </View>
-    </View>
+      </Stack.Protected>
+    </Stack>
   )
 }

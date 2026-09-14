@@ -36,7 +36,7 @@ export default function ReservationDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell back title="Reserva">
+      <ScreenShell>
         <SkeletonList count={2} />
       </ScreenShell>
     )
@@ -44,7 +44,7 @@ export default function ReservationDetailScreen() {
 
   if (invalidId || isError || !data) {
     return (
-      <ScreenShell back title="Reserva">
+      <ScreenShell>
         <View className="items-center gap-3 py-8">
           <FormError
             message={
@@ -69,16 +69,7 @@ export default function ReservationDetailScreen() {
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
       className="flex-1"
     >
-      <ScreenShell
-        back
-        title={data.car.name}
-        subtitle={`${formatDateRange(data.start_date, data.end_date)} · ${formatDays(days)}`}
-        action={
-          <StatusBadge tone={STATUS_TONES[data.status]}>
-            {STATUS_LABELS[data.status]}
-          </StatusBadge>
-        }
-      >
+      <ScreenShell>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
@@ -92,7 +83,14 @@ export default function ReservationDetailScreen() {
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <AppCard className="gap-4">
-                <CarRow car={data.car} />
+                <CarRow
+                  car={data.car}
+                  trailing={
+                    <StatusBadge tone={STATUS_TONES[data.status]}>
+                      {STATUS_LABELS[data.status]}
+                    </StatusBadge>
+                  }
+                />
                 <View className={isPhone ? 'gap-4' : 'flex-row gap-6'}>
                   <View className="flex-1 gap-1">
                     <Text className="text-sm text-muted-foreground">Fechas</Text>

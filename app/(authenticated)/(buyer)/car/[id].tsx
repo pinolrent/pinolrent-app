@@ -1,7 +1,7 @@
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
 import { formatPrice } from '@/utils/currency'
@@ -28,7 +28,7 @@ export default function CarDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell back title="Detalle del auto">
+      <ScreenShell>
         <SkeletonList count={2} />
       </ScreenShell>
     )
@@ -36,7 +36,7 @@ export default function CarDetailScreen() {
 
   if (invalidId || isError || !car) {
     return (
-      <ScreenShell back title="Detalle del auto">
+      <ScreenShell>
         <View className="items-center gap-3 py-8">
           <FormError
             message={errorMessage ?? 'No encontramos ese auto'}
@@ -54,20 +54,20 @@ export default function CarDetailScreen() {
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
       className="flex-1"
     >
-      <ScreenShell
-        back
-        title={car.name}
-        subtitle={`${formatPrice(car.price_per_day)} / día`}
-        action={
-          <StatusBadge tone={car.active ? 'success' : 'muted'}>
-            {car.active ? 'Activo' : 'Inactivo'}
-          </StatusBadge>
-        }
-      >
+      <Stack.Screen options={{ title: car.name }} />
+      <ScreenShell>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
+          <View className="flex-row items-center justify-between gap-3">
+            <Text className="text-base font-semibold text-foreground">
+              {formatPrice(car.price_per_day)} / día
+            </Text>
+            <StatusBadge tone={car.active ? 'success' : 'muted'}>
+              {car.active ? 'Activo' : 'Inactivo'}
+            </StatusBadge>
+          </View>
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <CarPhoto uri={car.photo_url} name={car.name} />

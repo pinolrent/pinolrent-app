@@ -67,6 +67,47 @@ export function StatCard({
   )
 }
 
+export function ListGroup({
+  title,
+  children,
+}: {
+  title?: string
+  children: ReactNode
+}) {
+  return (
+    <View className="gap-2">
+      {title ? (
+        <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
+          {title}
+        </Text>
+      ) : null}
+      <View className="overflow-hidden rounded-xl border border-border bg-card">
+        {children}
+      </View>
+    </View>
+  )
+}
+
+export function ListRow({
+  children,
+  last = false,
+  className = '',
+}: {
+  children: ReactNode
+  last?: boolean
+  className?: string
+}) {
+  return (
+    <View
+      className={`min-h-14 flex-row items-center justify-between gap-3 border-border px-4 py-3 ${
+        last ? '' : 'border-b'
+      } ${className}`}
+    >
+      {children}
+    </View>
+  )
+}
+
 export function FormError({
   message,
   nativeID,

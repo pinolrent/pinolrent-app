@@ -14,7 +14,7 @@ import {
 import { AppInput } from '@/components/fields'
 import { SessionActions } from '@/components/SessionActions'
 
-export default function SellerProfileScreen() {
+export default function ProfileScreen() {
   const { user } = useAuth()
   const update = useUpdateProfile()
   const [phone, setPhone] = useState(user?.phone ?? '')

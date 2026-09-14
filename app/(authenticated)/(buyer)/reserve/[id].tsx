@@ -44,7 +44,7 @@ export default function ReserveScreen() {
 
   if (carLoading) {
     return (
-      <ScreenShell back title="Reservar" width="form">
+      <ScreenShell width="form">
         <SkeletonList count={2} />
       </ScreenShell>
     )
@@ -52,7 +52,7 @@ export default function ReserveScreen() {
 
   if (invalidId || !car) {
     return (
-      <ScreenShell back title="Reservar" width="form">
+      <ScreenShell width="form">
         <View className="items-center gap-3 py-8">
           <FormError
             message={
@@ -126,17 +126,15 @@ export default function ReserveScreen() {
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScreenShell
-        back
-        title="Reservar"
-        subtitle={`${car.name} · ${formatPrice(car.price_per_day)} / día`}
-        width="form"
-      >
+      <ScreenShell width="form">
         <ScrollView
           className="flex-1"
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
+          <Text className="text-base font-semibold text-foreground">
+            {car.name} · {formatPrice(car.price_per_day)} / día
+          </Text>
           <AppCard className="gap-4">
             <DateField
               label="Fecha inicio"
