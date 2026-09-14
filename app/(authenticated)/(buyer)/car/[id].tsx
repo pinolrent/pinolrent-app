@@ -81,6 +81,7 @@ export default function CarDetailScreen() {
                       Linking.openURL(contact.data!.whatsapp_url)
                     }
                     className="min-h-11 justify-center"
+                    style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                   >
                     <Text className="text-base font-semibold text-primary">
                       Contactar al vendedor por WhatsApp

@@ -16,6 +16,7 @@ export function ThemeToggle() {
       accessibilityLabel={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
       onPress={() => toggle()}
       className="min-h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-2"
+      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
     >
       <Icon size={16} color={colors.text} />
       <View>

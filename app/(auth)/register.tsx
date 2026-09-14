@@ -128,7 +128,8 @@ export default function RegisterScreen() {
           showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
         }
         onPress={() => setShowPassword((v) => !v)}
-        className="self-end rounded-lg px-2 py-3"
+        className="min-h-11 self-end justify-center rounded-lg px-2 py-3"
+        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
       >
         <Text className="text-sm text-primary">
           {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}

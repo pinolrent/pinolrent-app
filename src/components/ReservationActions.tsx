@@ -40,6 +40,7 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
           accessibilityLabel="Ver comprobante del pago"
           onPress={openProof}
           className="min-h-11 justify-center self-start"
+          style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
         >
           <Text
             className="text-sm text-primary"
