@@ -11,7 +11,6 @@ import {
 } from 'react-native'
 import type { TextInput } from 'react-native'
 import { Link } from 'expo-router'
-import { Check } from 'lucide-react-native'
 import { useAuth } from '@/hooks/useAuth'
 import {
   getApiErrorMessage,
@@ -22,16 +21,20 @@ import {
 import { Brand } from '@/components/Brand'
 import { AppButton, AppCard, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
+import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 
 type Role = 'buyer' | 'seller'
+
+const ROLE_OPTIONS = [
+  { value: 'buyer', label: 'Comprador' },
+  { value: 'seller', label: 'Vendedor' },
+] as const
 
 const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 
 export default function RegisterScreen() {
   const { isPhone } = useBreakpoints()
-  const colors = useThemeColors()
   const { width, height } = useWindowDimensions()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -145,37 +148,13 @@ export default function RegisterScreen() {
         error={clientErrors.phone}
       />
 
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel="Tipo de cuenta"
-        className="my-1 flex-row gap-2"
-      >
-        {(['buyer', 'seller'] as Role[]).map((r) => {
-          const selected = role === r
-          return (
-            <Pressable
-              key={r}
-              accessibilityRole="radio"
-              aria-checked={selected}
-              accessibilityState={{ checked: selected }}
-              onPress={() => setRole(r)}
-              className={`min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-lg px-3 py-2 ${
-                selected ? 'bg-primary' : 'bg-muted'
-              }`}
-              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-            >
-              {selected ? <Check size={16} color={colors.primaryForeground} /> : null}
-              <Text
-                className={
-                  selected ? 'text-primary-foreground' : 'text-foreground'
-                }
-              >
-                {r === 'buyer' ? 'Comprador' : 'Vendedor'}
-              </Text>
-            </Pressable>
-          )
-        })}
-      </View>
+      <ChoiceGroup
+        label="Tipo de cuenta"
+        options={ROLE_OPTIONS}
+        value={role}
+        onChange={setRole}
+        className="my-1"
+      />
 
       <FormError message={error} className="text-center" />
 
