@@ -23,6 +23,7 @@ import { Brand } from '@/components/Brand'
 import { AppButton, AppCard } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 type Role = 'buyer' | 'seller'
 
@@ -30,6 +31,7 @@ const LOGIN_BG = require('../../src/assets/login-background.jpeg')
 
 export default function RegisterScreen() {
   const { isPhone } = useBreakpoints()
+  const colors = useThemeColors()
   const { width, height } = useWindowDimensions()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -162,7 +164,7 @@ export default function RegisterScreen() {
               }`}
               style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >
-              {selected ? <Check size={16} color="#FFFFFF" /> : null}
+              {selected ? <Check size={16} color={colors.primaryForeground} /> : null}
               <Text
                 className={
                   selected ? 'text-primary-foreground' : 'text-foreground'

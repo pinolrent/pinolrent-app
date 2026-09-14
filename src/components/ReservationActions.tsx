@@ -10,6 +10,7 @@ import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -119,6 +120,7 @@ export function PayReservationBlock({
   onPaid?: () => void
 }) {
   const pay = useCreatePayment()
+  const colors = useThemeColors()
   const [open, setOpen] = useState(false)
   const [method, setMethod] = useState<Payment['method']>('pos')
   const [proofUrl, setProofUrl] = useState('')
@@ -188,7 +190,7 @@ export function PayReservationBlock({
                   }`}
                   style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                 >
-                  {selected ? <Check size={16} color="#FFFFFF" /> : null}
+                  {selected ? <Check size={16} color={colors.primaryForeground} /> : null}
                   <Text
                     className={
                       selected
