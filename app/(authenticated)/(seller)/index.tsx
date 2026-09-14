@@ -8,20 +8,18 @@ import { formatPrice } from '@/utils/currency'
 import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
 import {
-  AppButton,
   AppCard,
-  FormError,
+  ErrorState,
   ListGroup,
   ListRow,
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { ScreenShell } from '@/components/ScreenShell'
-import { THEME_COLORS } from '@/constants/theme-colors'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerHomeScreen() {
   const router = useRouter()
-  const theme = useThemeStore((s) => s.theme)
+  const colors = useThemeColors()
   const {
     data: cars,
     isLoading: carsLoading,
@@ -63,18 +61,14 @@ export default function SellerHomeScreen() {
       {carsLoading || resLoading ? (
         <SkeletonList count={2} />
       ) : loadError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={loadError} />
-          <AppButton
-            onPress={() => {
-              refetchCars()
-              refetchRes()
-            }}
-            loading={carsRefetching || resRefetching}
-          >
-            Reintentar
-          </AppButton>
-        </View>
+        <ErrorState
+          message={loadError}
+          onRetry={() => {
+            refetchCars()
+            refetchRes()
+          }}
+          retrying={carsRefetching || resRefetching}
+        />
       ) : (
         <View className="gap-6">
           {pendingPay > 0 ? (
@@ -93,10 +87,7 @@ export default function SellerHomeScreen() {
                       ? '1 reserva espera tu confirmación'
                       : `${pendingPay} reservas esperan tu confirmación`}
                   </Text>
-                  <ChevronRight
-                    size={20}
-                    color={THEME_COLORS[theme].mutedText}
-                  />
+                  <ChevronRight size={20} color={colors.mutedText} />
                 </View>
                 <Text className="text-sm text-muted-foreground">
                   Revisa el comprobante y confirma para cerrar la reserva.

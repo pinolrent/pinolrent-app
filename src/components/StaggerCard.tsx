@@ -1,6 +1,6 @@
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { View } from 'react-native'
-import { useReduceMotion } from './PressScale'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 
 export function StaggerCard({
   index,

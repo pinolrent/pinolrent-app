@@ -7,7 +7,6 @@ import {
   RefreshControl,
   Text,
   View,
-  Alert,
 } from 'react-native'
 import {
   useConfirmReservation,
@@ -17,7 +16,7 @@ import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
-import { AppButton, EmptyState, FormError } from '@/components/ui-kit'
+import { AppButton, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -29,6 +28,7 @@ export default function SellerReservationsScreen() {
 
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
   const [confirmErrorId, setConfirmErrorId] = useState<number | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const reservations = data ?? []
   const pending = reservations.filter(
@@ -52,10 +52,8 @@ export default function SellerReservationsScreen() {
       onSuccess: () => {
         setConfirmErrorId(null)
         setConfirmingId(null)
+        setNotice(`Reserva #${id} confirmada`)
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        Alert.alert('Reserva confirmada', `Reserva #${id} confirmada`, [
-          { text: 'Aceptar' },
-        ])
       },
       onError: () => {
         setConfirmErrorId(id)
@@ -73,6 +71,7 @@ export default function SellerReservationsScreen() {
           if (url) Linking.openURL(url)
         }}
         className="min-h-11 justify-center"
+        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
       >
         <Text
           className="text-sm text-primary"
@@ -174,30 +173,36 @@ export default function SellerReservationsScreen() {
       {isLoading ? (
         <SkeletonList count={4} />
       ) : isError ? (
-        <View className="items-center gap-3 py-8">
-          <FormError message={errorMessage} />
-          <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-        </View>
-      ) : (
-        <FlatList
-          className="flex-1"
-          contentContainerStyle={
-            isDesktop ? { paddingBottom: 16 } : { gap: 12, paddingBottom: 16 }
-          }
-          data={reservations}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderItem}
-          ListHeaderComponent={isDesktop ? <ReservationColumns /> : null}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => refetch()}
-            />
-          }
-          ListEmptyComponent={
-            <EmptyState message="Cuando alguien reserve uno de tus autos, vas a verla acá" />
-          }
+        <ErrorState
+          message={errorMessage}
+          onRetry={() => refetch()}
+          retrying={isRefetching}
         />
+      ) : (
+        <View className="flex-1 gap-3">
+          <SuccessNote message={notice} />
+          <FlatList
+            className="flex-1"
+            contentContainerStyle={
+              isDesktop
+                ? { paddingBottom: 16 }
+                : { gap: 12, paddingBottom: 16 }
+            }
+            data={reservations}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={renderItem}
+            ListHeaderComponent={isDesktop ? <ReservationColumns /> : null}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={() => refetch()}
+              />
+            }
+            ListEmptyComponent={
+              <EmptyState message="Cuando alguien reserve uno de tus autos, vas a verla acá" />
+            }
+          />
+        </View>
       )}
     </ScreenShell>
   )

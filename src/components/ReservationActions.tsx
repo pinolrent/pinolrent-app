@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Linking, Pressable, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { Check } from 'lucide-react-native'
 import { useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
@@ -10,12 +9,16 @@ import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
+import { ChoiceGroup } from '@/components/ChoiceGroup'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
 } from '@/constants/payment-ui'
 
-const PAYMENT_METHODS: Payment['method'][] = ['pos', 'cash']
+const PAYMENT_METHODS = [
+  { value: 'pos', label: PAYMENT_METHOD_LABELS.pos },
+  { value: 'cash', label: PAYMENT_METHOD_LABELS.cash },
+] as const
 
 export function PaymentSummary({ payment }: { payment: Payment }) {
   const openProof = () => {
@@ -37,6 +40,7 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
           accessibilityLabel="Ver comprobante del pago"
           onPress={openProof}
           className="min-h-11 justify-center self-start"
+          style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
         >
           <Text
             className="text-sm text-primary"
@@ -167,41 +171,12 @@ export function PayReservationBlock({
         </AppButton>
       ) : (
         <View className="gap-2">
-          <View
-            accessibilityRole="radiogroup"
-            accessibilityLabel="Método de pago"
-            className="flex-row gap-2"
-          >
-            {PAYMENT_METHODS.map((m) => {
-              const selected = method === m
-              return (
-                <Pressable
-                  key={m}
-                  accessibilityRole="radio"
-                  aria-checked={selected}
-                  accessibilityState={{ checked: selected }}
-                  onPress={() => setMethod(m)}
-                  className={`min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-2 ${
-                    selected
-                      ? 'border-primary bg-primary'
-                      : 'border-border bg-card'
-                  }`}
-                  style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-                >
-                  {selected ? <Check size={16} color="#FFFFFF" /> : null}
-                  <Text
-                    className={
-                      selected
-                        ? 'text-primary-foreground'
-                        : 'text-foreground'
-                    }
-                  >
-                    {PAYMENT_METHOD_LABELS[m]}
-                  </Text>
-                </Pressable>
-              )
-            })}
-          </View>
+          <ChoiceGroup
+            label="Método de pago"
+            options={PAYMENT_METHODS}
+            value={method}
+            onChange={setMethod}
+          />
           <ImageUploadField
             label="Comprobante"
             value={proofUrl}

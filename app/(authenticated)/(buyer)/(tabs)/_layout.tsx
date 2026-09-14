@@ -1,10 +1,11 @@
-import { View, ActivityIndicator } from 'react-native'
+import { View } from 'react-native'
 import { Tabs } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
 import { tabBarColors } from '@/components/tab-bar'
 import { Sidebar } from '@/components/SideNav'
+import { LoadingState } from '@/components/ui-kit'
 import { buyerNav } from '@/constants/nav'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -26,11 +27,7 @@ export default function BuyerTabsLayout() {
   const theme = useThemeStore((s) => s.theme)
 
   if (!isLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" accessibilityLabel="Cargando" />
-      </View>
-    )
+    return <LoadingState />
   }
 
   return (

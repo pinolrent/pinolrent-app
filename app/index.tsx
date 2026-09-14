@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { View, ActivityIndicator } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { LoadingState } from '@/components/ui-kit'
 
 export default function Index() {
   const token = useAuthStore((s) => s.token)
@@ -22,9 +22,5 @@ export default function Index() {
     )
   }, [isLoaded, token, user?.role])
 
-  return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <ActivityIndicator size="large" accessibilityLabel="Cargando" />
-    </View>
-  )
+  return <LoadingState />
 }

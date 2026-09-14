@@ -6,9 +6,9 @@ import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
-import { useReduceMotion } from '@/components/PressScale'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppButton, AppCard, ErrorState } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -19,7 +19,8 @@ export default function CarDetailScreen() {
   const { isPhone } = useBreakpoints()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { data: car, isLoading, isError, error, refetch } = useCar(idNum)
+  const { data: car, isLoading, isError, error, refetch, isRefetching } =
+    useCar(idNum)
   const contact = useCarContact(idNum)
 
   const errorMessage = isError
@@ -37,14 +38,11 @@ export default function CarDetailScreen() {
   if (invalidId || isError || !car) {
     return (
       <ScreenShell>
-        <View className="items-center gap-3 py-8">
-          <FormError
-            message={errorMessage ?? 'No encontramos ese auto'}
-          />
-          {!invalidId && (
-            <AppButton onPress={() => refetch()}>Reintentar</AppButton>
-          )}
-        </View>
+        <ErrorState
+          message={errorMessage ?? 'No encontramos ese auto'}
+          onRetry={invalidId ? undefined : () => refetch()}
+          retrying={isRefetching}
+        />
       </ScreenShell>
     )
   }
@@ -83,6 +81,7 @@ export default function CarDetailScreen() {
                       Linking.openURL(contact.data!.whatsapp_url)
                     }
                     className="min-h-11 justify-center"
+                    style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                   >
                     <Text className="text-base font-semibold text-primary">
                       Contactar al vendedor por WhatsApp

@@ -1,8 +1,7 @@
 import { forwardRef, useId, type ReactNode } from 'react'
 import { Text, View, type TextInput } from 'react-native'
 import { Input, InputField } from '../../components/ui/input'
-import { THEME_COLORS } from '@/constants/theme-colors'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import { FormError } from './ui-kit'
 
 export const AppInput = forwardRef<
@@ -12,7 +11,7 @@ export const AppInput = forwardRef<
     error?: string | null
   } & React.ComponentProps<typeof InputField>
 >(function AppInput({ label, error, ...props }, ref) {
-  const theme = useThemeStore((s) => s.theme)
+  const colors = useThemeColors()
   const errorId = useId()
   return (
     <View className="gap-1">
@@ -26,7 +25,7 @@ export const AppInput = forwardRef<
           aria-label={label}
           aria-describedby={error ? errorId : undefined}
           accessibilityLabel={label}
-          placeholderTextColor={THEME_COLORS[theme].mutedText}
+          placeholderTextColor={colors.mutedText}
           className="text-foreground"
           {...props}
         />

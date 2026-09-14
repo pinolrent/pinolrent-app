@@ -3,8 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useHover } from '@/hooks/useHover'
-import { useThemeStore } from '@/stores/theme.store'
-import { THEME_COLORS } from '@/constants/theme-colors'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDateRange, formatDays } from '@/utils/dates'
 import { StatusBadge } from '@/components/fields'
@@ -100,6 +99,7 @@ export function CarCard({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={car.name}
       onPress={onPress}
       {...hoverProps}
       className={`flex-1 gap-3 rounded-xl border bg-card p-3 shadow-sm ${
@@ -153,7 +153,7 @@ export function CarListRow({
   meta?: ReactNode
 }) {
   const { hovered, hoverProps } = useHover()
-  const theme = useThemeStore((s) => s.theme)
+  const colors = useThemeColors()
 
   return (
     <Pressable
@@ -176,7 +176,7 @@ export function CarListRow({
         </Text>
         {meta}
       </View>
-      <ChevronRight size={20} color={THEME_COLORS[theme].mutedText} />
+      <ChevronRight size={20} color={colors.mutedText} />
     </Pressable>
   )
 }

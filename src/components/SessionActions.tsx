@@ -1,6 +1,6 @@
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { ThemeToggle } from './ThemeToggle'
-import { AppButton } from './ui-kit'
+import { AppButton, FormError } from './ui-kit'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/utils/errors'
 
@@ -13,11 +13,7 @@ export function SessionActions() {
   return (
     <View className="gap-3">
       <ThemeToggle />
-      {logoutError ? (
-        <Text accessibilityRole="alert" className="text-sm text-destructive">
-          {logoutError}
-        </Text>
-      ) : null}
+      <FormError message={logoutError} />
       <AppButton
         variant="destructive"
         onPress={() => logout.mutate()}

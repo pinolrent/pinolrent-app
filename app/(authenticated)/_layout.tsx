@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Text, View, ActivityIndicator } from 'react-native'
+import { View } from 'react-native'
 import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
-import { AppButton } from '@/components/ui-kit'
+import { AppButton, FormError, LoadingState } from '@/components/ui-kit'
 
 export default function AuthenticatedLayout() {
   const token = useAuthStore((s) => s.token)
@@ -17,19 +17,16 @@ export default function AuthenticatedLayout() {
   }, [isLoaded, token, user, clearAuth])
 
   if (!isLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" accessibilityLabel="Cargando" />
-      </View>
-    )
+    return <LoadingState />
   }
 
   if (token && !user) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
-        <Text accessibilityRole="alert" className="text-center text-foreground">
-          Sesión inválida, vuelve a iniciar sesión
-        </Text>
+        <FormError
+          message="Sesión inválida, vuelve a iniciar sesión"
+          className="text-center"
+        />
         <AppButton onPress={() => clearAuth()}>Cerrar sesión</AppButton>
       </View>
     )

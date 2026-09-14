@@ -2,9 +2,8 @@ import { Image, Pressable, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
 import type { NavItem } from '@/constants/nav'
-import { THEME_COLORS } from '@/constants/theme-colors'
 import { useHover } from '@/hooks/useHover'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import { SessionActions } from './SessionActions'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -26,12 +25,13 @@ function NavRow({
   onPress: () => void
 }) {
   const { hovered, hoverProps } = useHover()
-  const theme = useThemeStore((s) => s.theme)
+  const colors = useThemeColors()
   const Icon = NAV_ICONS[item.icon]
 
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={item.label}
       accessibilityState={{ selected: active }}
       onPress={onPress}
       {...hoverProps}
@@ -42,11 +42,7 @@ function NavRow({
     >
       <Icon
         size={20}
-        color={
-          active
-            ? THEME_COLORS[theme].primaryForeground
-            : THEME_COLORS[theme].mutedText
-        }
+        color={active ? colors.primaryForeground : colors.mutedText}
       />
       <Text
         className={
