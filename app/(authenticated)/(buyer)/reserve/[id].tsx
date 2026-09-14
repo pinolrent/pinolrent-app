@@ -5,7 +5,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -100,12 +99,9 @@ export default function ReserveScreen() {
       {
         onSuccess: (res) => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-          Alert.alert(
-            'Reserva creada',
-            `Reserva #${res.id} en estado pendiente`,
-            [{ text: 'Aceptar' }]
+          router.replace(
+            `/(authenticated)/(buyer)/reservations?created=${res.id}`
           )
-          router.replace('/(authenticated)/(buyer)/reservations')
         },
         onError: () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
