@@ -12,9 +12,9 @@ src/
   hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, ...)
   stores/            # zustand global state only: auth.store, theme.store
   types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, api)
-  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields
+  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup
   constants/         # config, query-keys, reservation-ui, payment-ui
-  utils/             # errors, currency, dates, storage
+  utils/             # errors, currency, dates, reservations, storage
 scripts/verify/      # E2E flows against a live API (_helpers + auth/cars/reservations/payments/seller-manage)
 components/ui/       # gluestack generated primitives
 ```
@@ -94,19 +94,25 @@ losing URL lands on the wrong role. Give any new seller screen a `/seller/...` U
 
 ## UI
 
-Reuse `AppButton/AppCard/StatCard/FormError/EmptyState` from `src/components/ui-kit.tsx`,
-layout via `ScreenShell` (max-width + `bg-background` padding), crash fallback via the root
-`ErrorBoundary`. Style with uniwind `className` tokens (`bg-card`, `text-muted-foreground`, ...)
-so dark mode (Uniwind theme from `theme.store`) keeps working; avoid one-off colors and raw
+Reuse the kit in `src/components/ui-kit.tsx`: `AppButton`, `AppCard` (explicit `padding`/`gap`),
+`ListGroup`/`ListRow`, `FormError`, `SuccessNote`, `EmptyState`, `ErrorState` and `LoadingState`.
+Shared pieces elsewhere: `ChoiceGroup` for pickers, `ProofLink`, `SkeletonList` (`card` or `row`),
+`ProfileScreen`. Layout via `ScreenShell` (max-width + `bg-background` padding), crash fallback via
+the root `ErrorBoundary`. Style with uniwind `className` tokens (`bg-card`, `text-muted-foreground`,
+...) so dark mode (Uniwind theme from `theme.store`) keeps working; avoid one-off colors and raw
 `StyleSheet` for themed surfaces. Images go through `resolveImageUrl` (`/uploads/*` resolves
 against `API_URL`) and validate with `isImageUrl`.
 
 ## Errors and forms
 
 Validate locally with `validateEmail/validatePassword/validatePhone` before hitting the API.
-Render failures with `getApiErrorMessage(err, fallback)` — it maps offline/timeout/401/403/404/409/5xx
+Report every failure in the field it belongs to: pass `error` to `AppInput`/`DateField` so the
+message lands under the input and focus moves to it. Keep the aggregated `FormError` only for
+server errors that do not belong to one field. Render failures with
+`getApiErrorMessage(err, fallback)` — it maps offline/timeout/400/401/403/404/408/409/413/415/422/429/5xx
 and translates known backend messages via `translateBackendMessage`. When the API gains a new
-error string, add its translation there instead of handling it per screen. Keep all user-facing
+error string, add its translation there instead of handling it per screen. The axios message is
+never surfaced: it is always English, so the caller's fallback wins instead. Keep all user-facing
 copy in Spanish.
 
 ## Testing
