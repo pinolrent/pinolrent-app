@@ -17,6 +17,7 @@ import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import { AppButton, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
+import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerReservationsScreen() {
@@ -86,59 +87,63 @@ export default function SellerReservationsScreen() {
     </View>
   )
 
-  const renderItem = ({ item }: { item: Reservation }) => {
+  const renderItem = ({ item, index }: { item: Reservation; index: number }) => {
     const confirming = confirmingId === item.id && canConfirm(item)
     const actionable = canConfirm(item)
 
     if (isDesktop) {
       return (
-        <View className="border-b border-border">
-          <ReservationRow
-            reservation={item}
-            columns
-            action={
-              actionable && !confirming ? (
-                <View className="items-end gap-1">
-                  <AppButton
-                    size="sm"
-                    onPress={() => setConfirmingId(item.id)}
-                  >
-                    Confirmar reserva
-                  </AppButton>
-                  {proofLink(item)}
-                </View>
-              ) : (
-                <View className="items-end">{proofLink(item)}</View>
-              )
-            }
-          />
-          {confirming && (
-            <View className="border-t border-border bg-muted/40 px-4 py-3">
-              {confirmBlock(item)}
-            </View>
-          )}
-        </View>
+        <StaggerCard index={index}>
+          <View className="border-b border-border">
+            <ReservationRow
+              reservation={item}
+              columns
+              action={
+                actionable && !confirming ? (
+                  <View className="items-end gap-1">
+                    <AppButton
+                      size="sm"
+                      onPress={() => setConfirmingId(item.id)}
+                    >
+                      Confirmar reserva
+                    </AppButton>
+                    {proofLink(item)}
+                  </View>
+                ) : (
+                  <View className="items-end">{proofLink(item)}</View>
+                )
+              }
+            />
+            {confirming && (
+              <View className="border-t border-border bg-muted/40 px-4 py-3">
+                {confirmBlock(item)}
+              </View>
+            )}
+          </View>
+        </StaggerCard>
       )
     }
 
     return (
-      <ReservationRow
-        reservation={item}
-        action={
-          confirming ? (
-            confirmBlock(item)
-          ) : actionable ? (
-            <View className="gap-1">
-              <AppButton onPress={() => setConfirmingId(item.id)}>
-                Confirmar reserva
-              </AppButton>
-              {proofLink(item)}
-            </View>
-          ) : (
-            proofLink(item)
-          )
-        }
-      />
+      <StaggerCard index={index}>
+        <ReservationRow
+          reservation={item}
+          action={
+            confirming ? (
+              confirmBlock(item)
+            ) : actionable ? (
+              <View className="gap-1">
+                <AppButton onPress={() => setConfirmingId(item.id)}>
+                  Confirmar reserva
+                </AppButton>
+                {proofLink(item)}
+              </View>
+            ) : (
+              proofLink(item)
+            )
+          }
+        />
+      </StaggerCard>
     )
   }
 
