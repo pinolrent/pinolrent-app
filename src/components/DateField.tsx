@@ -35,7 +35,7 @@ export function DateField({
     return (
       <AppInput
         label={label}
-        placeholder="YYYY-MM-DD"
+        placeholder="AAAA-MM-DD"
         autoCapitalize="none"
         autoCorrect={false}
         maxLength={10}

@@ -30,7 +30,7 @@ export default function ReservationsScreen() {
   const pending = reservations.filter((r) => r.status === 'pending').length
 
   const errorMessage = isError
-    ? getApiErrorMessage(error, 'Error al cargar las reservas')
+    ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
   const renderItem = ({ item }: { item: Reservation }) => (

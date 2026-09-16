@@ -6,7 +6,7 @@ import { useCars } from '@/hooks/useCars'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
 import { daysBetween, formatDateRange, formatDays, toISO } from '@/utils/dates'
-import { AppButton, AppCard, ErrorState, ListGroup } from '@/components/ui-kit'
+import { AppButton, AppCard, EmptyState, ErrorState, ListGroup } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -87,7 +87,7 @@ export default function BuyerHomeScreen() {
                   No tienes reservas por delante
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Elige un auto y reserva tus fechas.
+                  Elige un auto y reserva tus fechas
                 </Text>
                 <AppButton
                   onPress={() =>
@@ -122,7 +122,9 @@ export default function BuyerHomeScreen() {
                 />
               ))}
             </ListGroup>
-          ) : null}
+          ) : (
+            <EmptyState message="Todavía no hay autos disponibles" />
+          )}
         </View>
       )}
     </ScreenShell>

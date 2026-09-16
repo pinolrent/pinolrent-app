@@ -36,7 +36,7 @@ export default function SellerReservationsScreen() {
   ).length
 
   const errorMessage = isError
-    ? getApiErrorMessage(error, 'Error al cargar las reservas')
+    ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
   const confirmError =
@@ -199,7 +199,7 @@ export default function SellerReservationsScreen() {
               />
             }
             ListEmptyComponent={
-              <EmptyState message="Cuando alguien reserve uno de tus autos, vas a verla acá" />
+              <EmptyState message="Todavía no recibiste ninguna reserva" />
             }
           />
         </View>

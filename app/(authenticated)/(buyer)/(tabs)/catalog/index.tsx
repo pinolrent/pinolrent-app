@@ -150,7 +150,7 @@ export default function CatalogScreen() {
               <View className="flex-row gap-2">
                 <AppButton onPress={applyFilters}>Filtrar</AppButton>
                 <AppButton variant="ghost" onPress={clearFilters}>
-                  Limpiar
+                  Limpiar filtros
                 </AppButton>
               </View>
             </View>
@@ -181,7 +181,7 @@ export default function CatalogScreen() {
                   action={
                     filtered ? (
                       <AppButton variant="outline" onPress={clearFilters}>
-                        Limpiar fechas
+                        Limpiar filtros
                       </AppButton>
                     ) : null
                   }

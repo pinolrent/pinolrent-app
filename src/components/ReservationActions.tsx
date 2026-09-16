@@ -205,8 +205,14 @@ export function PayReservationBlock({
             <AppButton onPress={submit} loading={pay.isPending}>
               Registrar pago
             </AppButton>
-            <AppButton variant="ghost" onPress={() => setOpen(false)}>
-              Volver
+            <AppButton
+              variant="ghost"
+              onPress={() => {
+                setOpen(false)
+                setProofError(null)
+              }}
+            >
+              Cancelar
             </AppButton>
           </View>
         </View>
