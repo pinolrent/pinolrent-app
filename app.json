@@ -7,11 +7,6 @@
     "orientation": "default",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./src/assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1D4ED8"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pinolrent.app"
@@ -30,7 +25,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#1D4ED8",
+          "dark": {
+            "backgroundColor": "#0B1220"
+          }
+        }
+      ]
     ]
   }
 }

@@ -15,7 +15,10 @@
     "verify:reservations": "tsx scripts/verify/reservations-flow.ts",
     "verify:payments": "tsx scripts/verify/payments-flow.ts",
     "verify:seller": "tsx scripts/verify/seller-manage-flow.ts",
-    "verify": "npm run typecheck && npm run verify:auth && npm run verify:cars && npm run verify:reservations && npm run verify:payments && npm run verify:seller"
+    "verify": "npm run typecheck && npm run verify:auth && npm run verify:cars && npm run verify:reservations && npm run verify:payments && npm run verify:seller",
+    "prebuild:android": "expo prebuild --platform android --clean",
+    "build:apk": "eas build --platform android --profile production-apk --local",
+    "build:aab": "eas build --platform android --profile production --local"
   },
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
@@ -33,6 +36,7 @@
     "expo-linking": "~55.0.17",
     "expo-router": "~55.0.18",
     "expo-secure-store": "~55.0.18",
+    "expo-splash-screen": "~55.0.25",
     "expo-status-bar": "~55.0.6",
     "lucide-react-native": "^1.42.0",
     "react": "19.2.0",
