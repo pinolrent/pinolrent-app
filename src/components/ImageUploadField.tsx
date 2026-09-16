@@ -54,12 +54,12 @@ export function ImageUploadField({
       })
       const url = res.data?.url
       if (!url) {
-        setError('No se pudo subir la imagen')
+        setError('Error al subir la imagen')
         return
       }
       onUploaded(url)
     } catch (err) {
-      setError(getApiErrorMessage(err, 'No se pudo subir la imagen'))
+      setError(getApiErrorMessage(err, 'Error al subir la imagen'))
     } finally {
       setUploading(false)
     }

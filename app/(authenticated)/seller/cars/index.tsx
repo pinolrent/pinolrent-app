@@ -28,7 +28,9 @@ export default function SellerCarsScreen() {
   const [name, setName] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [priceText, setPriceText] = useState('')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [priceError, setPriceError] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<number | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -71,21 +73,24 @@ export default function SellerCarsScreen() {
   const onSubmit = () => {
     const trimmedName = name.trim()
     const trimmedPhoto = photoUrl.trim()
+    setNameError(null)
+    setPriceError(null)
+    setPhotoError(null)
     if (!trimmedName) {
-      setClientError('El nombre es obligatorio')
+      setNameError('El nombre es obligatorio')
       return
     }
     if (trimmedName.length > 200) {
-      setClientError('El nombre no puede superar los 200 caracteres')
+      setNameError('El nombre no puede superar los 200 caracteres')
       return
     }
     if (trimmedPhoto.length > 0) {
       if (trimmedPhoto.length > 2048) {
-        setClientError('La URL de la foto es demasiado larga')
+        setPhotoError('La URL de la foto es demasiado larga')
         return
       }
       if (!isImageUrl(trimmedPhoto)) {
-        setClientError('Sube una foto o pega una URL válida')
+        setPhotoError('Sube una foto o pega una URL válida')
         return
       }
     }
@@ -93,12 +98,11 @@ export default function SellerCarsScreen() {
     if (priceText.trim().length > 0) {
       const dollars = Number(priceText.trim().replace(',', '.'))
       if (!Number.isFinite(dollars) || dollars < 0 || dollars > 1_000_000) {
-        setClientError('Ingresa un precio en dólares de hasta 1.000.000')
+        setPriceError('Ingresa un precio en dólares de hasta 1.000.000')
         return
       }
       price = Math.round(dollars * 100)
     }
-    setClientError(null)
     createCar.mutate(
       {
         name: trimmedName,
@@ -155,7 +159,9 @@ export default function SellerCarsScreen() {
         <AppButton
           variant={formOpen ? 'outline' : 'default'}
           onPress={() => {
-            setClientError(null)
+            setNameError(null)
+            setPriceError(null)
+            setPhotoError(null)
             createCar.reset()
             setNotice(null)
             setFormOpen(!formOpen)
@@ -176,7 +182,7 @@ export default function SellerCarsScreen() {
       ) : (
         <>
           {formOpen && (
-            <AppCard className="gap-4">
+            <AppCard gap="lg">
               <Text
                 accessibilityRole="header"
                 className="text-lg font-bold text-foreground"
@@ -189,7 +195,11 @@ export default function SellerCarsScreen() {
                     label="Nombre"
                     placeholder="Ej. Toyota Corolla 2020"
                     value={name}
-                    onChangeText={setName}
+                    onChangeText={(v) => {
+                      setName(v)
+                      setNameError(null)
+                    }}
+                    error={nameError}
                   />
                 </View>
                 <View className={isPhone ? '' : 'w-56'}>
@@ -198,14 +208,21 @@ export default function SellerCarsScreen() {
                     placeholder="Ej. 45.00"
                     keyboardType="decimal-pad"
                     value={priceText}
-                    onChangeText={setPriceText}
+                    onChangeText={(v) => {
+                      setPriceText(v)
+                      setPriceError(null)
+                    }}
+                    error={priceError}
                   />
                 </View>
               </View>
               <ImageUploadField
                 label="Foto"
                 value={photoUrl}
-                onUploaded={setPhotoUrl}
+                onUploaded={(url) => {
+                  setPhotoUrl(url)
+                  setPhotoError(null)
+                }}
               />
               <AppInput
                 label="URL de la foto"
@@ -213,9 +230,13 @@ export default function SellerCarsScreen() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 value={photoUrl}
-                onChangeText={setPhotoUrl}
+                onChangeText={(v) => {
+                  setPhotoUrl(v)
+                  setPhotoError(null)
+                }}
+                error={photoError}
               />
-              <FormError message={clientError ?? createError} />
+              <FormError message={createError} />
               <View className="flex-row items-center gap-3">
                 <AppButton onPress={onSubmit} loading={createCar.isPending}>
                   Publicar auto

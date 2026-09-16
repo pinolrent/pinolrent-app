@@ -5,6 +5,7 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker'
 import { formatDate, toISO } from '@/utils/dates'
 import { AppInput } from './fields'
+import { FormError } from './ui-kit'
 
 function parseValue(value: string, fallback: Date): Date {
   const d = new Date(`${value}T00:00:00`)
@@ -15,12 +16,14 @@ export function DateField({
   label,
   value,
   onChange,
+  error,
   minimumDate,
   maximumDate,
 }: {
   label: string
   value: string
   onChange: (iso: string) => void
+  error?: string | null
   minimumDate?: Date
   maximumDate?: Date
 }) {
@@ -32,12 +35,13 @@ export function DateField({
     return (
       <AppInput
         label={label}
-        placeholder="YYYY-MM-DD"
+        placeholder="AAAA-MM-DD"
         autoCapitalize="none"
         autoCorrect={false}
         maxLength={10}
         value={value}
         onChangeText={onChange}
+        error={error}
       />
     )
   }
@@ -76,6 +80,7 @@ export function DateField({
           maximumDate={maximumDate}
         />
       )}
+      <FormError message={error ?? null} />
     </View>
   )
 }

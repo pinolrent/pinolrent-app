@@ -26,7 +26,8 @@ export default function CatalogScreen() {
   const { isPhone } = useBreakpoints()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [filterError, setFilterError] = useState<string | null>(null)
+  const [startFilterError, setStartFilterError] = useState<string | null>(null)
+  const [endFilterError, setEndFilterError] = useState<string | null>(null)
   const [filters, setFilters] = useState<CarsListParams>({})
   const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
     useCars(PAGE_SIZE, filters)
@@ -35,29 +36,49 @@ export default function CatalogScreen() {
   const filtered = Boolean(filters.start_date && filters.end_date)
   const retryNextPage = () => fetchNextPage()
 
+  const changeStart = (v: string) => {
+    setStartDate(v)
+    setStartFilterError(null)
+  }
+
+  const changeEnd = (v: string) => {
+    setEndDate(v)
+    setEndFilterError(null)
+  }
+
   const applyFilters = () => {
     const start = startDate.trim()
     const end = endDate.trim()
-    if ((start && !isValidISODate(start)) || (end && !isValidISODate(end))) {
-      setFilterError('Selecciona fechas válidas en el calendario')
+    setStartFilterError(null)
+    setEndFilterError(null)
+    if (start && !isValidISODate(start)) {
+      setStartFilterError('Selecciona una fecha válida')
       return
     }
-    if ((start && !end) || (!start && end)) {
-      setFilterError('Elige la fecha de inicio y la de fin')
+    if (end && !isValidISODate(end)) {
+      setEndFilterError('Selecciona una fecha válida')
+      return
+    }
+    if (start && !end) {
+      setEndFilterError('Elige también la fecha de fin')
+      return
+    }
+    if (!start && end) {
+      setStartFilterError('Elige también la fecha de inicio')
       return
     }
     if (start && end && end < start) {
-      setFilterError('La fecha de fin tiene que ser posterior a la de inicio')
+      setEndFilterError('La fecha de fin tiene que ser posterior a la de inicio')
       return
     }
-    setFilterError(null)
     setFilters(start && end ? { start_date: start, end_date: end } : {})
   }
 
   const clearFilters = () => {
     setStartDate('')
     setEndDate('')
-    setFilterError(null)
+    setStartFilterError(null)
+    setEndFilterError(null)
     setFilters({})
   }
 
@@ -85,7 +106,7 @@ export default function CatalogScreen() {
   return (
     <ScreenShell title="Autos disponibles" subtitle={isLoading ? undefined : subtitle}>
       {isLoading ? (
-        <SkeletonList count={4} />
+        <SkeletonList count={4} variant="row" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}
@@ -94,14 +115,15 @@ export default function CatalogScreen() {
         />
       ) : (
         <>
-          <AppCard className="gap-3 p-3">
+          <AppCard>
             <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
               <View className={isPhone ? 'flex-row gap-3' : 'w-44'}>
                 <View className="flex-1">
                   <DateField
                     label="Desde"
                     value={startDate}
-                    onChange={setStartDate}
+                    onChange={changeStart}
+                    error={startFilterError}
                   />
                 </View>
                 {isPhone && (
@@ -109,7 +131,8 @@ export default function CatalogScreen() {
                     <DateField
                       label="Hasta"
                       value={endDate}
-                      onChange={setEndDate}
+                      onChange={changeEnd}
+                      error={endFilterError}
                     />
                   </View>
                 )}
@@ -119,18 +142,18 @@ export default function CatalogScreen() {
                   <DateField
                     label="Hasta"
                     value={endDate}
-                    onChange={setEndDate}
+                    onChange={changeEnd}
+                    error={endFilterError}
                   />
                 </View>
               )}
               <View className="flex-row gap-2">
                 <AppButton onPress={applyFilters}>Filtrar</AppButton>
                 <AppButton variant="ghost" onPress={clearFilters}>
-                  Limpiar
+                  Limpiar filtros
                 </AppButton>
               </View>
             </View>
-            <FormError message={filterError} />
           </AppCard>
           <View className="flex-1">
             <FlatList
@@ -158,7 +181,7 @@ export default function CatalogScreen() {
                   action={
                     filtered ? (
                       <AppButton variant="outline" onPress={clearFilters}>
-                        Limpiar fechas
+                        Limpiar filtros
                       </AppButton>
                     ) : null
                   }

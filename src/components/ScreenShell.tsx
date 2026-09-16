@@ -4,7 +4,6 @@ import { Text, View } from 'react-native'
 const MAX_WIDTH = {
   default: 1120,
   form: 720,
-  wide: 1400,
 } as const
 
 export function ScreenShell({

@@ -1,8 +1,6 @@
 import * as Haptics from 'expo-haptics'
 import { useState } from 'react'
 import {
-  Linking,
-  Pressable,
   FlatList,
   RefreshControl,
   Text,
@@ -13,11 +11,13 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
-import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
+import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import { AppButton, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
+import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerReservationsScreen() {
@@ -36,7 +36,7 @@ export default function SellerReservationsScreen() {
   ).length
 
   const errorMessage = isError
-    ? getApiErrorMessage(error, 'Error al cargar las reservas')
+    ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
   const confirmError =
@@ -61,27 +61,9 @@ export default function SellerReservationsScreen() {
       },
     })
 
-  const proofLink = (item: Reservation) =>
-    item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel="Ver comprobante del pago"
-        onPress={() => {
-          const url = resolveImageUrl(item.payment!.proof_url)
-          if (url) Linking.openURL(url)
-        }}
-        className="min-h-11 justify-center"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-      >
-        <Text
-          className="text-sm text-primary"
-          numberOfLines={1}
-          ellipsizeMode="middle"
-        >
-          Ver comprobante
-        </Text>
-      </Pressable>
-    ) : null
+  const proofLink = (item: Reservation) => (
+    <ProofLink url={item.payment?.proof_url} />
+  )
 
   const confirmBlock = (item: Reservation) => (
     <View className="gap-2">
@@ -105,59 +87,63 @@ export default function SellerReservationsScreen() {
     </View>
   )
 
-  const renderItem = ({ item }: { item: Reservation }) => {
+  const renderItem = ({ item, index }: { item: Reservation; index: number }) => {
     const confirming = confirmingId === item.id && canConfirm(item)
     const actionable = canConfirm(item)
 
     if (isDesktop) {
       return (
-        <View className="border-b border-border">
-          <ReservationRow
-            reservation={item}
-            columns
-            action={
-              actionable && !confirming ? (
-                <View className="items-end gap-1">
-                  <AppButton
-                    size="sm"
-                    onPress={() => setConfirmingId(item.id)}
-                  >
-                    Confirmar reserva
-                  </AppButton>
-                  {proofLink(item)}
-                </View>
-              ) : (
-                <View className="items-end">{proofLink(item)}</View>
-              )
-            }
-          />
-          {confirming && (
-            <View className="border-t border-border bg-muted/40 px-4 py-3">
-              {confirmBlock(item)}
-            </View>
-          )}
-        </View>
+        <StaggerCard index={index}>
+          <View className="border-b border-border">
+            <ReservationRow
+              reservation={item}
+              columns
+              action={
+                actionable && !confirming ? (
+                  <View className="items-end gap-1">
+                    <AppButton
+                      size="sm"
+                      onPress={() => setConfirmingId(item.id)}
+                    >
+                      Confirmar reserva
+                    </AppButton>
+                    {proofLink(item)}
+                  </View>
+                ) : (
+                  <View className="items-end">{proofLink(item)}</View>
+                )
+              }
+            />
+            {confirming && (
+              <View className="border-t border-border bg-muted/40 px-4 py-3">
+                {confirmBlock(item)}
+              </View>
+            )}
+          </View>
+        </StaggerCard>
       )
     }
 
     return (
-      <ReservationRow
-        reservation={item}
-        action={
-          confirming ? (
-            confirmBlock(item)
-          ) : actionable ? (
-            <View className="gap-1">
-              <AppButton onPress={() => setConfirmingId(item.id)}>
-                Confirmar reserva
-              </AppButton>
-              {proofLink(item)}
-            </View>
-          ) : (
-            proofLink(item)
-          )
-        }
-      />
+      <StaggerCard index={index}>
+        <ReservationRow
+          reservation={item}
+          action={
+            confirming ? (
+              confirmBlock(item)
+            ) : actionable ? (
+              <View className="gap-1">
+                <AppButton onPress={() => setConfirmingId(item.id)}>
+                  Confirmar reserva
+                </AppButton>
+                {proofLink(item)}
+              </View>
+            ) : (
+              proofLink(item)
+            )
+          }
+        />
+      </StaggerCard>
     )
   }
 
@@ -171,7 +157,7 @@ export default function SellerReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} />
+        <SkeletonList count={4} variant="row" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}
@@ -199,7 +185,7 @@ export default function SellerReservationsScreen() {
               />
             }
             ListEmptyComponent={
-              <EmptyState message="Cuando alguien reserve uno de tus autos, vas a verla acá" />
+              <EmptyState message="Todavía no recibiste ninguna reserva" />
             }
           />
         </View>

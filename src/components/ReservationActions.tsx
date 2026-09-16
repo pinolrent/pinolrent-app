@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { Linking, Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
-import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
+import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
+import { ProofLink } from '@/components/ProofLink'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -21,36 +22,13 @@ const PAYMENT_METHODS = [
 ] as const
 
 export function PaymentSummary({ payment }: { payment: Payment }) {
-  const openProof = () => {
-    const url = resolveImageUrl(payment.proof_url)
-    if (url) {
-      Linking.openURL(url)
-    }
-  }
-  const hasProof = Boolean(payment.proof_url && isImageUrl(payment.proof_url))
   return (
     <View className="gap-1">
       <Text className="text-muted-foreground">
         Pago: {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
         {PAYMENT_STATUS_LABELS[payment.status]}
       </Text>
-      {hasProof ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="Ver comprobante del pago"
-          onPress={openProof}
-          className="min-h-11 justify-center self-start"
-          style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-        >
-          <Text
-            className="text-sm text-primary"
-            numberOfLines={1}
-            ellipsizeMode="middle"
-          >
-            Ver comprobante
-          </Text>
-        </Pressable>
-      ) : null}
+      <ProofLink url={payment.proof_url} className="self-start" />
     </View>
   )
 }
@@ -126,7 +104,7 @@ export function PayReservationBlock({
   const [open, setOpen] = useState(false)
   const [method, setMethod] = useState<Payment['method']>('pos')
   const [proofUrl, setProofUrl] = useState('')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [proofError, setProofError] = useState<string | null>(null)
   const payError = pay.isError
     ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
     : null
@@ -136,14 +114,14 @@ export function PayReservationBlock({
   const submit = () => {
     const proof = proofUrl.trim()
     if (proof.length > 0 && !isImageUrl(proof)) {
-      setClientError(
+      setProofError(
         proof.length > 2048
           ? 'La URL del comprobante es demasiado larga'
           : 'Sube una foto o pega una URL válida'
       )
       return
     }
-    setClientError(null)
+    setProofError(null)
     pay.mutate(
       {
         reservationId: reservation.id,
@@ -180,7 +158,10 @@ export function PayReservationBlock({
           <ImageUploadField
             label="Comprobante"
             value={proofUrl}
-            onUploaded={setProofUrl}
+            onUploaded={(url) => {
+              setProofUrl(url)
+              setProofError(null)
+            }}
           />
           <AppInput
             label="URL del comprobante"
@@ -191,15 +172,25 @@ export function PayReservationBlock({
             returnKeyType="done"
             onSubmitEditing={submit}
             value={proofUrl}
-            onChangeText={setProofUrl}
+            onChangeText={(v) => {
+              setProofUrl(v)
+              setProofError(null)
+            }}
+            error={proofError}
           />
-          <FormError message={clientError ?? payError} />
+          <FormError message={payError} />
           <View className="flex-row items-center gap-2">
             <AppButton onPress={submit} loading={pay.isPending}>
               Registrar pago
             </AppButton>
-            <AppButton variant="ghost" onPress={() => setOpen(false)}>
-              Volver
+            <AppButton
+              variant="ghost"
+              onPress={() => {
+                setOpen(false)
+                setProofError(null)
+              }}
+            >
+              Cancelar
             </AppButton>
           </View>
         </View>

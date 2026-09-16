@@ -3,10 +3,12 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { useMyReservations } from '@/hooks/useReservations'
 import { useCars } from '@/hooks/useCars'
+import { useHover } from '@/hooks/useHover'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
-import { daysBetween, formatDateRange, formatDays, toISO } from '@/utils/dates'
-import { AppButton, AppCard, ErrorState, ListGroup } from '@/components/ui-kit'
+import { formatDateRange, formatDays, toISO } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
+import { AppButton, AppCard, EmptyState, ErrorState, ListGroup } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -16,6 +18,7 @@ const PREVIEW_CARS = 3
 
 export default function BuyerHomeScreen() {
   const router = useRouter()
+  const { hovered, hoverProps } = useHover()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
   const carsQuery = useCars(PREVIEW_CARS)
@@ -32,14 +35,18 @@ export default function BuyerHomeScreen() {
 
   const available =
     carsQuery.data?.pages.flatMap((page) => page).slice(0, PREVIEW_CARS) ?? []
-  const days = upcoming
-    ? daysBetween(upcoming.start_date, upcoming.end_date)
-    : 0
+  const upcomingTotals = upcoming
+    ? reservationTotal(
+        upcoming.start_date,
+        upcoming.end_date,
+        upcoming.car.price_per_day
+      )
+    : { days: 0, total: 0 }
 
   return (
     <ScreenShell title="Inicio" width="form">
       {isLoading ? (
-        <SkeletonList count={2} />
+        <SkeletonList count={3} variant="row" />
       ) : loadError ? (
         <ErrorState
           message={loadError}
@@ -58,9 +65,10 @@ export default function BuyerHomeScreen() {
                     `/(authenticated)/(buyer)/reservations/${upcoming.id}`
                   )
                 }
+                {...hoverProps}
                 style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
               >
-                <AppCard>
+                <AppCard hovered={hovered}>
                   <View className="flex-row items-center justify-between gap-3">
                     <Text className="text-sm text-muted-foreground">
                       Tu próxima reserva
@@ -74,10 +82,10 @@ export default function BuyerHomeScreen() {
                   </Text>
                   <Text className="text-sm text-foreground">
                     {formatDateRange(upcoming.start_date, upcoming.end_date)} ·{' '}
-                    {formatDays(days)}
+                    {formatDays(upcomingTotals.days)}
                   </Text>
                   <Text className="text-sm font-semibold text-foreground">
-                    {formatPrice(days * upcoming.car.price_per_day)}
+                    {formatPrice(upcomingTotals.total)}
                   </Text>
                 </AppCard>
               </Pressable>
@@ -87,7 +95,7 @@ export default function BuyerHomeScreen() {
                   No tienes reservas por delante
                 </Text>
                 <Text className="text-sm text-muted-foreground">
-                  Elige un auto y reserva tus fechas.
+                  Elige un auto y reserva tus fechas
                 </Text>
                 <AppButton
                   onPress={() =>
@@ -122,7 +130,9 @@ export default function BuyerHomeScreen() {
                 />
               ))}
             </ListGroup>
-          ) : null}
+          ) : (
+            <EmptyState message="Todavía no hay autos disponibles" />
+          )}
         </View>
       )}
     </ScreenShell>

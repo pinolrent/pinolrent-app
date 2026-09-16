@@ -8,6 +8,7 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import { AppButton, EmptyState, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
+import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function ReservationsScreen() {
@@ -30,41 +31,43 @@ export default function ReservationsScreen() {
   const pending = reservations.filter((r) => r.status === 'pending').length
 
   const errorMessage = isError
-    ? getApiErrorMessage(error, 'Error al cargar las reservas')
+    ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
-  const renderItem = ({ item }: { item: Reservation }) => (
-    <View className={isDesktop ? 'border-b border-border' : undefined}>
-      <ReservationRow
-        reservation={item}
-        columns={isDesktop}
-        onPress={
-          isDesktop
-            ? undefined
-            : () =>
-                router.push(
-                  `/(authenticated)/(buyer)/reservations/${item.id}`
-                )
-        }
-        action={
-          isDesktop ? (
-            <Link
-              href={`/(authenticated)/(buyer)/reservations/${item.id}`}
-              asChild
-            >
-              <Pressable
-                accessibilityRole="link"
-                accessibilityLabel="Ver detalle de la reserva"
-                className="min-h-11 justify-center"
-                style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+  const renderItem = ({ item, index }: { item: Reservation; index: number }) => (
+    <StaggerCard index={index}>
+      <View className={isDesktop ? 'border-b border-border' : undefined}>
+        <ReservationRow
+          reservation={item}
+          columns={isDesktop}
+          onPress={
+            isDesktop
+              ? undefined
+              : () =>
+                  router.push(
+                    `/(authenticated)/(buyer)/reservations/${item.id}`
+                  )
+          }
+          action={
+            isDesktop ? (
+              <Link
+                href={`/(authenticated)/(buyer)/reservations/${item.id}`}
+                asChild
               >
-                <Text className="text-sm text-primary">Ver detalle</Text>
-              </Pressable>
-            </Link>
-          ) : undefined
-        }
-      />
-    </View>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel="Ver detalle de la reserva"
+                  className="min-h-11 justify-center"
+                  style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+                >
+                  <Text className="text-sm text-primary">Ver detalle</Text>
+                </Pressable>
+              </Link>
+            ) : undefined
+          }
+        />
+      </View>
+    </StaggerCard>
   )
 
   return (
@@ -77,7 +80,7 @@ export default function ReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} />
+        <SkeletonList count={4} variant="row" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}

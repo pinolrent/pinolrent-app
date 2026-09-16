@@ -7,12 +7,15 @@ import {
   Platform,
 } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
+import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
-import { formatPrice } from '@/utils/currency'
+import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { daysBetween, formatDays, isValidISODate, toISO } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
@@ -21,6 +24,7 @@ import { DateField } from '@/components/DateField'
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
+  const reduceMotion = useReduceMotion()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar, isRefetching: carRefetching } =
@@ -29,22 +33,25 @@ export default function ReserveScreen() {
 
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [startError, setStartError] = useState<string | null>(null)
+  const [endError, setEndError] = useState<string | null>(null)
 
   const editStart = (v: string) => {
     setStartDate(v)
+    setStartError(null)
     createReservation.reset()
   }
 
   const editEnd = (v: string) => {
     setEndDate(v)
+    setEndError(null)
     createReservation.reset()
   }
 
   if (carLoading) {
     return (
       <ScreenShell width="form">
-        <SkeletonList count={2} />
+        <SkeletonList count={1} />
       </ScreenShell>
     )
   }
@@ -73,25 +80,32 @@ export default function ReserveScreen() {
     startDate >= today &&
     endDate > startDate &&
     daysBetween(startDate, endDate) < 30
-  const previewDays = validRange ? daysBetween(startDate, endDate) : 0
-  const previewTotal = previewDays * car.price_per_day
+  const preview = validRange
+    ? reservationTotal(startDate, endDate, car.price_per_day)
+    : { days: 0, total: 0 }
+  const { days: previewDays, total: previewTotal } = preview
 
   const onSubmit = () => {
-    setClientError(null)
-    if (!isValidISODate(startDate) || !isValidISODate(endDate)) {
-      setClientError('Selecciona fechas válidas en el calendario')
+    setStartError(null)
+    setEndError(null)
+    if (!isValidISODate(startDate)) {
+      setStartError('Selecciona la fecha de inicio')
+      return
+    }
+    if (!isValidISODate(endDate)) {
+      setEndError('Selecciona la fecha de fin')
       return
     }
     if (startDate < today) {
-      setClientError('La fecha de inicio no puede ser anterior a hoy')
+      setStartError('La fecha de inicio no puede ser anterior a hoy')
       return
     }
     if (endDate <= startDate) {
-      setClientError('La reserva debe durar al menos 1 día')
+      setEndError('La reserva debe durar al menos 1 día')
       return
     }
     if (daysBetween(startDate, endDate) >= 30) {
-      setClientError('La reserva no puede superar los 30 días')
+      setEndError('La reserva no puede superar los 30 días')
       return
     }
     createReservation.mutate(
@@ -115,49 +129,59 @@ export default function ReserveScreen() {
     : null
 
   return (
-    <KeyboardAvoidingView
+    <Animated.View
+      entering={reduceMotion ? undefined : FadeIn.duration(200)}
       className="flex-1"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScreenShell width="form">
-        <ScrollView
-          className="flex-1"
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: 16 }}
-        >
-          <Text className="text-base font-semibold text-foreground">
-            {car.name} · {formatPrice(car.price_per_day)} / día
-          </Text>
-          <AppCard className="gap-4">
-            <DateField
-              label="Fecha inicio"
-              value={startDate}
-              onChange={editStart}
-              minimumDate={new Date()}
-            />
-            <DateField
-              label="Fecha fin"
-              value={endDate}
-              onChange={editEnd}
-              minimumDate={new Date(Date.now() + 86400000)}
-            />
-            <FormError message={clientError ?? serverError} />
-            {validRange && (
-              <View className="flex-row items-center justify-between gap-3 border-t border-border pt-3">
-                <Text className="text-sm text-muted-foreground">
-                  {formatDays(previewDays)}
-                </Text>
-                <Text className="text-lg font-bold text-foreground">
-                  {formatPrice(previewTotal)}
-                </Text>
-              </View>
-            )}
-            <AppButton onPress={onSubmit} loading={createReservation.isPending}>
-              Reservar
-            </AppButton>
-          </AppCard>
-        </ScrollView>
-      </ScreenShell>
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScreenShell width="form">
+          <ScrollView
+            className="flex-1"
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: 16 }}
+          >
+            <Text className="text-base font-semibold text-foreground">
+              {car.name} · {formatPricePerDay(car.price_per_day)}
+            </Text>
+            <AppCard gap="lg">
+              <DateField
+                label="Fecha inicio"
+                value={startDate}
+                onChange={editStart}
+                error={startError}
+                minimumDate={new Date()}
+              />
+              <DateField
+                label="Fecha fin"
+                value={endDate}
+                onChange={editEnd}
+                error={endError}
+                minimumDate={new Date(Date.now() + 86400000)}
+              />
+              <FormError message={serverError} />
+              {validRange && (
+                <View className="flex-row items-center justify-between gap-3 border-t border-border pt-3">
+                  <Text className="text-sm text-muted-foreground">
+                    {formatDays(previewDays)}
+                  </Text>
+                  <Text className="text-lg font-bold text-foreground">
+                    {formatPrice(previewTotal)}
+                  </Text>
+                </View>
+              )}
+              <AppButton
+                onPress={onSubmit}
+                loading={createReservation.isPending}
+              >
+                Reservar
+              </AppButton>
+            </AppCard>
+          </ScrollView>
+        </ScreenShell>
+      </KeyboardAvoidingView>
+    </Animated.View>
   )
 }

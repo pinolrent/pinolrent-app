@@ -3,10 +3,11 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
 import { useSellerCars } from '@/hooks/useSellerCars'
+import { useHover } from '@/hooks/useHover'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
-import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { reservationTotal } from '@/utils/reservations'
 import {
   AppCard,
   ErrorState,
@@ -19,6 +20,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerHomeScreen() {
   const router = useRouter()
+  const { hovered, hoverProps } = useHover()
   const colors = useThemeColors()
   const {
     data: cars,
@@ -52,14 +54,15 @@ export default function SellerHomeScreen() {
     .filter((r) => r.status === 'confirmed')
     .reduce(
       (acc, r) =>
-        acc + daysBetween(r.start_date, r.end_date) * r.car.price_per_day,
+        acc +
+        reservationTotal(r.start_date, r.end_date, r.car.price_per_day).total,
       0
     )
 
   return (
     <ScreenShell title="Inicio" width="form">
       {carsLoading || resLoading ? (
-        <SkeletonList count={2} />
+        <SkeletonList count={4} variant="row" />
       ) : loadError ? (
         <ErrorState
           message={loadError}
@@ -78,9 +81,10 @@ export default function SellerHomeScreen() {
               onPress={() =>
                 router.push('/(authenticated)/seller/reservations')
               }
+              {...hoverProps}
               style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >
-              <AppCard>
+              <AppCard hovered={hovered}>
                 <View className="flex-row items-center justify-between gap-3">
                   <Text className="flex-1 text-base font-semibold text-foreground">
                     {pendingPay === 1

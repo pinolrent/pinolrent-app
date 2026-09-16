@@ -4,7 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
-import { formatPrice } from '@/utils/currency'
+import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -30,7 +30,7 @@ export default function CarDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell>
-        <SkeletonList count={2} />
+        <SkeletonList count={1} />
       </ScreenShell>
     )
   }
@@ -60,7 +60,7 @@ export default function CarDetailScreen() {
         >
           <View className="flex-row items-center justify-between gap-3">
             <Text className="text-base font-semibold text-foreground">
-              {formatPrice(car.price_per_day)} / día
+              {formatPricePerDay(car.price_per_day)}
             </Text>
             <StatusBadge tone={car.active ? 'success' : 'muted'}>
               {car.active ? 'Activo' : 'Inactivo'}
@@ -71,7 +71,7 @@ export default function CarDetailScreen() {
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
             <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
-              <AppCard className="gap-3">
+              <AppCard>
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
                 {contact.isError ? (
                   <View className="gap-2">

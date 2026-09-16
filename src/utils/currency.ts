@@ -6,3 +6,7 @@ export function formatUSD(cents: number): string {
 }
 
 export const formatPrice = formatUSD
+
+export function formatPricePerDay(cents: number): string {
+  return `${formatUSD(cents)} / día`
+}

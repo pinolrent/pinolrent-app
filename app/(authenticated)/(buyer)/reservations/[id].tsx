@@ -4,8 +4,9 @@ import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
-import { formatPrice } from '@/utils/currency'
-import { daysBetween, formatDateRange, formatDays } from '@/utils/dates'
+import { formatPrice, formatPricePerDay } from '@/utils/currency'
+import { formatDateRange, formatDays } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -37,7 +38,7 @@ export default function ReservationDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell>
-        <SkeletonList count={2} />
+        <SkeletonList count={1} variant="row" />
       </ScreenShell>
     )
   }
@@ -58,8 +59,11 @@ export default function ReservationDetailScreen() {
     )
   }
 
-  const days = daysBetween(data.start_date, data.end_date)
-  const total = days * data.car.price_per_day
+  const { days, total } = reservationTotal(
+    data.start_date,
+    data.end_date,
+    data.car.price_per_day
+  )
 
   return (
     <Animated.View
@@ -79,7 +83,7 @@ export default function ReservationDetailScreen() {
         >
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
-              <AppCard className="gap-4">
+              <AppCard gap="lg">
                 <CarRow
                   car={data.car}
                   trailing={
@@ -112,9 +116,9 @@ export default function ReservationDetailScreen() {
               </AppCard>
             </View>
             <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
-              <AppCard className="gap-1">
+              <AppCard gap="sm">
                 <Text className="text-sm text-muted-foreground">
-                  {formatPrice(data.car.price_per_day)} / día ×{' '}
+                  {formatPricePerDay(data.car.price_per_day)} ×{' '}
                   {formatDays(days)}
                 </Text>
                 <Text className="text-2xl font-bold text-foreground">
