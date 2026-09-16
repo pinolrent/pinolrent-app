@@ -17,14 +17,6 @@ import { AppButton, AppCard, EmptyState, ErrorState, FormError, SuccessNote } fr
 import { AppInput, StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
-function specificToggleError(err: unknown) {
-  const msg = getApiErrorMessage(err, 'Error al actualizar el auto')
-  if (msg.includes('future reservations')) {
-    return 'No se puede desactivar: tiene reservas futuras'
-  }
-  return msg
-}
-
 export default function SellerCarsScreen() {
   const { columns: numColumns, isPhone } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -49,7 +41,7 @@ export default function SellerCarsScreen() {
     : null
 
   const toggleError = toggleCar.isError
-    ? specificToggleError(toggleCar.error)
+    ? getApiErrorMessage(toggleCar.error, 'Error al actualizar el auto')
     : null
 
   const togglingRowId =

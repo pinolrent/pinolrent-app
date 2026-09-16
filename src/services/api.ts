@@ -3,6 +3,14 @@ import { router } from 'expo-router'
 import { API_URL } from '@/constants/config'
 import { useAuthStore } from '@/stores/auth.store'
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    // Set on the session bootstrap request so the interceptor leaves the
+    // 401 handling to the caller instead of racing it.
+    skipAuthRefresh?: boolean
+  }
+}
+
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -30,7 +38,10 @@ function refreshOnce(): Promise<void> {
         .post<{ token: string; refresh_token: string }>(
           `${API_URL}/auth/refresh`,
           { refresh_token: refreshToken },
-          { headers: { 'Content-Type': 'application/json' } }
+          {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 15000,
+          }
         )
         .then((r) => r.data)
       await useAuthStore.getState().updateTokens(pair.token, pair.refresh_token)
@@ -47,6 +58,9 @@ api.interceptors.response.use(
     const config = error.config as
       | (InternalAxiosRequestConfig & { _retry?: boolean })
       | undefined
+    if (config?.skipAuthRefresh) {
+      return Promise.reject(error)
+    }
     if (
       error.response?.status === 401 &&
       config &&

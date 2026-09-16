@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { View } from 'react-native'
-import { Stack } from 'expo-router'
+import { Redirect, Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { AppButton, FormError, LoadingState } from '@/components/ui-kit'
 
@@ -18,6 +18,10 @@ export default function AuthenticatedLayout() {
 
   if (!isLoaded) {
     return <LoadingState />
+  }
+
+  if (!token) {
+    return <Redirect href="/(auth)/login" />
   }
 
   if (token && !user) {
@@ -38,7 +42,7 @@ export default function AuthenticatedLayout() {
         <Stack.Screen name="(buyer)" />
       </Stack.Protected>
       <Stack.Protected guard={!!token && user?.role === 'seller'}>
-        <Stack.Screen name="(seller)" />
+        <Stack.Screen name="seller" />
       </Stack.Protected>
     </Stack>
   )

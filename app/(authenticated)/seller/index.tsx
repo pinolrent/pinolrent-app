@@ -76,7 +76,7 @@ export default function SellerHomeScreen() {
               accessibilityRole="button"
               accessibilityLabel="Ver las reservas por confirmar"
               onPress={() =>
-                router.push('/(authenticated)/(seller)/reservations')
+                router.push('/(authenticated)/seller/reservations')
               }
               style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >

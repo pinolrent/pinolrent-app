@@ -27,7 +27,9 @@ export default function RootLayout() {
   const themeLoaded = useThemeStore((s) => s.isLoaded)
 
   useEffect(() => {
-    loadFromStorage()
+    loadFromStorage().catch(() => {
+      useAuthStore.setState({ isLoaded: true })
+    })
     loadTheme()
   }, [])
 

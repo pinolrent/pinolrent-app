@@ -28,11 +28,12 @@ export default function CatalogScreen() {
   const [endDate, setEndDate] = useState('')
   const [filterError, setFilterError] = useState<string | null>(null)
   const [filters, setFilters] = useState<CarsListParams>({})
-  const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
     useCars(PAGE_SIZE, filters)
 
   const cars = data?.pages.flatMap((page) => page) ?? []
   const filtered = Boolean(filters.start_date && filters.end_date)
+  const retryNextPage = () => fetchNextPage()
 
   const applyFilters = () => {
     const start = startDate.trim()
@@ -167,6 +168,17 @@ export default function CatalogScreen() {
                 isFetchingNextPage ? (
                   <View className="py-4">
                     <ActivityIndicator accessibilityLabel="Cargando más autos" />
+                  </View>
+                ) : isFetchNextPageError ? (
+                  <View className="items-center gap-2 py-4">
+                    <FormError message="No pudimos cargar más autos" />
+                    <AppButton
+                      variant="outline"
+                      size="sm"
+                      onPress={retryNextPage}
+                    >
+                      Reintentar
+                    </AppButton>
                   </View>
                 ) : null
               }

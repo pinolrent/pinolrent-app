@@ -9,10 +9,19 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 const LOGO = require('../assets/icon.png')
 
-function isActive(pathname: string, href: string) {
-  const tail = href.split('/').pop() ?? href
-  if (!tail || tail.startsWith('(')) return pathname === '/' || pathname === ''
-  return pathname === `/${tail}` || pathname.startsWith(`/${tail}/`)
+function navPath(href: string) {
+  return href
+    .split('/')
+    .filter(
+      (segment) => segment && !(segment.startsWith('(') && segment.endsWith(')'))
+    )
+    .join('/')
+}
+
+function matches(pathname: string, href: string) {
+  const path = navPath(href)
+  if (!path) return pathname === '/' || pathname === ''
+  return pathname === `/${path}` || pathname.startsWith(`/${path}/`)
 }
 
 function NavRow({
@@ -60,6 +69,10 @@ export function Sidebar({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
   const { isDesktop } = useBreakpoints()
 
+  const activeHref = items
+    .filter((item) => matches(pathname, item.href))
+    .sort((a, b) => navPath(b.href).length - navPath(a.href).length)[0]?.href
+
   if (!isDesktop) return null
 
   return (
@@ -81,7 +94,7 @@ export function Sidebar({ items }: { items: NavItem[] }) {
         <NavRow
           key={item.href}
           item={item}
-          active={isActive(pathname, item.href)}
+          active={activeHref === item.href}
           onPress={() => router.push(item.href as never)}
         />
       ))}
