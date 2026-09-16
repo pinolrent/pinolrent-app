@@ -60,6 +60,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         const user = await api
           .get<User>('/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
+            skipAuthRefresh: true,
           })
           .then((r) => r.data)
         set({ token, refreshToken, user })
@@ -84,6 +85,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             const user = await api
               .get<User>('/auth/me', {
                 headers: { Authorization: `Bearer ${pair.token}` },
+                skipAuthRefresh: true,
               })
               .then((r) => r.data)
             set({
