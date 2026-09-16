@@ -26,7 +26,8 @@ export default function CatalogScreen() {
   const { isPhone } = useBreakpoints()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [filterError, setFilterError] = useState<string | null>(null)
+  const [startFilterError, setStartFilterError] = useState<string | null>(null)
+  const [endFilterError, setEndFilterError] = useState<string | null>(null)
   const [filters, setFilters] = useState<CarsListParams>({})
   const { data, isLoading, isError, error, refetch, isRefetching, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
     useCars(PAGE_SIZE, filters)
@@ -35,29 +36,49 @@ export default function CatalogScreen() {
   const filtered = Boolean(filters.start_date && filters.end_date)
   const retryNextPage = () => fetchNextPage()
 
+  const changeStart = (v: string) => {
+    setStartDate(v)
+    setStartFilterError(null)
+  }
+
+  const changeEnd = (v: string) => {
+    setEndDate(v)
+    setEndFilterError(null)
+  }
+
   const applyFilters = () => {
     const start = startDate.trim()
     const end = endDate.trim()
-    if ((start && !isValidISODate(start)) || (end && !isValidISODate(end))) {
-      setFilterError('Selecciona fechas válidas en el calendario')
+    setStartFilterError(null)
+    setEndFilterError(null)
+    if (start && !isValidISODate(start)) {
+      setStartFilterError('Selecciona una fecha válida')
       return
     }
-    if ((start && !end) || (!start && end)) {
-      setFilterError('Elige la fecha de inicio y la de fin')
+    if (end && !isValidISODate(end)) {
+      setEndFilterError('Selecciona una fecha válida')
+      return
+    }
+    if (start && !end) {
+      setEndFilterError('Elige también la fecha de fin')
+      return
+    }
+    if (!start && end) {
+      setStartFilterError('Elige también la fecha de inicio')
       return
     }
     if (start && end && end < start) {
-      setFilterError('La fecha de fin tiene que ser posterior a la de inicio')
+      setEndFilterError('La fecha de fin tiene que ser posterior a la de inicio')
       return
     }
-    setFilterError(null)
     setFilters(start && end ? { start_date: start, end_date: end } : {})
   }
 
   const clearFilters = () => {
     setStartDate('')
     setEndDate('')
-    setFilterError(null)
+    setStartFilterError(null)
+    setEndFilterError(null)
     setFilters({})
   }
 
@@ -101,7 +122,8 @@ export default function CatalogScreen() {
                   <DateField
                     label="Desde"
                     value={startDate}
-                    onChange={setStartDate}
+                    onChange={changeStart}
+                    error={startFilterError}
                   />
                 </View>
                 {isPhone && (
@@ -109,7 +131,8 @@ export default function CatalogScreen() {
                     <DateField
                       label="Hasta"
                       value={endDate}
-                      onChange={setEndDate}
+                      onChange={changeEnd}
+                      error={endFilterError}
                     />
                   </View>
                 )}
@@ -119,7 +142,8 @@ export default function CatalogScreen() {
                   <DateField
                     label="Hasta"
                     value={endDate}
-                    onChange={setEndDate}
+                    onChange={changeEnd}
+                    error={endFilterError}
                   />
                 </View>
               )}
@@ -130,7 +154,6 @@ export default function CatalogScreen() {
                 </AppButton>
               </View>
             </View>
-            <FormError message={filterError} />
           </AppCard>
           <View className="flex-1">
             <FlatList

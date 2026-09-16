@@ -29,15 +29,18 @@ export default function ReserveScreen() {
 
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [startError, setStartError] = useState<string | null>(null)
+  const [endError, setEndError] = useState<string | null>(null)
 
   const editStart = (v: string) => {
     setStartDate(v)
+    setStartError(null)
     createReservation.reset()
   }
 
   const editEnd = (v: string) => {
     setEndDate(v)
+    setEndError(null)
     createReservation.reset()
   }
 
@@ -77,21 +80,26 @@ export default function ReserveScreen() {
   const previewTotal = previewDays * car.price_per_day
 
   const onSubmit = () => {
-    setClientError(null)
-    if (!isValidISODate(startDate) || !isValidISODate(endDate)) {
-      setClientError('Selecciona fechas válidas en el calendario')
+    setStartError(null)
+    setEndError(null)
+    if (!isValidISODate(startDate)) {
+      setStartError('Selecciona la fecha de inicio')
+      return
+    }
+    if (!isValidISODate(endDate)) {
+      setEndError('Selecciona la fecha de fin')
       return
     }
     if (startDate < today) {
-      setClientError('La fecha de inicio no puede ser anterior a hoy')
+      setStartError('La fecha de inicio no puede ser anterior a hoy')
       return
     }
     if (endDate <= startDate) {
-      setClientError('La reserva debe durar al menos 1 día')
+      setEndError('La reserva debe durar al menos 1 día')
       return
     }
     if (daysBetween(startDate, endDate) >= 30) {
-      setClientError('La reserva no puede superar los 30 días')
+      setEndError('La reserva no puede superar los 30 días')
       return
     }
     createReservation.mutate(
@@ -133,15 +141,17 @@ export default function ReserveScreen() {
               label="Fecha inicio"
               value={startDate}
               onChange={editStart}
+              error={startError}
               minimumDate={new Date()}
             />
             <DateField
               label="Fecha fin"
               value={endDate}
               onChange={editEnd}
+              error={endError}
               minimumDate={new Date(Date.now() + 86400000)}
             />
-            <FormError message={clientError ?? serverError} />
+            <FormError message={serverError} />
             {validRange && (
               <View className="flex-row items-center justify-between gap-3 border-t border-border pt-3">
                 <Text className="text-sm text-muted-foreground">

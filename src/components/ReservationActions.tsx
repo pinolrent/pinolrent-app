@@ -126,7 +126,7 @@ export function PayReservationBlock({
   const [open, setOpen] = useState(false)
   const [method, setMethod] = useState<Payment['method']>('pos')
   const [proofUrl, setProofUrl] = useState('')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [proofError, setProofError] = useState<string | null>(null)
   const payError = pay.isError
     ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
     : null
@@ -136,14 +136,14 @@ export function PayReservationBlock({
   const submit = () => {
     const proof = proofUrl.trim()
     if (proof.length > 0 && !isImageUrl(proof)) {
-      setClientError(
+      setProofError(
         proof.length > 2048
           ? 'La URL del comprobante es demasiado larga'
           : 'Sube una foto o pega una URL válida'
       )
       return
     }
-    setClientError(null)
+    setProofError(null)
     pay.mutate(
       {
         reservationId: reservation.id,
@@ -180,7 +180,10 @@ export function PayReservationBlock({
           <ImageUploadField
             label="Comprobante"
             value={proofUrl}
-            onUploaded={setProofUrl}
+            onUploaded={(url) => {
+              setProofUrl(url)
+              setProofError(null)
+            }}
           />
           <AppInput
             label="URL del comprobante"
@@ -191,9 +194,13 @@ export function PayReservationBlock({
             returnKeyType="done"
             onSubmitEditing={submit}
             value={proofUrl}
-            onChangeText={setProofUrl}
+            onChangeText={(v) => {
+              setProofUrl(v)
+              setProofError(null)
+            }}
+            error={proofError}
           />
-          <FormError message={clientError ?? payError} />
+          <FormError message={payError} />
           <View className="flex-row items-center gap-2">
             <AppButton onPress={submit} loading={pay.isPending}>
               Registrar pago

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
+import type { TextInput } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
@@ -17,8 +18,9 @@ import { SessionActions } from '@/components/SessionActions'
 export function ProfileScreen() {
   const { user } = useAuth()
   const update = useUpdateProfile()
+  const phoneRef = useRef<TextInput>(null)
   const [phone, setPhone] = useState(user?.phone ?? '')
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
   const serverError = update.isError
@@ -28,8 +30,11 @@ export function ProfileScreen() {
   const onSave = () => {
     const trimmed = phone.trim()
     const error = validatePhone(trimmed, user?.role === 'seller')
-    setClientError(error)
-    if (error) return
+    setPhoneError(error)
+    if (error) {
+      phoneRef.current?.focus()
+      return
+    }
     setSaved(false)
     update.mutate(trimmed, {
       onSuccess: () => {
@@ -71,6 +76,7 @@ export function ProfileScreen() {
         <ListGroup title="Contacto">
           <View className="gap-3 p-4">
             <AppInput
+              ref={phoneRef}
               label="Teléfono (WhatsApp)"
               placeholder="Ej. 9 1234 5678"
               autoComplete="tel"
@@ -83,11 +89,13 @@ export function ProfileScreen() {
               value={phone}
               onChangeText={(v) => {
                 setPhone(v)
+                setPhoneError(null)
                 setSaved(false)
                 update.reset()
               }}
+              error={phoneError}
             />
-            <FormError message={clientError ?? serverError} />
+            <FormError message={serverError} />
             <SuccessNote message={saved ? 'Teléfono actualizado' : null} />
             <AppButton onPress={onSave} loading={update.isPending}>
               Guardar teléfono
