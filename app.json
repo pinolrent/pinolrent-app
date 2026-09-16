@@ -7,20 +7,12 @@
     "orientation": "default",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "extra": {
-      "eas": {
-        "projectId": "00000000-0000-0000-0000-000000000000"
-      }
-    },
-    "splash": {
-      "image": "./src/assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1D4ED8"
-    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pinolrent.app"
     },
     "android": {
+      "package": "com.pinolrent.app",
       "adaptiveIcon": {
         "backgroundColor": "#1D4ED8",
         "foregroundImage": "./src/assets/adaptive-icon.png"
@@ -33,7 +25,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#1D4ED8",
+          "dark": {
+            "backgroundColor": "#0B1220"
+          }
+        }
+      ]
     ]
   }
 }
