@@ -30,7 +30,10 @@ function refreshOnce(): Promise<void> {
         .post<{ token: string; refresh_token: string }>(
           `${API_URL}/auth/refresh`,
           { refresh_token: refreshToken },
-          { headers: { 'Content-Type': 'application/json' } }
+          {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 15000,
+          }
         )
         .then((r) => r.data)
       await useAuthStore.getState().updateTokens(pair.token, pair.refresh_token)
