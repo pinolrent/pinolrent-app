@@ -65,7 +65,8 @@ export function getApiErrorMessage(err: unknown, fallback: string): string {
       return 'Sin conexión, revisa tu red y reintenta'
     }
     const data = err.response.data as ApiError | string | undefined
-    if (typeof data === 'string' && data.trim()) return data
+    if (typeof data === 'string' && data.trim())
+      return translateBackendMessage(data)
     if (data && typeof data === 'object') {
       if (typeof data.error === 'string' && data.error.trim())
         return translateBackendMessage(data.error)
@@ -76,7 +77,7 @@ export function getApiErrorMessage(err: unknown, fallback: string): string {
     }
     const statusMessage = statusFallback(err.response.status)
     if (statusMessage) return statusMessage
-    return err.message || fallback
+    return fallback
   }
   return err instanceof Error ? err.message : fallback
 }
@@ -97,6 +98,7 @@ function flattenErrors(
 
 function translateBackendMessage(msg: string): string {
   const lower = msg.toLowerCase()
+  if (lower.includes('car is not active')) return 'Este auto ya no está disponible'
   if (lower.includes('overlap')) return 'Esas fechas se cruzan con otra reserva'
   if (lower.includes('payment is not pending'))
     return 'El pago ya no está pendiente'
@@ -130,7 +132,12 @@ function statusFallback(status?: number): string | null {
   if (status === 401) return 'Tu sesión expiró, inicia sesión de nuevo'
   if (status === 403) return 'No tienes permiso para esta acción'
   if (status === 404) return 'No encontramos lo que buscabas'
+  if (status === 408) return 'La solicitud tardó demasiado, reintenta'
   if (status === 409) return 'El estado cambió, recarga e inténtalo de nuevo'
+  if (status === 413) return 'El archivo es demasiado grande'
+  if (status === 415) return 'El formato del archivo no es compatible'
+  if (status === 422) return 'Revisa los datos e inténtalo de nuevo'
+  if (status === 429) return 'Demasiados intentos, espera un minuto y reintenta'
   if (status && status >= 500)
     return 'No pudimos completar la acción, reintenta en unos minutos'
   return null

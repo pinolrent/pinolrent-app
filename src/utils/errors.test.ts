@@ -14,10 +14,64 @@ describe('getApiErrorMessage', () => {
   it('reads the API error field', () => {
     const err = {
       isAxiosError: true,
+      response: { data: { error: 'something unmapped' } },
+      message: 'axios',
+    }
+    expect(getApiErrorMessage(err, 'fallback')).toBe('something unmapped')
+  })
+
+  it('translates known backend messages', () => {
+    const inactive = {
+      isAxiosError: true,
       response: { data: { error: 'car is not active' } },
       message: 'axios',
     }
-    expect(getApiErrorMessage(err, 'fallback')).toBe('car is not active')
+    expect(getApiErrorMessage(inactive, 'fallback')).toBe(
+      'Este auto ya no está disponible'
+    )
+  })
+
+  it('translates a string body instead of returning it raw', () => {
+    const err = {
+      isAxiosError: true,
+      response: { data: 'dates overlap existing', status: 409 },
+      message: 'axios',
+    }
+    expect(getApiErrorMessage(err, 'fallback')).toBe(
+      'Esas fechas se cruzan con otra reserva'
+    )
+  })
+
+  it('never leaks the axios message for an unmapped status', () => {
+    const err = {
+      isAxiosError: true,
+      response: { status: 418, data: {} },
+      message: 'Request failed with status code 418',
+    }
+    expect(getApiErrorMessage(err, 'fallback')).toBe('fallback')
+  })
+
+  it('maps the remaining statuses to spanish', () => {
+    const status = (code: number) => ({
+      isAxiosError: true,
+      response: { status: code, data: {} },
+      message: 'axios',
+    })
+    expect(getApiErrorMessage(status(408), 'fallback')).toBe(
+      'La solicitud tardó demasiado, reintenta'
+    )
+    expect(getApiErrorMessage(status(413), 'fallback')).toBe(
+      'El archivo es demasiado grande'
+    )
+    expect(getApiErrorMessage(status(415), 'fallback')).toBe(
+      'El formato del archivo no es compatible'
+    )
+    expect(getApiErrorMessage(status(422), 'fallback')).toBe(
+      'Revisa los datos e inténtalo de nuevo'
+    )
+    expect(getApiErrorMessage(status(429), 'fallback')).toBe(
+      'Demasiados intentos, espera un minuto y reintenta'
+    )
   })
 
   it('falls back for plain errors', () => {
