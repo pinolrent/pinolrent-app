@@ -37,7 +37,7 @@ export function useAuth() {
       await setAuth(token, refreshToken, user)
       router.replace(
         user.role === 'seller'
-          ? '/(authenticated)/(seller)'
+          ? '/(authenticated)/seller'
           : '/(authenticated)/(buyer)'
       )
     },
@@ -62,7 +62,7 @@ export function useAuth() {
       await setAuth(token, refreshToken, user)
       router.replace(
         user.role === 'seller'
-          ? '/(authenticated)/(seller)'
+          ? '/(authenticated)/seller'
           : '/(authenticated)/(buyer)'
       )
     },

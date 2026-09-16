@@ -22,12 +22,12 @@ export const buyerNav: NavItem[] = [
 ]
 
 export const sellerNav: NavItem[] = [
-  { label: 'Inicio', href: '/(authenticated)/(seller)', icon: 'home' },
-  { label: 'Mis autos', href: '/(authenticated)/(seller)/cars', icon: 'cars' },
+  { label: 'Inicio', href: '/(authenticated)/seller', icon: 'home' },
+  { label: 'Mis autos', href: '/(authenticated)/seller/cars', icon: 'cars' },
   {
     label: 'Reservas',
-    href: '/(authenticated)/(seller)/reservations',
+    href: '/(authenticated)/seller/reservations',
     icon: 'reservations',
   },
-  { label: 'Perfil', href: '/(authenticated)/(seller)/profile', icon: 'profile' },
+  { label: 'Perfil', href: '/(authenticated)/seller/profile', icon: 'profile' },
 ]

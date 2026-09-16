@@ -17,7 +17,7 @@ export default function Index() {
     }
     router.replace(
       user?.role === 'seller'
-        ? '/(authenticated)/(seller)'
+        ? '/(authenticated)/seller'
         : '/(authenticated)/(buyer)'
     )
   }, [isLoaded, token, user?.role])

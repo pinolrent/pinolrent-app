@@ -6,7 +6,7 @@ PinolRent app — P2P car rental client for pinolrent-api. Sellers publish cars,
 Expo ~55 + React Native 0.83 + React 19.2 + TypeScript strict, `expo-router` entry.
 
 ```
-app/                 # expo-router routes: index gate, (auth), (authenticated)/(buyer|seller)
+app/                 # expo-router routes: index gate, (auth), (authenticated)/(buyer), (authenticated)/seller
 src/
   services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars)
   hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, ...)
@@ -54,6 +54,7 @@ New backend endpoint → new screen follows this order, nothing else:
 2. `src/services/<domain>.service.ts` — thin wrapper: `api.get/post/patch(...).then(r => r.data)`. No query logic here.
 3. `src/hooks/use<Domain>.ts` — `useQuery` for reads, `useMutation` + cache invalidation for writes.
 4. `app/(authenticated)/(buyer|seller)/...` — screen using the hook, `ScreenShell` + `ui-kit` primitives.
+   Buyer screens keep the clean URL; seller screens go under `seller/` so the path carries the prefix.
 5. Extend `src/constants/query-keys.ts` and `src/utils/errors.ts` (translation) when needed.
 
 One domain per service/hook file. Never fetch from screens, never put HTTP in stores.
@@ -81,10 +82,15 @@ goes through react-query.
 
 ## Routing and roles
 
-`app/index.tsx` gates by session: no token → `/(auth)/login`, `seller` → `/(authenticated)/(seller)`,
+`app/index.tsx` gates by session: no token → `/(auth)/login`, `seller` → `/(authenticated)/seller`,
 else buyer. `(authenticated)/_layout.tsx` enforces it with `Stack.Protected` per role plus an
-invalid-session fallback. New screens go inside the matching `(buyer)`/`(seller)` group so they
-inherit the guard; never check roles ad-hoc in screens when a group guard covers it.
+invalid-session fallback. New screens go inside the matching `(buyer)` group or the `seller`
+folder so they inherit the guard; never check roles ad-hoc in screens when a group guard covers it.
+
+`(buyer)` is a group, so its routes live at `/`, `/catalog`, `/reservations` and `/profile`.
+`seller` is a real folder, so its routes carry the prefix (`/seller/cars`). That asymmetry is
+deliberate: two groups producing the same URL make expo-router pick one, and a reload of the
+losing URL lands on the wrong role. Give any new seller screen a `/seller/...` URL.
 
 ## UI
 

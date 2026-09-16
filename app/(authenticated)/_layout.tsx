@@ -42,7 +42,7 @@ export default function AuthenticatedLayout() {
         <Stack.Screen name="(buyer)" />
       </Stack.Protected>
       <Stack.Protected guard={!!token && user?.role === 'seller'}>
-        <Stack.Screen name="(seller)" />
+        <Stack.Screen name="seller" />
       </Stack.Protected>
     </Stack>
   )
