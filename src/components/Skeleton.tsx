@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 
-export function SkeletonCard() {
+function usePulse() {
   const reduce = useReduceMotion()
   const opacity = useSharedValue(0.5)
 
@@ -18,7 +18,11 @@ export function SkeletonCard() {
     }
   }, [reduce, opacity])
 
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }))
+  return useAnimatedStyle(() => ({ opacity: opacity.value }))
+}
+
+export function SkeletonCard() {
+  const style = usePulse()
 
   return (
     <View
@@ -27,7 +31,7 @@ export function SkeletonCard() {
     >
       <Animated.View
         style={style}
-        className="aspect-[4/3] w-full rounded-lg bg-muted"
+        className="aspect-[3/2] w-full rounded-lg bg-muted"
       />
       <View className="h-4 w-2/3 rounded bg-muted" />
       <View className="h-3 w-1/3 rounded bg-muted" />
@@ -35,7 +39,30 @@ export function SkeletonCard() {
   )
 }
 
-export function SkeletonList({ count = 4 }: { count?: number }) {
+export function SkeletonRow() {
+  const style = usePulse()
+
+  return (
+    <View
+      importantForAccessibility="no-hide-descendants"
+      className="min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3"
+    >
+      <Animated.View style={style} className="h-16 w-16 rounded-lg bg-muted" />
+      <View className="flex-1 gap-2">
+        <View className="h-4 w-1/2 rounded bg-muted" />
+        <View className="h-3 w-1/3 rounded bg-muted" />
+      </View>
+    </View>
+  )
+}
+
+export function SkeletonList({
+  count = 4,
+  variant = 'card',
+}: {
+  count?: number
+  variant?: 'card' | 'row'
+}) {
   return (
     <View
       accessible
@@ -43,9 +70,9 @@ export function SkeletonList({ count = 4 }: { count?: number }) {
       accessibilityLiveRegion="polite"
       className="gap-3 p-4"
     >
-      {Array.from({ length: count }).map((_, i) => (
-        <SkeletonCard key={i} />
-      ))}
+      {Array.from({ length: count }).map((_, i) =>
+        variant === 'row' ? <SkeletonRow key={i} /> : <SkeletonCard key={i} />
+      )}
     </View>
   )
 }

@@ -59,7 +59,7 @@ export default function SellerHomeScreen() {
   return (
     <ScreenShell title="Inicio" width="form">
       {carsLoading || resLoading ? (
-        <SkeletonList count={2} />
+        <SkeletonList count={4} variant="row" />
       ) : loadError ? (
         <ErrorState
           message={loadError}

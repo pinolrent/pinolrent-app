@@ -77,7 +77,7 @@ export default function ReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} />
+        <SkeletonList count={4} variant="row" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}

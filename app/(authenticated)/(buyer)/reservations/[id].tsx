@@ -37,7 +37,7 @@ export default function ReservationDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell>
-        <SkeletonList count={2} />
+        <SkeletonList count={1} variant="row" />
       </ScreenShell>
     )
   }

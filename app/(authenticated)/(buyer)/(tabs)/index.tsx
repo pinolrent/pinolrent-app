@@ -39,7 +39,7 @@ export default function BuyerHomeScreen() {
   return (
     <ScreenShell title="Inicio" width="form">
       {isLoading ? (
-        <SkeletonList count={2} />
+        <SkeletonList count={3} variant="row" />
       ) : loadError ? (
         <ErrorState
           message={loadError}

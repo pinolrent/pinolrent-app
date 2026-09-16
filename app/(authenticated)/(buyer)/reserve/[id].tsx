@@ -47,7 +47,7 @@ export default function ReserveScreen() {
   if (carLoading) {
     return (
       <ScreenShell width="form">
-        <SkeletonList count={2} />
+        <SkeletonList count={1} />
       </ScreenShell>
     )
   }

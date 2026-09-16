@@ -30,7 +30,7 @@ export default function CarDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell>
-        <SkeletonList count={2} />
+        <SkeletonList count={1} />
       </ScreenShell>
     )
   }
