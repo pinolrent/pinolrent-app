@@ -38,6 +38,13 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3b21bf93-1ceb-4fa0-a6fb-f79f9ee02895"
+      }
+    },
+    "owner": "pinolrent"
   }
 }
