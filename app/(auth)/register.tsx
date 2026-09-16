@@ -175,7 +175,7 @@ export default function RegisterScreen() {
   const form = (
     <View className="w-full max-w-md gap-4">
       {isPhone ? (
-        <AppCard className="gap-3 p-5">
+        <AppCard padding="lg">
           <Brand />
           <View className="h-px bg-border" />
           {cardContent}
@@ -183,7 +183,7 @@ export default function RegisterScreen() {
       ) : (
         <>
           <Brand />
-          <AppCard className="gap-3 p-6">{cardContent}</AppCard>
+          <AppCard padding="xl">{cardContent}</AppCard>
         </>
       )}
     </View>

@@ -182,7 +182,7 @@ export default function SellerCarsScreen() {
       ) : (
         <>
           {formOpen && (
-            <AppCard className="gap-4">
+            <AppCard gap="lg">
               <Text
                 accessibilityRole="header"
                 className="text-lg font-bold text-foreground"

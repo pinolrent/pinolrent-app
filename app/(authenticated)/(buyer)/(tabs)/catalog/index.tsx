@@ -115,7 +115,7 @@ export default function CatalogScreen() {
         />
       ) : (
         <>
-          <AppCard className="gap-3 p-3">
+          <AppCard>
             <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
               <View className={isPhone ? 'flex-row gap-3' : 'w-44'}>
                 <View className="flex-1">

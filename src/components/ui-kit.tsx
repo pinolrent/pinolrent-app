@@ -37,20 +37,36 @@ export function AppButton({
   )
 }
 
+const CARD_PADDING = {
+  md: 'p-3',
+  lg: 'p-5',
+  xl: 'p-6',
+} as const
+
+const CARD_GAP = {
+  sm: 'gap-1',
+  md: 'gap-3',
+  lg: 'gap-4',
+} as const
+
 export function AppCard({
   children,
+  padding = 'md',
+  gap = 'md',
   hovered = false,
   className = '',
 }: {
   children: ReactNode
+  padding?: keyof typeof CARD_PADDING
+  gap?: keyof typeof CARD_GAP
   hovered?: boolean
   className?: string
 }) {
   return (
     <View
-      className={`gap-3 rounded-xl border ${
+      className={`rounded-xl border ${
         hovered ? 'border-primary/40' : 'border-border'
-      } bg-card p-3 shadow-sm ${className}`}
+      } bg-card shadow-sm ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`}
     >
       {children}
     </View>

@@ -146,7 +146,7 @@ export default function ReserveScreen() {
             <Text className="text-base font-semibold text-foreground">
               {car.name} · {formatPricePerDay(car.price_per_day)}
             </Text>
-            <AppCard className="gap-4">
+            <AppCard gap="lg">
               <DateField
                 label="Fecha inicio"
                 value={startDate}

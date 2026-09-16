@@ -71,7 +71,7 @@ export default function CarDetailScreen() {
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
             <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
-              <AppCard className="gap-3">
+              <AppCard>
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
                 {contact.isError ? (
                   <View className="gap-2">

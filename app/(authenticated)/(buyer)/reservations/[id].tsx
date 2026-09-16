@@ -83,7 +83,7 @@ export default function ReservationDetailScreen() {
         >
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
-              <AppCard className="gap-4">
+              <AppCard gap="lg">
                 <CarRow
                   car={data.car}
                   trailing={
@@ -116,7 +116,7 @@ export default function ReservationDetailScreen() {
               </AppCard>
             </View>
             <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
-              <AppCard className="gap-1">
+              <AppCard gap="sm">
                 <Text className="text-sm text-muted-foreground">
                   {formatPricePerDay(data.car.price_per_day)} ×{' '}
                   {formatDays(days)}
