@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
-import { useAuthStore } from '@/stores/auth.store'
-import { API_URL } from '@/constants/config'
+import api from '@/services/api'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 
@@ -50,28 +49,17 @@ export function ImageUploadField({
           type: mimeType,
         } as unknown as Blob)
       }
-      const token = useAuthStore.getState().token
-      const res = await fetch(`${API_URL}/uploads`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: form,
+      const res = await api.post<{ url: string }>('/uploads', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
-      const body = (await res.json().catch(() => null)) as {
-        url?: string
-        error?: string
-      } | null
-      if (!res.ok || !body?.url) {
-        setError(
-          getApiErrorMessage(
-            { isAxiosError: true, response: { data: body } },
-            'No se pudo subir la imagen'
-          )
-        )
+      const url = res.data?.url
+      if (!url) {
+        setError('No se pudo subir la imagen')
         return
       }
-      onUploaded(body.url)
-    } catch {
-      setError('No se pudo subir la imagen, reintenta')
+      onUploaded(url)
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'No se pudo subir la imagen'))
     } finally {
       setUploading(false)
     }
