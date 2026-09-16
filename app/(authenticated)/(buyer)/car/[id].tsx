@@ -8,7 +8,7 @@ import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppCard, ErrorState } from '@/components/ui-kit'
+import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
@@ -73,7 +73,28 @@ export default function CarDetailScreen() {
             <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
               <AppCard className="gap-3">
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
-                {contact.data?.whatsapp_url ? (
+                {contact.isError ? (
+                  <View className="gap-2">
+                    <FormError
+                      message={getApiErrorMessage(
+                        contact.error,
+                        'Error al cargar el contacto'
+                      )}
+                    />
+                    <AppButton
+                      variant="outline"
+                      size="sm"
+                      onPress={() => contact.refetch()}
+                      loading={contact.isRefetching}
+                    >
+                      Reintentar
+                    </AppButton>
+                  </View>
+                ) : contact.isLoading ? (
+                  <Text className="text-base text-muted-foreground">
+                    Cargando el contacto…
+                  </Text>
+                ) : contact.data?.whatsapp_url ? (
                   <Pressable
                     accessibilityRole="link"
                     accessibilityLabel="Contactar al vendedor por WhatsApp"

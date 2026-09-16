@@ -100,7 +100,16 @@ export default function BuyerHomeScreen() {
             )}
           </View>
 
-          {available.length > 0 ? (
+          {carsQuery.isError ? (
+            <ErrorState
+              message={getApiErrorMessage(
+                carsQuery.error,
+                'Error al cargar los autos disponibles'
+              )}
+              onRetry={() => carsQuery.refetch()}
+              retrying={carsQuery.isRefetching}
+            />
+          ) : available.length > 0 ? (
             <ListGroup title="Autos disponibles">
               {available.map((car, index) => (
                 <CarListRow
