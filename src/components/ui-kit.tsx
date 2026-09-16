@@ -39,14 +39,19 @@ export function AppButton({
 
 export function AppCard({
   children,
+  hovered = false,
   className = '',
 }: {
   children: ReactNode
+  hovered?: boolean
   className?: string
 }) {
   return (
-    <View className={`gap-3 rounded-xl border border-border bg-card p-3 shadow-sm ${className}`}>
-
+    <View
+      className={`gap-3 rounded-xl border ${
+        hovered ? 'border-primary/40' : 'border-border'
+      } bg-card p-3 shadow-sm ${className}`}
+    >
       {children}
     </View>
   )

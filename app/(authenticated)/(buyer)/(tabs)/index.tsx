@@ -3,6 +3,7 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { useMyReservations } from '@/hooks/useReservations'
 import { useCars } from '@/hooks/useCars'
+import { useHover } from '@/hooks/useHover'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
 import { formatDateRange, formatDays, toISO } from '@/utils/dates'
@@ -17,6 +18,7 @@ const PREVIEW_CARS = 3
 
 export default function BuyerHomeScreen() {
   const router = useRouter()
+  const { hovered, hoverProps } = useHover()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
   const carsQuery = useCars(PREVIEW_CARS)
@@ -63,9 +65,10 @@ export default function BuyerHomeScreen() {
                     `/(authenticated)/(buyer)/reservations/${upcoming.id}`
                   )
                 }
+                {...hoverProps}
                 style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
               >
-                <AppCard>
+                <AppCard hovered={hovered}>
                   <View className="flex-row items-center justify-between gap-3">
                     <Text className="text-sm text-muted-foreground">
                       Tu próxima reserva

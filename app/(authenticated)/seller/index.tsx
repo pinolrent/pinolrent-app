@@ -3,6 +3,7 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
 import { useSellerCars } from '@/hooks/useSellerCars'
+import { useHover } from '@/hooks/useHover'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -19,6 +20,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerHomeScreen() {
   const router = useRouter()
+  const { hovered, hoverProps } = useHover()
   const colors = useThemeColors()
   const {
     data: cars,
@@ -79,9 +81,10 @@ export default function SellerHomeScreen() {
               onPress={() =>
                 router.push('/(authenticated)/seller/reservations')
               }
+              {...hoverProps}
               style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >
-              <AppCard>
+              <AppCard hovered={hovered}>
                 <View className="flex-row items-center justify-between gap-3">
                   <Text className="flex-1 text-base font-semibold text-foreground">
                     {pendingPay === 1
