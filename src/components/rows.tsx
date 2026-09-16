@@ -4,8 +4,9 @@ import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { formatPrice } from '@/utils/currency'
-import { daysBetween, formatDateRange, formatDays } from '@/utils/dates'
+import { formatPrice, formatPricePerDay } from '@/utils/currency'
+import { formatDateRange, formatDays } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import {
   PAYMENT_METHOD_LABELS,
@@ -78,7 +79,7 @@ export function CarCard({
           {car.name}
         </Text>
         <Text className="text-sm font-semibold text-foreground">
-          {formatPrice(car.price_per_day)} / día
+          {formatPricePerDay(car.price_per_day)}
         </Text>
       </View>
       {footer}
@@ -132,7 +133,7 @@ export function CarRow({
           {car.name}
         </Text>
         <Text className="text-sm font-semibold text-foreground">
-          {formatPrice(car.price_per_day)} / día
+          {formatPricePerDay(car.price_per_day)}
         </Text>
         {meta}
       </View>
@@ -172,7 +173,7 @@ export function CarListRow({
           {car.name}
         </Text>
         <Text className="text-sm text-muted-foreground">
-          {formatPrice(car.price_per_day)} / día
+          {formatPricePerDay(car.price_per_day)}
         </Text>
         {meta}
       </View>
@@ -216,12 +217,12 @@ function paymentLine(reservation: Reservation) {
   }`
 }
 
-function reservationTotal(reservation: Reservation) {
-  const days = daysBetween(reservation.start_date, reservation.end_date)
-  return {
-    days,
-    total: days * reservation.car.price_per_day,
-  }
+function reservationTotals(reservation: Reservation) {
+  return reservationTotal(
+    reservation.start_date,
+    reservation.end_date,
+    reservation.car.price_per_day
+  )
 }
 
 export function ReservationRow({
@@ -236,7 +237,7 @@ export function ReservationRow({
   columns?: boolean
 }) {
   const { hovered, hoverProps } = useHover()
-  const { days, total } = reservationTotal(reservation)
+  const { days, total } = reservationTotals(reservation)
   const badge = (
     <StatusBadge tone={STATUS_TONES[reservation.status]}>
       {STATUS_LABELS[reservation.status]}
@@ -260,7 +261,7 @@ export function ReservationRow({
               {reservation.car.name}
             </Text>
             <Text className="text-sm text-muted-foreground">
-              {formatPrice(reservation.car.price_per_day)} / día
+              {formatPricePerDay(reservation.car.price_per_day)}
             </Text>
           </View>
         </View>

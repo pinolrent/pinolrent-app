@@ -5,8 +5,8 @@ import { ChevronRight } from 'lucide-react-native'
 import { useSellerCars } from '@/hooks/useSellerCars'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
-import { daysBetween } from '@/utils/dates'
 import { getApiErrorMessage } from '@/utils/errors'
+import { reservationTotal } from '@/utils/reservations'
 import {
   AppCard,
   ErrorState,
@@ -52,7 +52,8 @@ export default function SellerHomeScreen() {
     .filter((r) => r.status === 'confirmed')
     .reduce(
       (acc, r) =>
-        acc + daysBetween(r.start_date, r.end_date) * r.car.price_per_day,
+        acc +
+        reservationTotal(r.start_date, r.end_date, r.car.price_per_day).total,
       0
     )
 

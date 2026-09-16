@@ -1,8 +1,6 @@
 import * as Haptics from 'expo-haptics'
 import { useState } from 'react'
 import {
-  Linking,
-  Pressable,
   FlatList,
   RefreshControl,
   Text,
@@ -13,8 +11,9 @@ import {
   useSellerReservations,
 } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
-import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
+import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import { AppButton, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
@@ -61,27 +60,9 @@ export default function SellerReservationsScreen() {
       },
     })
 
-  const proofLink = (item: Reservation) =>
-    item.payment?.proof_url && isImageUrl(item.payment.proof_url) ? (
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel="Ver comprobante del pago"
-        onPress={() => {
-          const url = resolveImageUrl(item.payment!.proof_url)
-          if (url) Linking.openURL(url)
-        }}
-        className="min-h-11 justify-center"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-      >
-        <Text
-          className="text-sm text-primary"
-          numberOfLines={1}
-          ellipsizeMode="middle"
-        >
-          Ver comprobante
-        </Text>
-      </Pressable>
-    ) : null
+  const proofLink = (item: Reservation) => (
+    <ProofLink url={item.payment?.proof_url} />
+  )
 
   const confirmBlock = (item: Reservation) => (
     <View className="gap-2">

@@ -5,7 +5,8 @@ import { useMyReservations } from '@/hooks/useReservations'
 import { useCars } from '@/hooks/useCars'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
-import { daysBetween, formatDateRange, formatDays, toISO } from '@/utils/dates'
+import { formatDateRange, formatDays, toISO } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
 import { AppButton, AppCard, EmptyState, ErrorState, ListGroup } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
@@ -32,9 +33,13 @@ export default function BuyerHomeScreen() {
 
   const available =
     carsQuery.data?.pages.flatMap((page) => page).slice(0, PREVIEW_CARS) ?? []
-  const days = upcoming
-    ? daysBetween(upcoming.start_date, upcoming.end_date)
-    : 0
+  const upcomingTotals = upcoming
+    ? reservationTotal(
+        upcoming.start_date,
+        upcoming.end_date,
+        upcoming.car.price_per_day
+      )
+    : { days: 0, total: 0 }
 
   return (
     <ScreenShell title="Inicio" width="form">
@@ -74,10 +79,10 @@ export default function BuyerHomeScreen() {
                   </Text>
                   <Text className="text-sm text-foreground">
                     {formatDateRange(upcoming.start_date, upcoming.end_date)} ·{' '}
-                    {formatDays(days)}
+                    {formatDays(upcomingTotals.days)}
                   </Text>
                   <Text className="text-sm font-semibold text-foreground">
-                    {formatPrice(days * upcoming.car.price_per_day)}
+                    {formatPrice(upcomingTotals.total)}
                   </Text>
                 </AppCard>
               </Pressable>

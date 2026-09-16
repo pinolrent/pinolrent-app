@@ -11,8 +11,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCar } from '@/hooks/useCars'
 import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
-import { formatPrice } from '@/utils/currency'
+import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { daysBetween, formatDays, isValidISODate, toISO } from '@/utils/dates'
+import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
@@ -76,8 +77,10 @@ export default function ReserveScreen() {
     startDate >= today &&
     endDate > startDate &&
     daysBetween(startDate, endDate) < 30
-  const previewDays = validRange ? daysBetween(startDate, endDate) : 0
-  const previewTotal = previewDays * car.price_per_day
+  const preview = validRange
+    ? reservationTotal(startDate, endDate, car.price_per_day)
+    : { days: 0, total: 0 }
+  const { days: previewDays, total: previewTotal } = preview
 
   const onSubmit = () => {
     setStartError(null)
@@ -134,7 +137,7 @@ export default function ReserveScreen() {
           contentContainerStyle={{ paddingBottom: 16 }}
         >
           <Text className="text-base font-semibold text-foreground">
-            {car.name} · {formatPrice(car.price_per_day)} / día
+            {car.name} · {formatPricePerDay(car.price_per_day)}
           </Text>
           <AppCard className="gap-4">
             <DateField

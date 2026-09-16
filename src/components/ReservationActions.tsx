@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { Linking, Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { useCancelReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
-import { getApiErrorMessage, isImageUrl, resolveImageUrl } from '@/utils/errors'
+import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
+import { ProofLink } from '@/components/ProofLink'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -21,36 +22,13 @@ const PAYMENT_METHODS = [
 ] as const
 
 export function PaymentSummary({ payment }: { payment: Payment }) {
-  const openProof = () => {
-    const url = resolveImageUrl(payment.proof_url)
-    if (url) {
-      Linking.openURL(url)
-    }
-  }
-  const hasProof = Boolean(payment.proof_url && isImageUrl(payment.proof_url))
   return (
     <View className="gap-1">
       <Text className="text-muted-foreground">
         Pago: {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
         {PAYMENT_STATUS_LABELS[payment.status]}
       </Text>
-      {hasProof ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="Ver comprobante del pago"
-          onPress={openProof}
-          className="min-h-11 justify-center self-start"
-          style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-        >
-          <Text
-            className="text-sm text-primary"
-            numberOfLines={1}
-            ellipsizeMode="middle"
-          >
-            Ver comprobante
-          </Text>
-        </Pressable>
-      ) : null}
+      <ProofLink url={payment.proof_url} className="self-start" />
     </View>
   )
 }
