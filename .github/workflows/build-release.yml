@@ -12,7 +12,6 @@ concurrency:
 
 env:
   EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-  EXPO_PUBLIC_API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
   NODE_OPTIONS: --max_old_space_size=4096
 
 jobs:
@@ -33,15 +32,21 @@ jobs:
       - name: Install dependencies
         run: NODE_ENV=development npm ci
 
+      - name: Install eas-cli
+        run: npm install -g eas-cli@18
+
+      # The production api url lives in the EAS "production" environment.
       - name: Check the production api url
         run: |
-          if [ -z "$EXPO_PUBLIC_API_URL" ]; then
-            echo "The EXPO_PUBLIC_API_URL secret is not set." >&2
+          RAW=$(eas env:get production --variable-name EXPO_PUBLIC_API_URL --non-interactive --format short)
+          URL=$(printf '%s\n' "$RAW" | sed -n 's/^EXPO_PUBLIC_API_URL=//p')
+          if [ -z "$URL" ]; then
+            echo "EXPO_PUBLIC_API_URL is not set in the EAS production environment." >&2
             echo "A release build embeds it at bundle time, and src/constants/config.ts" >&2
             echo "aborts at startup when it is not https, so the app would crash on open." >&2
             exit 1
           fi
-          case "$EXPO_PUBLIC_API_URL" in
+          case "$URL" in
             https://*) echo "api url ok" ;;
             *)
               echo "EXPO_PUBLIC_API_URL must start with https://" >&2
@@ -97,7 +102,7 @@ jobs:
           java-version: 17
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -132,6 +137,17 @@ jobs:
       - name: Read version
         id: ver
         run: echo "version=$(node -p "require('./app.json').expo.version")" >> $GITHUB_OUTPUT
+
+      # The build profiles also load this from EAS; exporting it keeps the value
+      # in the process env for the local build, masked so it stays out of the logs.
+      - name: Load the api url from EAS
+        run: |
+          RAW=$(eas env:get production --variable-name EXPO_PUBLIC_API_URL --non-interactive --format short)
+          URL=$(printf '%s\n' "$RAW" | sed -n 's/^EXPO_PUBLIC_API_URL=//p')
+          if [ -n "$URL" ]; then
+            echo "::add-mask::$URL"
+            echo "EXPO_PUBLIC_API_URL=$URL" >> "$GITHUB_ENV"
+          fi
 
       - name: Build
         run: |
