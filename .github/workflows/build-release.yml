@@ -139,12 +139,13 @@ jobs:
         run: echo "version=$(node -p "require('./app.json').expo.version")" >> $GITHUB_OUTPUT
 
       # The build profiles also load this from EAS; exporting it keeps the value
-      # in the process env for the local build as well.
+      # in the process env for the local build, masked so it stays out of the logs.
       - name: Load the api url from EAS
         run: |
           RAW=$(eas env:get production --variable-name EXPO_PUBLIC_API_URL --non-interactive --format short)
           URL=$(printf '%s\n' "$RAW" | sed -n 's/^EXPO_PUBLIC_API_URL=//p')
           if [ -n "$URL" ]; then
+            echo "::add-mask::$URL"
             echo "EXPO_PUBLIC_API_URL=$URL" >> "$GITHUB_ENV"
           fi
 
