@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { useCancelReservation } from '@/hooks/useReservations'
+import { useCancelReservation, useConfirmReservation } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
@@ -61,7 +61,7 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
             ¿Cancelar la reserva de {reservation.car.name}?
           </Text>
           <FormError message={cancelError} />
-          <View className="flex-row items-center gap-2">
+          <View className="flex-row flex-wrap items-center gap-2">
             <AppButton
               variant="destructive"
               onPress={() =>
@@ -82,6 +82,72 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
               loading={cancel.isPending}
             >
               Cancelar reserva
+            </AppButton>
+            <AppButton variant="ghost" onPress={() => setConfirming(false)}>
+              Volver
+            </AppButton>
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+export function canConfirmReservation(reservation: Reservation) {
+  return (
+    reservation.status === 'pending' &&
+    reservation.payment?.status === 'pending'
+  )
+}
+
+export function ConfirmReservationBlock({
+  reservation,
+  onConfirmed,
+}: {
+  reservation: Reservation
+  onConfirmed?: (reservation: Reservation) => void
+}) {
+  const confirm = useConfirmReservation()
+  const [confirming, setConfirming] = useState(false)
+  const confirmError = confirm.isError
+    ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
+    : null
+
+  if (!canConfirmReservation(reservation)) return null
+
+  const submit = () =>
+    confirm.mutate(reservation.id, {
+      onSuccess: () => {
+        setConfirming(false)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        onConfirmed?.(reservation)
+      },
+      onError: () => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      },
+    })
+
+  return (
+    <View className="gap-2">
+      {!confirming ? (
+        <AppButton
+          onPress={() => setConfirming(true)}
+          loading={confirm.isPending}
+        >
+          Confirmar reserva
+        </AppButton>
+      ) : (
+        <View className="gap-2">
+          <Text
+            accessibilityLiveRegion="polite"
+            className="text-sm text-foreground"
+          >
+            ¿Confirmar la reserva de {reservation.car.name}?
+          </Text>
+          <FormError message={confirmError} />
+          <View className="flex-row flex-wrap items-center gap-2">
+            <AppButton onPress={submit} loading={confirm.isPending}>
+              Confirmar reserva
             </AppButton>
             <AppButton variant="ghost" onPress={() => setConfirming(false)}>
               Volver

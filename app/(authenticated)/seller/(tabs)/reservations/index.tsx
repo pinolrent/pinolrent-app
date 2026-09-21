@@ -1,33 +1,26 @@
-import * as Haptics from 'expo-haptics'
 import { useState } from 'react'
-import {
-  FlatList,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native'
-import {
-  useConfirmReservation,
-  useSellerReservations,
-} from '@/hooks/useReservations'
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native'
+import { Link, useRouter } from 'expo-router'
+import { useSellerReservations } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
-import { AppButton, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
+import {
+  ConfirmReservationBlock,
+  canConfirmReservation,
+} from '@/components/ReservationActions'
+import { EmptyState, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerReservationsScreen() {
+  const router = useRouter()
   const { isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerReservations()
-  const confirm = useConfirmReservation()
-
-  const [confirmingId, setConfirmingId] = useState<number | null>(null)
-  const [confirmErrorId, setConfirmErrorId] = useState<number | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const reservations = data ?? []
@@ -39,58 +32,18 @@ export default function SellerReservationsScreen() {
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
-  const confirmError =
-    confirm.isError && confirmErrorId !== null
-      ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
-      : null
+  const onConfirmed = (reservation: Reservation) => {
+    setNotice(`Reserva #${reservation.id} confirmada`)
+  }
 
-  const canConfirm = (r: Reservation) =>
-    r.status === 'pending' && r.payment?.status === 'pending'
-
-  const onConfirm = (id: number) =>
-    confirm.mutate(id, {
-      onSuccess: () => {
-        setConfirmErrorId(null)
-        setConfirmingId(null)
-        setNotice(`Reserva #${id} confirmada`)
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-      },
-      onError: () => {
-        setConfirmErrorId(id)
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      },
-    })
+  const detailHref = (id: number) =>
+    `/(authenticated)/seller/reservations/${id}`
 
   const proofLink = (item: Reservation) => (
     <ProofLink url={item.payment?.proof_url} />
   )
 
-  const confirmBlock = (item: Reservation) => (
-    <View className="gap-2">
-      <Text
-        accessibilityLiveRegion="polite"
-        className="text-sm text-foreground"
-      >
-        ¿Confirmar la reserva de {item.car.name}?
-      </Text>
-      <View className="flex-row items-center gap-2">
-        <AppButton onPress={() => onConfirm(item.id)} loading={confirm.isPending}>
-          Confirmar reserva
-        </AppButton>
-        <AppButton variant="ghost" onPress={() => setConfirmingId(null)}>
-          Volver
-        </AppButton>
-      </View>
-      {confirmError && confirmErrorId === item.id && (
-        <FormError message={confirmError} />
-      )}
-    </View>
-  )
-
   const renderItem = ({ item, index }: { item: Reservation; index: number }) => {
-    const confirming = confirmingId === item.id && canConfirm(item)
-    const actionable = canConfirm(item)
-
     if (isDesktop) {
       return (
         <StaggerCard index={index}>
@@ -99,24 +52,29 @@ export default function SellerReservationsScreen() {
               reservation={item}
               columns
               action={
-                actionable && !confirming ? (
-                  <View className="items-end gap-1">
-                    <AppButton
-                      size="sm"
-                      onPress={() => setConfirmingId(item.id)}
+                <View className="items-end gap-2">
+                  <Link href={detailHref(item.id)} asChild>
+                    <Pressable
+                      accessibilityRole="link"
+                      accessibilityLabel="Ver detalle de la reserva"
+                      className="min-h-11 justify-center"
+                      style={({ pressed }) =>
+                        pressed ? { opacity: 0.9 } : null
+                      }
                     >
-                      Confirmar reserva
-                    </AppButton>
-                    {proofLink(item)}
-                  </View>
-                ) : (
-                  <View className="items-end">{proofLink(item)}</View>
-                )
+                      <Text className="text-sm text-primary">Ver detalle</Text>
+                    </Pressable>
+                  </Link>
+                  {proofLink(item)}
+                </View>
               }
             />
-            {confirming && (
+            {canConfirmReservation(item) && (
               <View className="border-t border-border bg-muted/40 px-4 py-3">
-                {confirmBlock(item)}
+                <ConfirmReservationBlock
+                  reservation={item}
+                  onConfirmed={onConfirmed}
+                />
               </View>
             )}
           </View>
@@ -128,19 +86,12 @@ export default function SellerReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
+          onPress={() => router.push(detailHref(item.id))}
           action={
-            confirming ? (
-              confirmBlock(item)
-            ) : actionable ? (
-              <View className="gap-1">
-                <AppButton onPress={() => setConfirmingId(item.id)}>
-                  Confirmar reserva
-                </AppButton>
-                {proofLink(item)}
-              </View>
-            ) : (
-              proofLink(item)
-            )
+            <ConfirmReservationBlock
+              reservation={item}
+              onConfirmed={onConfirmed}
+            />
           }
         />
       </StaggerCard>
