@@ -5,6 +5,7 @@ import { useMyReservations } from '@/hooks/useReservations'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { CancelReservationBlock } from '@/components/ReservationActions'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import { AppButton, EmptyState, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
@@ -50,20 +51,25 @@ export default function ReservationsScreen() {
           }
           action={
             isDesktop ? (
-              <Link
-                href={`/(authenticated)/(buyer)/reservations/${item.id}`}
-                asChild
-              >
-                <Pressable
-                  accessibilityRole="link"
-                  accessibilityLabel="Ver detalle de la reserva"
-                  className="min-h-11 justify-center"
-                  style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+              <View className="items-end gap-2">
+                <Link
+                  href={`/(authenticated)/(buyer)/reservations/${item.id}`}
+                  asChild
                 >
-                  <Text className="text-sm text-primary">Ver detalle</Text>
-                </Pressable>
-              </Link>
-            ) : undefined
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel="Ver detalle de la reserva"
+                    className="min-h-11 justify-center"
+                    style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+                  >
+                    <Text className="text-sm text-primary">Ver detalle</Text>
+                  </Pressable>
+                </Link>
+                <CancelReservationBlock reservation={item} />
+              </View>
+            ) : (
+              <CancelReservationBlock reservation={item} />
+            )
           }
         />
       </View>
