@@ -10,19 +10,17 @@ import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
-import { BackLink } from '@/components/BackLink'
 import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import {
-  CancelReservationBlock,
-  PayReservationBlock,
+  ConfirmReservationBlock,
   PaymentSummary,
 } from '@/components/ReservationActions'
 
-export default function ReservationDetailScreen() {
+export default function SellerReservationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
@@ -30,7 +28,7 @@ export default function ReservationDetailScreen() {
   const { isPhone } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
-  const [paidMessage, setPaidMessage] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar la reserva')
@@ -82,7 +80,6 @@ export default function ReservationDetailScreen() {
             />
           }
         >
-          <BackLink fallbackHref="/(authenticated)/(buyer)/reservations" />
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <AppCard gap="lg">
@@ -127,19 +124,13 @@ export default function ReservationDetailScreen() {
                   {formatPrice(total)}
                 </Text>
               </AppCard>
-              {paidMessage && (
-                <SuccessNote message={paidMessage} />
-              )}
-              <PayReservationBlock
+              {notice && <SuccessNote message={notice} />}
+              <ConfirmReservationBlock
                 reservation={data}
-                onPaid={() => {
-                  setPaidMessage(
-                    'Pago registrado, queda pendiente de confirmación'
-                  )
-                  refetch()
-                }}
+                onConfirmed={(reservation) =>
+                  setNotice(`Reserva #${reservation.id} confirmada`)
+                }
               />
-              <CancelReservationBlock reservation={data} />
             </View>
           </View>
         </ScrollView>

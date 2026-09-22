@@ -67,11 +67,17 @@ jobs:
         working-directory: pinolrent-api
         run: |
           JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
-          for i in $(seq 1 30); do
+          # The first build on a cold runner downloads the modules and compiles
+          # the whole API, which can take minutes.
+          for i in $(seq 1 180); do
             curl -sf -m 2 http://localhost:8132/health && break
             sleep 1
           done
-          curl -sf -m 2 http://localhost:8132/health
+          curl -sf -m 2 http://localhost:8132/health || {
+            echo "The API did not answer /health in time:" >&2
+            cat /tmp/pinolrent-ci.log >&2
+            exit 1
+          }
 
       - name: Install dependencies
         run: NODE_ENV=development npm ci

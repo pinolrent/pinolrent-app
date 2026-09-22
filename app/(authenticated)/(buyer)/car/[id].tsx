@@ -8,6 +8,7 @@ import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
+import { BackLink } from '@/components/BackLink'
 import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -58,6 +59,7 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
+          <BackLink fallbackHref="/(authenticated)/(buyer)/catalog" />
           <View className="flex-row items-center justify-between gap-3">
             <Text className="text-base font-semibold text-foreground">
               {formatPricePerDay(car.price_per_day)}

@@ -1,7 +1,7 @@
 import type { Payment } from '@/types/payment'
 
 export const PAYMENT_METHOD_LABELS: Record<Payment['method'], string> = {
-  pos: 'Terminal',
+  pos: 'Tarjeta',
   cash: 'Efectivo',
 }
 
