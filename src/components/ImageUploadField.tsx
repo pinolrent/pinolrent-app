@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Text, View } from 'react-native'
+import { Platform, Text, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import api from '@/services/api'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
+import { CropImageModal } from '@/components/CropImageModal'
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
@@ -11,13 +12,54 @@ export function ImageUploadField({
   label,
   value,
   onUploaded,
+  cropAspect,
 }: {
   label: string
   value: string
   onUploaded: (url: string) => void
+  cropAspect?: number
 }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pendingCrop, setPendingCrop] = useState<{
+    uri: string
+    width: number
+    height: number
+  } | null>(null)
+
+  const upload = async (source: {
+    uri: string
+    name: string
+    type: string
+    file?: File
+  }) => {
+    setUploading(true)
+    try {
+      const form = new FormData()
+      if (source.file) {
+        form.append('file', source.file, source.name)
+      } else {
+        form.append('file', {
+          uri: source.uri,
+          name: source.name,
+          type: source.type,
+        } as unknown as Blob)
+      }
+      const res = await api.post<{ url: string }>('/uploads', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      const url = res.data?.url
+      if (!url) {
+        setError('Error al subir la imagen')
+        return
+      }
+      onUploaded(url)
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Error al subir la imagen'))
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const pick = async () => {
     setError(null)
@@ -45,31 +87,45 @@ export function ImageUploadField({
         setError('La imagen no puede superar los 5 MB')
         return
       }
-      setUploading(true)
-      const form = new FormData()
-      if (asset.file) {
-        form.append('file', asset.file, fileName)
-      } else {
-        form.append('file', {
+      if (cropAspect) {
+        setPendingCrop({
           uri: asset.uri,
-          name: fileName,
-          type: mimeType,
-        } as unknown as Blob)
-      }
-      const res = await api.post<{ url: string }>('/uploads', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      const url = res.data?.url
-      if (!url) {
-        setError('Error al subir la imagen')
+          width: asset.width,
+          height: asset.height,
+        })
         return
       }
-      onUploaded(url)
+      await upload({
+        uri: asset.uri,
+        name: fileName,
+        type: mimeType,
+        file: asset.file ?? undefined,
+      })
     } catch (err) {
       setError(getApiErrorMessage(err, 'Error al subir la imagen'))
-    } finally {
-      setUploading(false)
     }
+  }
+
+  const uploadCropped = async (croppedUri: string) => {
+    setPendingCrop(null)
+    if (Platform.OS === 'web') {
+      try {
+        const blob = await (await fetch(croppedUri)).blob()
+        const file = new File([blob], 'foto.jpg', {
+          type: blob.type || 'image/jpeg',
+        })
+        await upload({
+          uri: croppedUri,
+          name: 'foto.jpg',
+          type: 'image/jpeg',
+          file,
+        })
+      } catch (err) {
+        setError(getApiErrorMessage(err, 'Error al subir la imagen'))
+      }
+      return
+    }
+    await upload({ uri: croppedUri, name: 'foto.jpg', type: 'image/jpeg' })
   }
 
   return (
@@ -96,6 +152,16 @@ export function ImageUploadField({
         >
           Subiendo imagen
         </Text>
+      ) : null}
+      {pendingCrop && cropAspect ? (
+        <CropImageModal
+          uri={pendingCrop.uri}
+          width={pendingCrop.width}
+          height={pendingCrop.height}
+          aspect={cropAspect}
+          onCancel={() => setPendingCrop(null)}
+          onCropped={uploadCropped}
+        />
       ) : null}
     </View>
   )
