@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Text, View } from 'react-native'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 const MAX_WIDTH = {
   default: 1120,
@@ -19,12 +20,15 @@ export function ScreenShell({
   width?: keyof typeof MAX_WIDTH
   children: ReactNode
 }) {
+  const { isPhone } = useBreakpoints()
   const hasHeader = Boolean(title || action)
 
   return (
     <View className="flex-1 items-center bg-background">
       <View
-        className="w-full flex-1 gap-4 px-4 py-4 md:gap-6 md:px-6 md:py-6"
+        className={`w-full flex-1 ${
+          isPhone ? 'gap-4 px-4 py-4' : 'gap-6 px-6 py-6'
+        }`}
         style={{ maxWidth: MAX_WIDTH[width] }}
       >
         {hasHeader && (
@@ -39,7 +43,9 @@ export function ScreenShell({
                 </Text>
               ) : null}
               {subtitle ? (
-                <Text className="text-sm text-muted-foreground">{subtitle}</Text>
+                <Text className="text-sm text-muted-foreground">
+                  {subtitle}
+                </Text>
               ) : null}
             </View>
             {action ? (
