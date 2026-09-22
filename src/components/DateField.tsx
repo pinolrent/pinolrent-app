@@ -1,16 +1,8 @@
 import { useState } from 'react'
-import { Platform, Pressable, Text, View } from 'react-native'
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker'
-import { formatDate, toISO } from '@/utils/dates'
-import { AppInput } from './fields'
+import { Pressable, Text, View } from 'react-native'
+import { formatDate, formatDateRange, isValidISODate } from '@/utils/dates'
+import { RangeDateSheet, SingleDateSheet } from './CalendarSheet'
 import { FormError } from './ui-kit'
-
-function parseValue(value: string, fallback: Date): Date {
-  const d = new Date(`${value}T00:00:00`)
-  return Number.isNaN(d.getTime()) ? fallback : d
-}
 
 export function DateField({
   label,
@@ -28,40 +20,14 @@ export function DateField({
   maximumDate?: Date
 }) {
   const [open, setOpen] = useState(false)
-  const today = new Date()
-  const selected = value ? parseValue(value, today) : today
-
-  if (Platform.OS === 'web') {
-    return (
-      <AppInput
-        label={label}
-        placeholder="AAAA-MM-DD"
-        autoCapitalize="none"
-        autoCorrect={false}
-        maxLength={10}
-        value={value}
-        onChangeText={onChange}
-        error={error}
-      />
-    )
-  }
-
-  const onPick = (event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS === 'android') setOpen(false)
-    if (event.type === 'dismissed' || !date) {
-      if (Platform.OS === 'ios') setOpen(false)
-      return
-    }
-    onChange(toISO(date))
-    if (Platform.OS === 'ios') setOpen(false)
-  }
 
   return (
     <View className="gap-1">
       <Text className="text-sm text-muted-foreground">{label}</Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={value ? `${label}: ${formatDate(value)}` : label}
+        accessibilityHint="Abre el calendario"
         onPress={() => setOpen(true)}
         className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
         style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
@@ -70,16 +36,73 @@ export function DateField({
           {value ? formatDate(value) : 'Seleccionar fecha'}
         </Text>
       </Pressable>
-      {open && (
-        <DateTimePicker
-          value={selected}
-          mode="date"
-          display="default"
-          onChange={onPick}
-          minimumDate={minimumDate}
-          maximumDate={maximumDate}
-        />
-      )}
+      <SingleDateSheet
+        visible={open}
+        title={label}
+        value={value}
+        minDate={minimumDate}
+        maxDate={maximumDate}
+        onSelect={onChange}
+        onClose={() => setOpen(false)}
+      />
+      <FormError message={error ?? null} />
+    </View>
+  )
+}
+
+export function DateRangeField({
+  label,
+  startDate,
+  endDate,
+  onChange,
+  error,
+  minimumDate,
+  maxNights,
+}: {
+  label: string
+  startDate: string
+  endDate: string
+  onChange: (startISO: string, endISO: string) => void
+  error?: string | null
+  minimumDate?: Date
+  maxNights?: number
+}) {
+  const [open, setOpen] = useState(false)
+  const hasStart = isValidISODate(startDate)
+  const hasEnd = isValidISODate(endDate)
+  const summary = hasStart
+    ? hasEnd
+      ? formatDateRange(startDate, endDate)
+      : `${formatDate(startDate)} → …`
+    : 'Seleccionar fechas'
+
+  return (
+    <View className="gap-1">
+      <Text className="text-sm text-muted-foreground">{label}</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={hasStart ? `${label}: ${summary}` : label}
+        accessibilityHint="Abre el calendario para elegir inicio y fin"
+        onPress={() => setOpen(true)}
+        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
+        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+      >
+        <Text
+          className={hasStart ? 'text-foreground' : 'text-muted-foreground'}
+        >
+          {summary}
+        </Text>
+      </Pressable>
+      <RangeDateSheet
+        visible={open}
+        title={label}
+        startDate={startDate}
+        endDate={endDate}
+        minDate={minimumDate}
+        maxNights={maxNights}
+        onSelect={onChange}
+        onClose={() => setOpen(false)}
+      />
       <FormError message={error ?? null} />
     </View>
   )

@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { useCancelReservation, useConfirmReservation } from '@/hooks/useReservations'
+import {
+  useCancelReservation,
+  useConfirmReservation,
+} from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
@@ -25,7 +28,7 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
   return (
     <View className="gap-1">
       <Text className="text-muted-foreground">
-        Pago: {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
+        Pago {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
         {PAYMENT_STATUS_LABELS[payment.status]}
       </Text>
       <ProofLink url={payment.proof_url} className="self-start" />
@@ -33,23 +36,25 @@ export function PaymentSummary({ payment }: { payment: Payment }) {
   )
 }
 
-export function CancelReservationBlock({ reservation }: { reservation: Reservation }) {
+export function CancelReservationBlock({
+  reservation,
+}: {
+  reservation: Reservation
+}) {
   const cancel = useCancelReservation()
   const [confirming, setConfirming] = useState(false)
+  const [done, setDone] = useState(false)
   const cancelError = cancel.isError
     ? getApiErrorMessage(cancel.error, 'Error al cancelar la reserva')
     : null
 
-  if (reservation.status !== 'pending' || reservation.payment) return null
+  if (reservation.status !== 'pending' || reservation.payment || done)
+    return null
 
   return (
     <View className="gap-2">
       {!confirming ? (
-        <AppButton
-          variant="outline"
-          onPress={() => setConfirming(true)}
-          loading={cancel.isPending}
-        >
+        <AppButton variant="outline" onPress={() => setConfirming(true)}>
           Cancelar reserva
         </AppButton>
       ) : (
@@ -68,6 +73,7 @@ export function CancelReservationBlock({ reservation }: { reservation: Reservati
                 cancel.mutate(reservation.id, {
                   onSuccess: () => {
                     setConfirming(false)
+                    setDone(true)
                     Haptics.notificationAsync(
                       Haptics.NotificationFeedbackType.Success
                     )

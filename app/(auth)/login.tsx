@@ -79,7 +79,10 @@ export default function LoginScreen() {
         keyboardType="email-address"
         returnKeyType="next"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(v) => {
+          setEmail(v)
+          if (login.isError) login.reset()
+        }}
         error={clientErrors.email}
       />
 
@@ -94,7 +97,10 @@ export default function LoginScreen() {
         returnKeyType="done"
         onSubmitEditing={onLogin}
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(v) => {
+          setPassword(v)
+          if (login.isError) login.reset()
+        }}
         error={clientErrors.password}
       />
       <Pressable
@@ -148,7 +154,7 @@ export default function LoginScreen() {
           accessible={false}
           className="flex-1"
         />
-        <View className="w-[520px] items-center justify-center bg-background p-8">
+        <View className="w-full max-w-[520px] flex-1 items-center justify-center bg-background p-8">
           {form}
         </View>
       </View>

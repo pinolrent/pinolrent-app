@@ -5,6 +5,8 @@ import api from '@/services/api'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
 export function ImageUploadField({
   label,
   value,
@@ -19,26 +21,31 @@ export function ImageUploadField({
 
   const pick = async () => {
     setError(null)
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (!permission.granted) {
-      setError('Habilita el acceso a tus fotos para subir la imagen')
-      return
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: false,
-      quality: 0.8,
-    })
-    if (result.canceled || !result.assets[0]) return
-    const asset = result.assets[0]
-    const fileName = asset.fileName ?? 'foto.jpg'
-    const mimeType = asset.mimeType ?? 'image/jpeg'
-    if (!mimeType.startsWith('image/')) {
-      setError('Solo se permiten imágenes JPG, PNG o WebP')
-      return
-    }
-    setUploading(true)
     try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      if (!permission.granted) {
+        setError('Habilita el acceso a tus fotos para subir la imagen')
+        return
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.8,
+      })
+      if (result.canceled || !result.assets[0]) return
+      const asset = result.assets[0]
+      const fileName = asset.fileName ?? 'foto.jpg'
+      const mimeType = asset.mimeType ?? 'image/jpeg'
+      if (!mimeType.startsWith('image/')) {
+        setError('Solo se permiten imágenes JPG, PNG o WebP')
+        return
+      }
+      const size = asset.fileSize ?? asset.file?.size
+      if (typeof size === 'number' && size > MAX_UPLOAD_BYTES) {
+        setError('La imagen no puede superar los 5 MB')
+        return
+      }
+      setUploading(true)
       const form = new FormData()
       if (asset.file) {
         form.append('file', asset.file, fileName)

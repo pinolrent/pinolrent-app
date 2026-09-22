@@ -26,6 +26,7 @@ export function SkeletonCard() {
 
   return (
     <View
+      aria-hidden
       importantForAccessibility="no-hide-descendants"
       className="gap-2 rounded-xl border border-border bg-card p-3"
     >
@@ -44,6 +45,7 @@ export function SkeletonRow() {
 
   return (
     <View
+      aria-hidden
       importantForAccessibility="no-hide-descendants"
       className="min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3"
     >

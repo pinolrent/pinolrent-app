@@ -14,12 +14,17 @@ import { useReduceMotion } from '@/hooks/useReduceMotion'
 import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
-import { daysBetween, formatDays, isValidISODate, toISO } from '@/utils/dates'
-import { reservationTotal } from '@/utils/reservations'
+import { formatDays, isValidISODate, toISO } from '@/utils/dates'
+import {
+  MAX_RESERVATION_NIGHTS,
+  isValidReservationRange,
+  reservationRangeError,
+  reservationTotal,
+} from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
-import { DateField } from '@/components/DateField'
+import { DateRangeField } from '@/components/DateField'
 
 export default function ReserveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -27,24 +32,24 @@ export default function ReserveScreen() {
   const reduceMotion = useReduceMotion()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { data: car, isLoading: carLoading, isError: carError, error: carErr, refetch: refetchCar, isRefetching: carRefetching } =
-    useCar(idNum)
+  const {
+    data: car,
+    isLoading: carLoading,
+    isError: carError,
+    error: carErr,
+    refetch: refetchCar,
+    isRefetching: carRefetching,
+  } = useCar(idNum)
   const createReservation = useCreateReservation()
 
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [startError, setStartError] = useState<string | null>(null)
-  const [endError, setEndError] = useState<string | null>(null)
+  const [rangeError, setRangeError] = useState<string | null>(null)
 
-  const editStart = (v: string) => {
-    setStartDate(v)
-    setStartError(null)
-    createReservation.reset()
-  }
-
-  const editEnd = (v: string) => {
-    setEndDate(v)
-    setEndError(null)
+  const editRange = (start: string, end: string) => {
+    setStartDate(start)
+    setEndDate(end)
+    setRangeError(null)
     createReservation.reset()
   }
 
@@ -73,39 +78,25 @@ export default function ReserveScreen() {
   }
 
   const today = toISO(new Date())
+  const hasStart = isValidISODate(startDate)
+  const hasEnd = isValidISODate(endDate)
 
-  const validRange =
-    isValidISODate(startDate) &&
-    isValidISODate(endDate) &&
-    startDate >= today &&
-    endDate > startDate &&
-    daysBetween(startDate, endDate) < 30
+  const rangeHint = reservationRangeError(startDate, endDate, today)
+  const validRange = isValidReservationRange(startDate, endDate, today)
   const preview = validRange
     ? reservationTotal(startDate, endDate, car.price_per_day)
     : { days: 0, total: 0 }
   const { days: previewDays, total: previewTotal } = preview
 
   const onSubmit = () => {
-    setStartError(null)
-    setEndError(null)
-    if (!isValidISODate(startDate)) {
-      setStartError('Selecciona la fecha de inicio')
+    setRangeError(null)
+    if (!hasStart || !hasEnd) {
+      setRangeError('Selecciona las fechas de inicio y fin')
       return
     }
-    if (!isValidISODate(endDate)) {
-      setEndError('Selecciona la fecha de fin')
-      return
-    }
-    if (startDate < today) {
-      setStartError('La fecha de inicio no puede ser anterior a hoy')
-      return
-    }
-    if (endDate <= startDate) {
-      setEndError('La reserva debe durar al menos 1 día')
-      return
-    }
-    if (daysBetween(startDate, endDate) >= 30) {
-      setEndError('La reserva no puede superar los 30 días')
+    const rangeValidation = reservationRangeError(startDate, endDate, today)
+    if (rangeValidation) {
+      setRangeError(rangeValidation)
       return
     }
     createReservation.mutate(
@@ -147,19 +138,14 @@ export default function ReserveScreen() {
               {car.name} · {formatPricePerDay(car.price_per_day)}
             </Text>
             <AppCard gap="lg">
-              <DateField
-                label="Fecha inicio"
-                value={startDate}
-                onChange={editStart}
-                error={startError}
+              <DateRangeField
+                label="Fechas de la reserva"
+                startDate={startDate}
+                endDate={endDate}
+                onChange={editRange}
+                error={rangeError ?? rangeHint}
                 minimumDate={new Date()}
-              />
-              <DateField
-                label="Fecha fin"
-                value={endDate}
-                onChange={editEnd}
-                error={endError}
-                minimumDate={new Date(Date.now() + 86400000)}
+                maxNights={MAX_RESERVATION_NIGHTS}
               />
               <FormError message={serverError} />
               {validRange && (
