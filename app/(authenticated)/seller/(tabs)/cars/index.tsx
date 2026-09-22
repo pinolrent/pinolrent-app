@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react'
 import { View, FlatList, RefreshControl } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import {
-  useCreateSellerCar,
-  useSellerCars,
-  useToggleSellerCar,
-} from '@/hooks/useSellerCars'
+import { useRouter } from 'expo-router'
+import { useCreateSellerCar, useSellerCars } from '@/hooks/useSellerCars'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
@@ -27,11 +24,11 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 const NOTICE_MS = 6000
 
 export default function SellerCarsScreen() {
+  const router = useRouter()
   const { columns: numColumns, isPhone, isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
-  const toggleCar = useToggleSellerCar()
 
   const [formOpen, setFormOpen] = useState(false)
   const [name, setName] = useState('')
@@ -40,7 +37,6 @@ export default function SellerCarsScreen() {
   const [nameError, setNameError] = useState<string | null>(null)
   const [priceError, setPriceError] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState<string | null>(null)
-  const [togglingId, setTogglingId] = useState<number | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   useEffect(() => {
@@ -57,15 +53,6 @@ export default function SellerCarsScreen() {
     ? getApiErrorMessage(createCar.error, 'Error al crear el auto')
     : null
 
-  const toggleError = toggleCar.isError
-    ? getApiErrorMessage(toggleCar.error, 'Error al actualizar el auto')
-    : null
-
-  const togglingRowId =
-    toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
-      ? toggleCar.variables.id
-      : togglingId
-
   const openForm = () => {
     setNameError(null)
     setPriceError(null)
@@ -76,25 +63,6 @@ export default function SellerCarsScreen() {
   }
 
   const closeForm = () => setFormOpen(false)
-
-  const onToggle = (car: Car) => {
-    setTogglingId(car.id)
-    setNotice(null)
-    toggleCar.mutate(
-      { id: car.id, active: !car.active },
-      {
-        onSuccess: () => {
-          setTogglingId(null)
-          setNotice(car.active ? 'Auto desactivado' : 'Auto activado')
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        },
-        onError: () => {
-          setTogglingId(null)
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-        },
-      }
-    )
-  }
 
   const onSubmit = () => {
     const trimmedName = name.trim()
@@ -158,20 +126,12 @@ export default function SellerCarsScreen() {
     <StaggerCard index={index}>
       <CarCard
         car={item}
+        onPress={() => router.push(`/(authenticated)/seller/cars/${item.id}`)}
         footer={
-          <View className="flex-row items-center justify-between gap-2">
+          <View className="flex-row">
             <StatusBadge tone={item.active ? 'success' : 'muted'}>
               {item.active ? 'Activo' : 'Inactivo'}
             </StatusBadge>
-            <AppButton
-              size="sm"
-              variant={item.active ? 'outline' : 'default'}
-              onPress={() => onToggle(item)}
-              disabled={toggleCar.isPending}
-              loading={togglingRowId === item.id && toggleCar.isPending}
-            >
-              {item.active ? 'Desactivar' : 'Activar'}
-            </AppButton>
           </View>
         }
       />
@@ -198,7 +158,6 @@ export default function SellerCarsScreen() {
         />
       ) : (
         <>
-          <FormError message={toggleError} />
           <SuccessNote message={notice} />
           <FlatList
             key={numColumns}
@@ -266,6 +225,7 @@ export default function SellerCarsScreen() {
         </View>
         <ImageUploadField
           label="Foto"
+          cropAspect={4 / 3}
           value={photoUrl}
           onUploaded={(url) => {
             setPhotoUrl(url)

@@ -33,6 +33,24 @@ export default function SellerLayout() {
             ...headerColors(theme),
           }}
         />
+        <Stack.Screen
+          name="cars/[id]"
+          options={{
+            headerShown: true,
+            title: 'Auto',
+            ...headerBackOptions(theme, '/(authenticated)/seller/cars'),
+            ...headerColors(theme),
+          }}
+        />
+        <Stack.Screen
+          name="profile/edit"
+          options={{
+            headerShown: true,
+            title: 'Editar perfil',
+            ...headerBackOptions(theme, '/(authenticated)/seller/profile'),
+            ...headerColors(theme),
+          }}
+        />
       </Stack.Protected>
     </Stack>
   )
