@@ -44,6 +44,15 @@ export default function BuyerLayout() {
             ...headerColors(theme),
           }}
         />
+        <Stack.Screen
+          name="profile/edit"
+          options={{
+            headerShown: true,
+            title: 'Editar perfil',
+            ...headerBackOptions(theme, '/(authenticated)/(buyer)/profile'),
+            ...headerColors(theme),
+          }}
+        />
       </Stack.Protected>
     </Stack>
   )
