@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, FlatList, RefreshControl } from 'react-native'
+import { View, FlatList, RefreshControl } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import {
   useCreateSellerCar,
@@ -13,9 +13,9 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { CarCard } from '@/components/rows'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
+import { ModalSheet } from '@/components/ModalSheet'
 import {
   AppButton,
-  AppCard,
   EmptyState,
   ErrorState,
   FormError,
@@ -27,7 +27,7 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 const NOTICE_MS = 6000
 
 export default function SellerCarsScreen() {
-  const { columns: numColumns, isPhone } = useBreakpoints()
+  const { columns: numColumns, isPhone, isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
@@ -65,6 +65,17 @@ export default function SellerCarsScreen() {
     toggleCar.isPending && typeof toggleCar.variables?.id === 'number'
       ? toggleCar.variables.id
       : togglingId
+
+  const openForm = () => {
+    setNameError(null)
+    setPriceError(null)
+    setPhotoError(null)
+    createCar.reset()
+    setNotice(null)
+    setFormOpen(true)
+  }
+
+  const closeForm = () => setFormOpen(false)
 
   const onToggle = (car: Car) => {
     setTogglingId(car.id)
@@ -172,19 +183,9 @@ export default function SellerCarsScreen() {
       title="Mis autos"
       subtitle={`${cars.length} ${cars.length === 1 ? 'publicado' : 'publicados'} · ${activeCount} ${activeCount === 1 ? 'activo' : 'activos'}`}
       action={
-        <AppButton
-          variant={formOpen ? 'outline' : 'default'}
-          onPress={() => {
-            setNameError(null)
-            setPriceError(null)
-            setPhotoError(null)
-            createCar.reset()
-            setNotice(null)
-            setFormOpen(!formOpen)
-          }}
-        >
-          {formOpen ? 'Cancelar' : 'Publicar auto'}
-        </AppButton>
+        isDesktop ? (
+          <AppButton onPress={openForm}>Publicar auto</AppButton>
+        ) : undefined
       }
     >
       {isLoading ? (
@@ -197,76 +198,6 @@ export default function SellerCarsScreen() {
         />
       ) : (
         <>
-          {formOpen && (
-            <AppCard gap="lg">
-              <Text
-                accessibilityRole="header"
-                className="text-lg font-bold text-foreground"
-              >
-                Nuevo auto
-              </Text>
-              <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
-                <View className="flex-1">
-                  <AppInput
-                    label="Nombre"
-                    placeholder="Ej. Toyota Corolla 2020"
-                    value={name}
-                    onChangeText={(v) => {
-                      setName(v)
-                      setNameError(null)
-                      if (createCar.isError) createCar.reset()
-                    }}
-                    error={nameError}
-                  />
-                </View>
-                <View className={isPhone ? '' : 'w-56'}>
-                  <AppInput
-                    label="Precio por día (USD)"
-                    placeholder="Ej. 45.00"
-                    keyboardType="decimal-pad"
-                    value={priceText}
-                    onChangeText={(v) => {
-                      setPriceText(v)
-                      setPriceError(null)
-                      if (createCar.isError) createCar.reset()
-                    }}
-                    error={priceError}
-                  />
-                </View>
-              </View>
-              <ImageUploadField
-                label="Foto"
-                value={photoUrl}
-                onUploaded={(url) => {
-                  setPhotoUrl(url)
-                  setPhotoError(null)
-                  if (createCar.isError) createCar.reset()
-                }}
-              />
-              <AppInput
-                label="URL de la foto"
-                placeholder="https://... o /uploads/..."
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={photoUrl}
-                onChangeText={(v) => {
-                  setPhotoUrl(v)
-                  setPhotoError(null)
-                  if (createCar.isError) createCar.reset()
-                }}
-                error={photoError}
-              />
-              <FormError message={createError} />
-              <View className="flex-row items-center gap-3">
-                <AppButton onPress={onSubmit} loading={createCar.isPending}>
-                  Publicar auto
-                </AppButton>
-                <AppButton variant="ghost" onPress={() => setFormOpen(false)}>
-                  Cancelar
-                </AppButton>
-              </View>
-            </AppCard>
-          )}
           <FormError message={toggleError} />
           <SuccessNote message={notice} />
           <FlatList
@@ -287,18 +218,84 @@ export default function SellerCarsScreen() {
             ListEmptyComponent={
               <EmptyState
                 message="Todavía no publicaste autos"
-                action={
-                  formOpen ? null : (
-                    <AppButton onPress={() => setFormOpen(true)}>
-                      Publicar auto
-                    </AppButton>
-                  )
-                }
+                action={<AppButton onPress={openForm}>Publicar auto</AppButton>}
               />
             }
           />
+          {isPhone && (
+            <View className="pt-1">
+              <AppButton onPress={openForm}>Publicar auto</AppButton>
+            </View>
+          )}
         </>
       )}
+      <ModalSheet
+        visible={formOpen}
+        onClose={closeForm}
+        title="Nuevo auto"
+        maxWidth={520}
+      >
+        <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
+          <View className="flex-1">
+            <AppInput
+              label="Nombre"
+              placeholder="Ej. Toyota Corolla 2020"
+              value={name}
+              onChangeText={(v) => {
+                setName(v)
+                setNameError(null)
+                if (createCar.isError) createCar.reset()
+              }}
+              error={nameError}
+            />
+          </View>
+          <View className={isPhone ? '' : 'w-56'}>
+            <AppInput
+              label="Precio por día (USD)"
+              placeholder="Ej. 45.00"
+              keyboardType="decimal-pad"
+              value={priceText}
+              onChangeText={(v) => {
+                setPriceText(v)
+                setPriceError(null)
+                if (createCar.isError) createCar.reset()
+              }}
+              error={priceError}
+            />
+          </View>
+        </View>
+        <ImageUploadField
+          label="Foto"
+          value={photoUrl}
+          onUploaded={(url) => {
+            setPhotoUrl(url)
+            setPhotoError(null)
+            if (createCar.isError) createCar.reset()
+          }}
+        />
+        <AppInput
+          label="URL de la foto"
+          placeholder="https://... o /uploads/..."
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={photoUrl}
+          onChangeText={(v) => {
+            setPhotoUrl(v)
+            setPhotoError(null)
+            if (createCar.isError) createCar.reset()
+          }}
+          error={photoError}
+        />
+        <FormError message={createError} />
+        <View className="flex-row items-center gap-3">
+          <AppButton onPress={onSubmit} loading={createCar.isPending}>
+            Publicar auto
+          </AppButton>
+          <AppButton variant="ghost" onPress={closeForm}>
+            Cancelar
+          </AppButton>
+        </View>
+      </ModalSheet>
     </ScreenShell>
   )
 }
