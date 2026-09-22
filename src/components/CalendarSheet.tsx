@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
-import { Modal, Pressable, Text, View } from 'react-native'
 import DateTimePicker, {
   type DatePickerBaseProps,
 } from 'react-native-ui-datepicker'
 import dayjs from 'dayjs'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { toISO } from '@/utils/dates'
+import { ModalSheet } from './ModalSheet'
 
 type CalendarStyles = NonNullable<DatePickerBaseProps['styles']>
 
@@ -60,32 +60,14 @@ function Sheet({
   children: ReactNode
 }) {
   return (
-    <Modal
+    <ModalSheet
       visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
+      onClose={onClose}
+      title={title}
+      maxWidth={400}
     >
-      <View className="flex-1 items-center justify-center bg-black/40 p-4">
-        <View className="w-full max-w-md gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="text-base font-semibold text-foreground">
-              {title}
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Cerrar calendario"
-              onPress={onClose}
-              className="min-h-11 justify-center px-2"
-              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-            >
-              <Text className="text-sm text-primary">Cerrar</Text>
-            </Pressable>
-          </View>
-          {children}
-        </View>
-      </View>
-    </Modal>
+      {children}
+    </ModalSheet>
   )
 }
 

@@ -1,21 +1,22 @@
+import { useState } from 'react'
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
+import { useLocalSearchParams, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
 import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
-import { BackLink } from '@/components/BackLink'
+import { ReserveCarModal } from '@/components/ReserveCarModal'
 import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const router = useRouter()
+  const [showReserve, setShowReserve] = useState(false)
   const reduceMotion = useReduceMotion()
   const { isPhone } = useBreakpoints()
   const idNum = Number(id)
@@ -67,7 +68,6 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <BackLink fallbackHref="/(authenticated)/(buyer)/catalog" />
           <View className="flex-row items-center justify-between gap-3">
             <Text className="text-base font-semibold text-foreground">
               {formatPricePerDay(car.price_per_day)}
@@ -122,17 +122,16 @@ export default function CarDetailScreen() {
                   </Text>
                 )}
               </AppCard>
-              <AppButton
-                onPress={() =>
-                  router.push(`/(authenticated)/(buyer)/reserve/${car.id}`)
-                }
-              >
+              <AppButton onPress={() => setShowReserve(true)}>
                 Reservar este auto
               </AppButton>
             </View>
           </View>
         </ScrollView>
       </ScreenShell>
+      {showReserve && (
+        <ReserveCarModal car={car} onClose={() => setShowReserve(false)} />
+      )}
     </Animated.View>
   )
 }

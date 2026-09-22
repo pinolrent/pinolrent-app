@@ -10,7 +10,6 @@ import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
-import { BackLink } from '@/components/BackLink'
 import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
@@ -81,7 +80,6 @@ export default function SellerReservationDetailScreen() {
             />
           }
         >
-          <BackLink fallbackHref="/(authenticated)/seller/reservations" />
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <AppCard gap="lg">
