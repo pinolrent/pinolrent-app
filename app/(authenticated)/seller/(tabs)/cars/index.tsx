@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Text, FlatList, RefreshControl } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import {
@@ -13,9 +13,18 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { CarCard } from '@/components/rows'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { SkeletonList } from '@/components/Skeleton'
-import { AppButton, AppCard, EmptyState, ErrorState, FormError, SuccessNote } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  EmptyState,
+  ErrorState,
+  FormError,
+  SuccessNote,
+} from '@/components/ui-kit'
 import { AppInput, StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+
+const NOTICE_MS = 6000
 
 export default function SellerCarsScreen() {
   const { columns: numColumns, isPhone } = useBreakpoints()
@@ -33,6 +42,12 @@ export default function SellerCarsScreen() {
   const [photoError, setPhotoError] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<number | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!notice) return
+    const timer = setTimeout(() => setNotice(null), NOTICE_MS)
+    return () => clearTimeout(timer)
+  }, [notice])
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus autos')
@@ -141,6 +156,7 @@ export default function SellerCarsScreen() {
               size="sm"
               variant={item.active ? 'outline' : 'default'}
               onPress={() => onToggle(item)}
+              disabled={toggleCar.isPending}
               loading={togglingRowId === item.id && toggleCar.isPending}
             >
               {item.active ? 'Desactivar' : 'Activar'}
@@ -198,6 +214,7 @@ export default function SellerCarsScreen() {
                     onChangeText={(v) => {
                       setName(v)
                       setNameError(null)
+                      if (createCar.isError) createCar.reset()
                     }}
                     error={nameError}
                   />
@@ -211,6 +228,7 @@ export default function SellerCarsScreen() {
                     onChangeText={(v) => {
                       setPriceText(v)
                       setPriceError(null)
+                      if (createCar.isError) createCar.reset()
                     }}
                     error={priceError}
                   />
@@ -222,6 +240,7 @@ export default function SellerCarsScreen() {
                 onUploaded={(url) => {
                   setPhotoUrl(url)
                   setPhotoError(null)
+                  if (createCar.isError) createCar.reset()
                 }}
               />
               <AppInput
@@ -233,6 +252,7 @@ export default function SellerCarsScreen() {
                 onChangeText={(v) => {
                   setPhotoUrl(v)
                   setPhotoError(null)
+                  if (createCar.isError) createCar.reset()
                 }}
                 error={photoError}
               />

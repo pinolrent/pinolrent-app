@@ -159,7 +159,7 @@ export function CarListRow({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={car.name}
+      accessibilityLabel={`${car.name}, ${formatPricePerDay(car.price_per_day)}`}
       onPress={onPress}
       {...hoverProps}
       className={`min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
@@ -169,7 +169,10 @@ export function CarListRow({
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={1} className="text-base font-semibold text-foreground">
+        <Text
+          numberOfLines={1}
+          className="text-base font-semibold text-foreground"
+        >
           {car.name}
         </Text>
         <Text className="text-sm text-muted-foreground">
@@ -193,16 +196,24 @@ const COLUMN = {
 export function ReservationColumns() {
   return (
     <View className="flex-row items-center gap-4 border-b border-border px-4 py-2">
-      <Text className={`${COLUMN.car} text-xs font-semibold text-muted-foreground`}>
+      <Text
+        className={`${COLUMN.car} text-xs font-semibold text-muted-foreground`}
+      >
         Auto
       </Text>
-      <Text className={`${COLUMN.dates} text-xs font-semibold text-muted-foreground`}>
+      <Text
+        className={`${COLUMN.dates} text-xs font-semibold text-muted-foreground`}
+      >
         Fechas
       </Text>
-      <Text className={`${COLUMN.total} text-xs font-semibold text-muted-foreground`}>
+      <Text
+        className={`${COLUMN.total} text-xs font-semibold text-muted-foreground`}
+      >
         Total
       </Text>
-      <Text className={`${COLUMN.status} text-xs font-semibold text-muted-foreground`}>
+      <Text
+        className={`${COLUMN.status} text-xs font-semibold text-muted-foreground`}
+      >
         Estado
       </Text>
       <View className={COLUMN.action} />
@@ -273,7 +284,9 @@ export function ReservationRow({
             {formatDays(days)}
           </Text>
         </View>
-        <Text className={`${COLUMN.total} text-sm font-semibold text-foreground`}>
+        <Text
+          className={`${COLUMN.total} text-sm font-semibold text-foreground`}
+        >
           {formatPrice(total)}
         </Text>
         <View className={`${COLUMN.status} gap-1`}>
@@ -324,7 +337,7 @@ export function ReservationRow({
     return (
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Ver la reserva de ${reservation.car.name}`}
+        accessibilityLabel={`Ver la reserva de ${reservation.car.name}, ${formatDateRange(reservation.start_date, reservation.end_date)}, ${STATUS_LABELS[reservation.status]}`}
         onPress={onPress}
         {...hoverProps}
         className={`gap-3 rounded-xl border bg-card p-3 shadow-sm ${

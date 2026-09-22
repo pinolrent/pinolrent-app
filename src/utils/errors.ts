@@ -82,14 +82,13 @@ export function getApiErrorMessage(err: unknown, fallback: string): string {
   return err instanceof Error ? err.message : fallback
 }
 
-function flattenErrors(
-  errors: ApiError['errors'] | undefined
-): string | null {
+function flattenErrors(errors: ApiError['errors'] | undefined): string | null {
   if (!errors) return null
   if (Array.isArray(errors)) {
     const first = errors[0]
     if (typeof first === 'string' && first.trim()) return first
-    if (first && typeof first === 'object' && first.message) return first.message
+    if (first && typeof first === 'object' && first.message)
+      return first.message
     return null
   }
   const values = Object.values(errors).flat()
@@ -98,7 +97,8 @@ function flattenErrors(
 
 function translateBackendMessage(msg: string): string {
   const lower = msg.toLowerCase()
-  if (lower.includes('car is not active')) return 'Este auto ya no está disponible'
+  if (lower.includes('car is not active'))
+    return 'Este auto ya no está disponible'
   if (lower.includes('overlap')) return 'Esas fechas se cruzan con otra reserva'
   if (lower.includes('payment is not pending'))
     return 'El pago ya no está pendiente'
@@ -112,12 +112,18 @@ function translateBackendMessage(msg: string): string {
   if (lower.includes('invalid phone')) return 'Ingresa un teléfono válido'
   if (lower.includes('phone is required for sellers'))
     return 'El teléfono es obligatorio para vendedores'
-  if (lower.includes('password must be')) return 'La contraseña debe tener entre 8 y 72 caracteres'
-  if (lower.includes('invalid photo_url') || lower.includes('invalid proof_url'))
+  if (lower.includes('password must be'))
+    return 'La contraseña debe tener entre 8 y 72 caracteres'
+  if (
+    lower.includes('invalid photo_url') ||
+    lower.includes('invalid proof_url')
+  )
     return 'Imagen inválida: sube una foto o pega una URL válida'
   if (lower.includes('only jpg, png or webp'))
     return 'Solo se permiten imágenes JPG, PNG o WebP'
   if (lower.includes('file is required')) return 'Selecciona una imagen'
+  if (lower.includes('seller has no contact phone'))
+    return 'El vendedor todavía no cargó un teléfono'
   if (lower.includes('payment already recorded'))
     return 'Esta reserva ya tiene un pago registrado'
   if (lower.includes('reservation is not pending'))

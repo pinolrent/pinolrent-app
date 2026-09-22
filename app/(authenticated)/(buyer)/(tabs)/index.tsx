@@ -8,7 +8,13 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { formatPrice } from '@/utils/currency'
 import { formatDateRange, formatDays, toISO } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
-import { AppButton, AppCard, EmptyState, ErrorState, ListGroup } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  EmptyState,
+  ErrorState,
+  ListGroup,
+} from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -117,6 +123,8 @@ export default function BuyerHomeScreen() {
               onRetry={() => carsQuery.refetch()}
               retrying={carsQuery.isRefetching}
             />
+          ) : carsQuery.isLoading ? (
+            <SkeletonList count={PREVIEW_CARS} variant="row" />
           ) : available.length > 0 ? (
             <ListGroup title="Autos disponibles">
               {available.map((car, index) => (

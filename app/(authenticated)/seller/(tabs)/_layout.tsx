@@ -35,45 +35,51 @@ export default function SellerTabsLayout() {
       <Sidebar items={sellerNav} />
       <View className="flex-1">
         <Tabs
-      screenOptions={{
-        headerShown: false,
-        ...(isDesktop
-          ? { tabBarStyle: { display: 'none' } }
-          : tabBarColors(theme)),
-      }}
-    >
-      <Tabs.Protected guard={!!token && user?.role === 'seller'}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Inicio',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.home} color={color} />,
+          screenOptions={{
+            headerShown: false,
+            ...(isDesktop
+              ? { tabBarStyle: { display: 'none' } }
+              : tabBarColors(theme)),
           }}
-        />
-        <Tabs.Screen
-          name="cars/index"
-          options={{
-            title: 'Mis autos',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.cars} color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="reservations/index"
-          options={{
-            title: 'Reservas',
-            tabBarIcon: ({ color }) => (
-              <TabIcon Icon={NAV_ICONS.reservations} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Perfil',
-            tabBarIcon: ({ color }) => <TabIcon Icon={NAV_ICONS.profile} color={color} />,
-          }}
-        />
-      </Tabs.Protected>
+        >
+          <Tabs.Protected guard={!!token && user?.role === 'seller'}>
+            <Tabs.Screen
+              name="index"
+              options={{
+                title: 'Inicio',
+                tabBarIcon: ({ color }) => (
+                  <TabIcon Icon={NAV_ICONS.home} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="cars/index"
+              options={{
+                title: 'Mis autos',
+                tabBarIcon: ({ color }) => (
+                  <TabIcon Icon={NAV_ICONS.cars} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="reservations/index"
+              options={{
+                title: 'Reservas',
+                tabBarIcon: ({ color }) => (
+                  <TabIcon Icon={NAV_ICONS.reservations} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="profile"
+              options={{
+                title: 'Perfil',
+                tabBarIcon: ({ color }) => (
+                  <TabIcon Icon={NAV_ICONS.profile} color={color} />
+                ),
+              }}
+            />
+          </Tabs.Protected>
         </Tabs>
       </View>
     </View>

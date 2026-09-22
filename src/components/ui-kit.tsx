@@ -19,6 +19,7 @@ export function AppButton({
     <Button
       variant={variant}
       {...props}
+      isDisabled={disabled || loading}
       disabled={disabled || loading}
       accessibilityState={{
         ...props.accessibilityState,

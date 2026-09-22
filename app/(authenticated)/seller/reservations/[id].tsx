@@ -10,6 +10,7 @@ import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
+import { BackLink } from '@/components/BackLink'
 import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
@@ -80,6 +81,7 @@ export default function SellerReservationDetailScreen() {
             />
           }
         >
+          <BackLink fallbackHref="/(authenticated)/seller/reservations" />
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <AppCard gap="lg">
@@ -93,7 +95,9 @@ export default function SellerReservationDetailScreen() {
                 />
                 <View className={isPhone ? 'gap-4' : 'flex-row gap-6'}>
                   <View className="flex-1 gap-1">
-                    <Text className="text-sm text-muted-foreground">Fechas</Text>
+                    <Text className="text-sm text-muted-foreground">
+                      Fechas
+                    </Text>
                     <Text className="text-base text-foreground">
                       {formatDateRange(data.start_date, data.end_date)}
                     </Text>

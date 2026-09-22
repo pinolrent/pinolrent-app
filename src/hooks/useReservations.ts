@@ -3,7 +3,9 @@ import { reservationsService } from '@/services/reservations.service'
 import { queryKeys } from '@/constants/query-keys'
 import type { CreateReservationRequest } from '@/types/reservation'
 
-function invalidateReservationCaches(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateReservationCaches(
+  queryClient: ReturnType<typeof useQueryClient>
+) {
   queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
   queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
   queryClient.invalidateQueries({ queryKey: ['cars'] })
@@ -62,7 +64,6 @@ export function useConfirmReservation() {
     mutationFn: (id: number) => reservationsService.confirm(id),
     onSuccess: () => {
       invalidateReservationCaches(queryClient)
-      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
     },
   })
 }

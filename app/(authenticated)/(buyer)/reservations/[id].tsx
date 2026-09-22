@@ -16,6 +16,7 @@ import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   CancelReservationBlock,
   PayReservationBlock,
@@ -28,6 +29,7 @@ export default function ReservationDetailScreen() {
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
   const { isPhone } = useBreakpoints()
+  const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
   const [paidMessage, setPaidMessage] = useState<string | null>(null)
@@ -79,6 +81,9 @@ export default function ReservationDetailScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.card}
             />
           }
         >
@@ -96,7 +101,9 @@ export default function ReservationDetailScreen() {
                 />
                 <View className={isPhone ? 'gap-4' : 'flex-row gap-6'}>
                   <View className="flex-1 gap-1">
-                    <Text className="text-sm text-muted-foreground">Fechas</Text>
+                    <Text className="text-sm text-muted-foreground">
+                      Fechas
+                    </Text>
                     <Text className="text-base text-foreground">
                       {formatDateRange(data.start_date, data.end_date)}
                     </Text>
@@ -127,9 +134,7 @@ export default function ReservationDetailScreen() {
                   {formatPrice(total)}
                 </Text>
               </AppCard>
-              {paidMessage && (
-                <SuccessNote message={paidMessage} />
-              )}
+              {paidMessage && <SuccessNote message={paidMessage} />}
               <PayReservationBlock
                 reservation={data}
                 onPaid={() => {

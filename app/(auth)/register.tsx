@@ -105,7 +105,10 @@ export default function RegisterScreen() {
         keyboardType="email-address"
         returnKeyType="next"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(v) => {
+          setEmail(v)
+          if (register.isError) register.reset()
+        }}
         error={clientErrors.email}
       />
 
@@ -119,7 +122,10 @@ export default function RegisterScreen() {
         secureTextEntry={!showPassword}
         returnKeyType="next"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(v) => {
+          setPassword(v)
+          if (register.isError) register.reset()
+        }}
         error={clientErrors.password}
       />
       <Pressable
@@ -136,9 +142,17 @@ export default function RegisterScreen() {
         </Text>
       </Pressable>
 
+      <ChoiceGroup
+        label="Tipo de cuenta"
+        options={ROLE_OPTIONS}
+        value={role}
+        onChange={setRole}
+        className="my-1"
+      />
+
       <AppInput
         ref={phoneRef}
-        label="Teléfono"
+        label={role === 'seller' ? 'Teléfono' : 'Teléfono (opcional)'}
         placeholder="Tu WhatsApp"
         autoComplete="tel"
         textContentType="telephoneNumber"
@@ -148,16 +162,11 @@ export default function RegisterScreen() {
         returnKeyType="done"
         onSubmitEditing={onRegister}
         value={phone}
-        onChangeText={setPhone}
+        onChangeText={(v) => {
+          setPhone(v)
+          if (register.isError) register.reset()
+        }}
         error={clientErrors.phone}
-      />
-
-      <ChoiceGroup
-        label="Tipo de cuenta"
-        options={ROLE_OPTIONS}
-        value={role}
-        onChange={setRole}
-        className="my-1"
       />
 
       <FormError message={error} className="text-center" />
@@ -198,7 +207,7 @@ export default function RegisterScreen() {
           accessible={false}
           className="flex-1"
         />
-        <View className="w-[520px] items-center justify-center bg-background p-8">
+        <View className="w-full max-w-[520px] flex-1 items-center justify-center bg-background p-8">
           {form}
         </View>
       </View>
