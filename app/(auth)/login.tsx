@@ -1,14 +1,5 @@
 import { useRef, useState } from 'react'
-import {
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { Pressable, Text } from 'react-native'
 import type { TextInput } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
@@ -17,16 +8,11 @@ import {
   validateEmail,
   validatePassword,
 } from '@/utils/errors'
-import { Brand } from '@/components/Brand'
-import { AppButton, AppCard, FormError } from '@/components/ui-kit'
+import { AppButton, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
-
-const LOGIN_BG = require('../../src/assets/login-background.jpeg')
+import { AuthShell } from '@/components/AuthShell'
 
 export default function LoginScreen() {
-  const { isPhone } = useBreakpoints()
-  const { width, height } = useWindowDimensions()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -59,8 +45,8 @@ export default function LoginScreen() {
     ? getApiErrorMessage(login.error, 'Error al iniciar sesión')
     : null
 
-  const cardContent = (
-    <>
+  return (
+    <AuthShell>
       <Text
         accessibilityRole="header"
         className="mb-2 text-xl font-bold text-foreground"
@@ -125,72 +111,6 @@ export default function LoginScreen() {
       <Link href="/(auth)/register" className="mt-1 self-center px-3 py-3.5">
         <Text className="text-primary">Crear cuenta</Text>
       </Link>
-    </>
-  )
-
-  const form = (
-    <View className="w-full max-w-md gap-4">
-      {isPhone ? (
-        <AppCard padding="lg">
-          <Brand />
-          <View className="h-px bg-border" />
-          {cardContent}
-        </AppCard>
-      ) : (
-        <>
-          <Brand />
-          <AppCard padding="xl">{cardContent}</AppCard>
-        </>
-      )}
-    </View>
-  )
-
-  if (!isPhone) {
-    return (
-      <View className="flex-1 flex-row bg-background">
-        <ImageBackground
-          source={LOGIN_BG}
-          resizeMode="cover"
-          accessible={false}
-          className="flex-1"
-        />
-        <View className="w-full max-w-[520px] flex-1 items-center justify-center bg-background p-8">
-          {form}
-        </View>
-      </View>
-    )
-  }
-
-  return (
-    <View className="flex-1 bg-background">
-      <ImageBackground
-        source={LOGIN_BG}
-        resizeMode="cover"
-        accessible={false}
-        style={{
-          width: '100%',
-          height: Math.round(Math.min(width / 1.5, height * 0.42)),
-          flexGrow: 0,
-          flexShrink: 0,
-        }}
-      />
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          className="flex-1"
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
-          {form}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+    </AuthShell>
   )
 }
