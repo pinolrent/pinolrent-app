@@ -20,8 +20,14 @@ export default function CarDetailScreen() {
   const { isPhone } = useBreakpoints()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { data: car, isLoading, isError, error, refetch, isRefetching } =
-    useCar(idNum)
+  const {
+    data: car,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useCar(idNum)
   const contact = useCarContact(idNum)
 
   const errorMessage = isError
@@ -31,6 +37,7 @@ export default function CarDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell>
+        <Stack.Screen options={{ title: 'Auto' }} />
         <SkeletonList count={1} />
       </ScreenShell>
     )
@@ -39,6 +46,7 @@ export default function CarDetailScreen() {
   if (invalidId || isError || !car) {
     return (
       <ScreenShell>
+        <Stack.Screen options={{ title: 'Auto' }} />
         <ErrorState
           message={errorMessage ?? 'No encontramos ese auto'}
           onRetry={invalidId ? undefined : () => refetch()}
@@ -100,9 +108,7 @@ export default function CarDetailScreen() {
                   <Pressable
                     accessibilityRole="link"
                     accessibilityLabel="Contactar al vendedor por WhatsApp"
-                    onPress={() =>
-                      Linking.openURL(contact.data!.whatsapp_url)
-                    }
+                    onPress={() => Linking.openURL(contact.data!.whatsapp_url)}
                     className="min-h-11 justify-center"
                     style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                   >
