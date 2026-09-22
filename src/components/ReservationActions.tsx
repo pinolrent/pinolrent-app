@@ -14,6 +14,8 @@ import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { ProofLink } from '@/components/ProofLink'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { ModalSheet } from '@/components/ModalSheet'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -42,7 +44,7 @@ export function CancelReservationBlock({
   reservation: Reservation
 }) {
   const cancel = useCancelReservation()
-  const [confirming, setConfirming] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const [done, setDone] = useState(false)
   const cancelError = cancel.isError
     ? getApiErrorMessage(cancel.error, 'Error al cancelar la reserva')
@@ -52,50 +54,35 @@ export function CancelReservationBlock({
     return null
 
   return (
-    <View className="gap-2">
-      {!confirming ? (
-        <AppButton variant="outline" onPress={() => setConfirming(true)}>
-          Cancelar reserva
-        </AppButton>
-      ) : (
-        <View className="gap-2">
-          <Text
-            accessibilityLiveRegion="polite"
-            className="text-muted-foreground"
-          >
-            ¿Cancelar la reserva de {reservation.car.name}?
-          </Text>
-          <FormError message={cancelError} />
-          <View className="flex-row flex-wrap items-center gap-2">
-            <AppButton
-              variant="destructive"
-              onPress={() =>
-                cancel.mutate(reservation.id, {
-                  onSuccess: () => {
-                    setConfirming(false)
-                    setDone(true)
-                    Haptics.notificationAsync(
-                      Haptics.NotificationFeedbackType.Success
-                    )
-                  },
-                  onError: () => {
-                    Haptics.notificationAsync(
-                      Haptics.NotificationFeedbackType.Error
-                    )
-                  },
-                })
-              }
-              loading={cancel.isPending}
-            >
-              Cancelar reserva
-            </AppButton>
-            <AppButton variant="ghost" onPress={() => setConfirming(false)}>
-              Volver
-            </AppButton>
-          </View>
-        </View>
-      )}
-    </View>
+    <>
+      <AppButton variant="outline" onPress={() => setConfirmOpen(true)}>
+        Cancelar reserva
+      </AppButton>
+      <ConfirmDialog
+        visible={confirmOpen}
+        title="Cancelar reserva"
+        message={`¿Cancelar la reserva de ${reservation.car.name}?`}
+        confirmLabel="Cancelar reserva"
+        destructive
+        loading={cancel.isPending}
+        error={cancelError}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() =>
+          cancel.mutate(reservation.id, {
+            onSuccess: () => {
+              setConfirmOpen(false)
+              setDone(true)
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              )
+            },
+            onError: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            },
+          })
+        }
+      />
+    </>
   )
 }
 
@@ -114,54 +101,45 @@ export function ConfirmReservationBlock({
   onConfirmed?: (reservation: Reservation) => void
 }) {
   const confirm = useConfirmReservation()
-  const [confirming, setConfirming] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const confirmError = confirm.isError
     ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
     : null
 
   if (!canConfirmReservation(reservation)) return null
 
-  const submit = () =>
-    confirm.mutate(reservation.id, {
-      onSuccess: () => {
-        setConfirming(false)
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        onConfirmed?.(reservation)
-      },
-      onError: () => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      },
-    })
-
   return (
-    <View className="gap-2">
-      {!confirming ? (
-        <AppButton
-          onPress={() => setConfirming(true)}
-          loading={confirm.isPending}
-        >
-          Confirmar reserva
-        </AppButton>
-      ) : (
-        <View className="gap-2">
-          <Text
-            accessibilityLiveRegion="polite"
-            className="text-sm text-foreground"
-          >
-            ¿Confirmar la reserva de {reservation.car.name}?
-          </Text>
-          <FormError message={confirmError} />
-          <View className="flex-row flex-wrap items-center gap-2">
-            <AppButton onPress={submit} loading={confirm.isPending}>
-              Confirmar reserva
-            </AppButton>
-            <AppButton variant="ghost" onPress={() => setConfirming(false)}>
-              Volver
-            </AppButton>
-          </View>
-        </View>
-      )}
-    </View>
+    <>
+      <AppButton
+        onPress={() => setConfirmOpen(true)}
+        loading={confirm.isPending}
+      >
+        Confirmar reserva
+      </AppButton>
+      <ConfirmDialog
+        visible={confirmOpen}
+        title="Confirmar reserva"
+        message={`¿Confirmar la reserva de ${reservation.car.name}? Se aprueba el pago registrado.`}
+        confirmLabel="Confirmar reserva"
+        loading={confirm.isPending}
+        error={confirmError}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() =>
+          confirm.mutate(reservation.id, {
+            onSuccess: () => {
+              setConfirmOpen(false)
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              )
+              onConfirmed?.(reservation)
+            },
+            onError: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            },
+          })
+        }
+      />
+    </>
   )
 }
 
@@ -214,59 +192,48 @@ export function PayReservationBlock({
   }
 
   return (
-    <View className="gap-2">
-      {!open ? (
-        <AppButton onPress={() => setOpen(true)} loading={pay.isPending}>
+    <>
+      <AppButton onPress={() => setOpen(true)}>Registrar pago</AppButton>
+      <ModalSheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        title="Registrar pago"
+        maxWidth={440}
+      >
+        <ChoiceGroup
+          label="Método de pago"
+          options={PAYMENT_METHODS}
+          value={method}
+          onChange={setMethod}
+        />
+        <ImageUploadField
+          label="Comprobante"
+          value={proofUrl}
+          onUploaded={(url) => {
+            setProofUrl(url)
+            setProofError(null)
+          }}
+        />
+        <AppInput
+          label="URL del comprobante"
+          placeholder="https://... o /uploads/..."
+          autoComplete="url"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="done"
+          onSubmitEditing={submit}
+          value={proofUrl}
+          onChangeText={(v) => {
+            setProofUrl(v)
+            setProofError(null)
+          }}
+          error={proofError}
+        />
+        <FormError message={payError} />
+        <AppButton onPress={submit} loading={pay.isPending}>
           Registrar pago
         </AppButton>
-      ) : (
-        <View className="gap-2">
-          <ChoiceGroup
-            label="Método de pago"
-            options={PAYMENT_METHODS}
-            value={method}
-            onChange={setMethod}
-          />
-          <ImageUploadField
-            label="Comprobante"
-            value={proofUrl}
-            onUploaded={(url) => {
-              setProofUrl(url)
-              setProofError(null)
-            }}
-          />
-          <AppInput
-            label="URL del comprobante"
-            placeholder="https://... o /uploads/..."
-            autoComplete="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-            onSubmitEditing={submit}
-            value={proofUrl}
-            onChangeText={(v) => {
-              setProofUrl(v)
-              setProofError(null)
-            }}
-            error={proofError}
-          />
-          <FormError message={payError} />
-          <View className="flex-row items-center gap-2">
-            <AppButton onPress={submit} loading={pay.isPending}>
-              Registrar pago
-            </AppButton>
-            <AppButton
-              variant="ghost"
-              onPress={() => {
-                setOpen(false)
-                setProofError(null)
-              }}
-            >
-              Cancelar
-            </AppButton>
-          </View>
-        </View>
-      )}
-    </View>
+      </ModalSheet>
+    </>
   )
 }
