@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
+import { headerBackOptions } from '@/components/header-back'
 import { headerColors } from '@/components/tab-bar'
 import { LoadingState } from '@/components/ui-kit'
 
@@ -25,15 +26,23 @@ export default function BuyerLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="car/[id]"
-          options={{ headerShown: true, ...headerColors(theme) }}
-        />
-        <Stack.Screen
-          name="reserve/[id]"
-          options={{ headerShown: true, title: 'Reservar', ...headerColors(theme) }}
+          options={{
+            headerShown: true,
+            ...headerBackOptions(theme, '/(authenticated)/(buyer)/catalog'),
+            ...headerColors(theme),
+          }}
         />
         <Stack.Screen
           name="reservations/[id]"
-          options={{ headerShown: true, title: 'Reserva', ...headerColors(theme) }}
+          options={{
+            headerShown: true,
+            title: 'Reserva',
+            ...headerBackOptions(
+              theme,
+              '/(authenticated)/(buyer)/reservations'
+            ),
+            ...headerColors(theme),
+          }}
         />
       </Stack.Protected>
     </Stack>

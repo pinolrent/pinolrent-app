@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
+import { headerBackOptions } from '@/components/header-back'
 import { headerColors } from '@/components/tab-bar'
 import { LoadingState } from '@/components/ui-kit'
 
@@ -28,6 +29,7 @@ export default function SellerLayout() {
           options={{
             headerShown: true,
             title: 'Reserva',
+            ...headerBackOptions(theme, '/(authenticated)/seller/reservations'),
             ...headerColors(theme),
           }}
         />
