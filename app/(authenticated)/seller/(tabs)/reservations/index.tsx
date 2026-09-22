@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import { useSellerReservations } from '@/hooks/useReservations'
@@ -15,18 +15,29 @@ import { EmptyState, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
+
+const NOTICE_MS = 6000
 
 export default function SellerReservationsScreen() {
   const router = useRouter()
+  const colors = useThemeColors()
   const { isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerReservations()
   const [notice, setNotice] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (!notice) return
+    const timer = setTimeout(() => setNotice(null), NOTICE_MS)
+    return () => clearTimeout(timer)
+  }, [notice])
+
   const reservations = data ?? []
   const pending = reservations.filter(
     (r) => r.status === 'pending' && r.payment?.status === 'pending'
   ).length
+  const pendingLabel = `${pending} ${pending === 1 ? 'pendiente' : 'pendientes'}`
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
@@ -39,11 +50,31 @@ export default function SellerReservationsScreen() {
   const detailHref = (id: number) =>
     `/(authenticated)/seller/reservations/${id}`
 
+  const detailLink = (id: number) => (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel="Ver detalle de la reserva"
+      onPress={() => router.push(detailHref(id))}
+      className="min-h-11 justify-center"
+      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+    >
+      <Text className="text-sm text-primary">Ver detalle</Text>
+    </Pressable>
+  )
+
   const proofLink = (item: Reservation) => (
     <ProofLink url={item.payment?.proof_url} />
   )
 
-  const renderItem = ({ item, index }: { item: Reservation; index: number }) => {
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: Reservation
+    index: number
+  }) => {
+    const confirmable = canConfirmReservation(item)
+
     if (isDesktop) {
       return (
         <StaggerCard index={index}>
@@ -69,7 +100,7 @@ export default function SellerReservationsScreen() {
                 </View>
               }
             />
-            {canConfirmReservation(item) && (
+            {confirmable && (
               <View className="border-t border-border bg-muted/40 px-4 py-3">
                 <ConfirmReservationBlock
                   reservation={item}
@@ -86,12 +117,17 @@ export default function SellerReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
-          onPress={() => router.push(detailHref(item.id))}
+          onPress={
+            confirmable ? undefined : () => router.push(detailHref(item.id))
+          }
           action={
-            <ConfirmReservationBlock
-              reservation={item}
-              onConfirmed={onConfirmed}
-            />
+            <View className="gap-2">
+              {confirmable && detailLink(item.id)}
+              <ConfirmReservationBlock
+                reservation={item}
+                onConfirmed={onConfirmed}
+              />
+            </View>
           }
         />
       </StaggerCard>
@@ -104,7 +140,7 @@ export default function SellerReservationsScreen() {
       subtitle={
         isLoading
           ? undefined
-          : `${reservations.length} en total · ${pending} pendientes`
+          : `${reservations.length} en total · ${pendingLabel}`
       }
     >
       {isLoading ? (
@@ -122,17 +158,24 @@ export default function SellerReservationsScreen() {
             className="flex-1"
             contentContainerStyle={
               isDesktop
-                ? { paddingBottom: 16 }
-                : { gap: 12, paddingBottom: 16 }
+                ? { flexGrow: 1, paddingBottom: 16 }
+                : { flexGrow: 1, gap: 12, paddingBottom: 16 }
             }
             data={reservations}
             keyExtractor={(item) => String(item.id)}
             renderItem={renderItem}
-            ListHeaderComponent={isDesktop ? <ReservationColumns /> : null}
+            ListHeaderComponent={
+              isDesktop && reservations.length > 0 ? (
+                <ReservationColumns />
+              ) : null
+            }
             refreshControl={
               <RefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+                progressBackgroundColor={colors.card}
               />
             }
             ListEmptyComponent={
