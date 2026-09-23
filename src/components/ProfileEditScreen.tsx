@@ -50,14 +50,17 @@ export function ProfileEditScreen() {
   }
 
   return (
-    <ScreenShell width="form">
+    <ScreenShell width="form" topInset={false}>
       <ScrollView
         className="flex-1"
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ gap: 16, paddingBottom: 16 }}
       >
         <View className="items-center gap-3 py-4">
-          <View className="h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+          <View
+            accessibilityLabel={`Cuenta de ${user?.email ?? ''}`}
+            className="h-24 w-24 items-center justify-center rounded-full bg-primary/10"
+          >
             <Text className="text-3xl font-bold text-primary">{initial}</Text>
           </View>
           <Text className="text-sm text-muted-foreground">

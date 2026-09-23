@@ -8,6 +8,7 @@ import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
+import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -89,7 +90,7 @@ export function CarCard({
   if (!onPress) {
     return (
       <View
-        className="flex-1 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+        className={`flex-1 gap-3 p-3 ${CARD_SURFACE}`}
         style={{ maxWidth: 360 }}
       >
         {content}
@@ -103,8 +104,8 @@ export function CarCard({
       accessibilityLabel={car.name}
       onPress={onPress}
       {...hoverProps}
-      className={`flex-1 gap-3 rounded-xl border bg-card p-3 shadow-sm ${
-        hovered ? 'border-primary/40' : 'border-border'
+      className={`flex-1 gap-3 p-3 ${CARD_SURFACE} ${
+        hovered ? 'border-primary/40' : ''
       }`}
       style={({ pressed }) => [
         { maxWidth: 360 },
@@ -247,7 +248,7 @@ export function ReservationRow({
   onPress?: () => void
   columns?: boolean
 }) {
-  const { hovered, hoverProps } = useHover()
+  const colors = useThemeColors()
   const { days, total } = reservationTotals(reservation)
   const badge = (
     <StatusBadge tone={STATUS_TONES[reservation.status]}>
@@ -325,34 +326,31 @@ export function ReservationRow({
         <Text className="text-xs text-muted-foreground">
           {formatDays(days)} · {paymentLine(reservation)}
         </Text>
-        <Text className="text-sm font-semibold text-foreground">
-          {formatPrice(total)}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-sm font-semibold text-foreground">
+            {formatPrice(total)}
+          </Text>
+          {onPress ? <ChevronRight size={20} color={colors.mutedText} /> : null}
+        </View>
       </View>
-      {action}
     </>
   )
 
-  if (onPress) {
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Ver la reserva de ${reservation.car.name}, ${formatDateRange(reservation.start_date, reservation.end_date)}, ${STATUS_LABELS[reservation.status]}`}
-        onPress={onPress}
-        {...hoverProps}
-        className={`gap-3 rounded-xl border bg-card p-3 shadow-sm ${
-          hovered ? 'border-primary/40' : 'border-border'
-        }`}
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-      >
-        {body}
-      </Pressable>
-    )
-  }
-
   return (
-    <View className="gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
-      {body}
+    <View className={`gap-3 p-3 ${CARD_SURFACE}`}>
+      {onPress ? (
+        <AppPressable
+          accessibilityRole="button"
+          accessibilityLabel={`Ver la reserva de ${reservation.car.name}, ${formatDateRange(reservation.start_date, reservation.end_date)}, ${STATUS_LABELS[reservation.status]}`}
+          onPress={onPress}
+          className="gap-3"
+        >
+          {body}
+        </AppPressable>
+      ) : (
+        <View className="gap-3">{body}</View>
+      )}
+      {action}
     </View>
   )
 }

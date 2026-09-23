@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { useMyReservations } from '@/hooks/useReservations'
@@ -11,6 +11,7 @@ import { reservationTotal } from '@/utils/reservations'
 import {
   AppButton,
   AppCard,
+  AppPressable,
   EmptyState,
   ErrorState,
   ListGroup,
@@ -18,6 +19,7 @@ import {
 import { StatusBadge } from '@/components/fields'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
+import { StaggerCard } from '@/components/StaggerCard'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 
 const PREVIEW_CARS = 3
@@ -51,98 +53,102 @@ export default function BuyerHomeScreen() {
 
   return (
     <ScreenShell title="Inicio" width="form">
-      {isLoading ? (
-        <SkeletonList count={3} variant="row" />
-      ) : loadError ? (
-        <ErrorState
-          message={loadError}
-          onRetry={() => refetch()}
-          retrying={isRefetching}
-        />
-      ) : (
-        <View className="gap-6">
-          <View className="gap-2">
-            {upcoming ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Ver la reserva de ${upcoming.car.name}`}
-                onPress={() =>
-                  router.push(
-                    `/(authenticated)/(buyer)/reservations/${upcoming.id}`
-                  )
-                }
-                {...hoverProps}
-                style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-              >
-                <AppCard hovered={hovered}>
-                  <View className="flex-row items-center justify-between gap-3">
-                    <Text className="text-sm text-muted-foreground">
-                      Tu próxima reserva
-                    </Text>
-                    <StatusBadge tone={STATUS_TONES[upcoming.status]}>
-                      {STATUS_LABELS[upcoming.status]}
-                    </StatusBadge>
-                  </View>
-                  <Text className="text-base font-semibold text-foreground">
-                    {upcoming.car.name}
-                  </Text>
-                  <Text className="text-sm text-foreground">
-                    {formatDateRange(upcoming.start_date, upcoming.end_date)} ·{' '}
-                    {formatDays(upcomingTotals.days)}
-                  </Text>
-                  <Text className="text-sm font-semibold text-foreground">
-                    {formatPrice(upcomingTotals.total)}
-                  </Text>
-                </AppCard>
-              </Pressable>
-            ) : (
-              <AppCard className="items-start">
-                <Text className="text-base font-semibold text-foreground">
-                  No tienes reservas por delante
-                </Text>
+      <View className="gap-6">
+        {isLoading ? (
+          <SkeletonList count={1} />
+        ) : loadError ? (
+          <ErrorState
+            message={loadError}
+            onRetry={() => refetch()}
+            retrying={isRefetching}
+          />
+        ) : upcoming ? (
+          <AppPressable
+            accessibilityRole="button"
+            accessibilityLabel={`Ver la reserva de ${upcoming.car.name}`}
+            onPress={() =>
+              router.push(
+                `/(authenticated)/(buyer)/reservations/${upcoming.id}`
+              )
+            }
+            {...hoverProps}
+          >
+            <AppCard hovered={hovered}>
+              <View className="flex-row items-center justify-between gap-3">
                 <Text className="text-sm text-muted-foreground">
-                  Elige un auto y reserva tus fechas
+                  Tu próxima reserva
                 </Text>
-                <AppButton
-                  onPress={() =>
-                    router.push('/(authenticated)/(buyer)/catalog')
-                  }
-                >
-                  Explorar autos
-                </AppButton>
-              </AppCard>
-            )}
-          </View>
+                <StatusBadge tone={STATUS_TONES[upcoming.status]}>
+                  {STATUS_LABELS[upcoming.status]}
+                </StatusBadge>
+              </View>
+              <Text className="text-base font-semibold text-foreground">
+                {upcoming.car.name}
+              </Text>
+              <Text className="text-sm text-foreground">
+                {formatDateRange(upcoming.start_date, upcoming.end_date)} ·{' '}
+                {formatDays(upcomingTotals.days)}
+              </Text>
+              <Text className="text-sm font-semibold text-foreground">
+                {formatPrice(upcomingTotals.total)}
+              </Text>
+            </AppCard>
+          </AppPressable>
+        ) : (
+          <AppCard className="items-start">
+            <Text className="text-base font-semibold text-foreground">
+              No tienes reservas por delante
+            </Text>
+            <Text className="text-sm text-muted-foreground">
+              Elige un auto y reserva tus fechas
+            </Text>
+            <AppButton
+              onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
+            >
+              Explorar autos
+            </AppButton>
+          </AppCard>
+        )}
 
-          {carsQuery.isError ? (
-            <ErrorState
-              message={getApiErrorMessage(
-                carsQuery.error,
-                'Error al cargar los autos disponibles'
-              )}
-              onRetry={() => carsQuery.refetch()}
-              retrying={carsQuery.isRefetching}
-            />
-          ) : carsQuery.isLoading ? (
-            <SkeletonList count={PREVIEW_CARS} variant="row" />
-          ) : available.length > 0 ? (
-            <ListGroup title="Autos disponibles">
-              {available.map((car, index) => (
+        {carsQuery.isError ? (
+          <ErrorState
+            message={getApiErrorMessage(
+              carsQuery.error,
+              'Error al cargar los autos disponibles'
+            )}
+            onRetry={() => carsQuery.refetch()}
+            retrying={carsQuery.isRefetching}
+          />
+        ) : carsQuery.isLoading ? (
+          <SkeletonList count={PREVIEW_CARS} variant="row" />
+        ) : available.length > 0 ? (
+          <ListGroup title="Autos disponibles">
+            {available.map((car, index) => (
+              <StaggerCard key={car.id} index={index}>
                 <CarListRow
-                  key={car.id}
                   car={car}
                   last={index === available.length - 1}
                   onPress={() =>
                     router.push(`/(authenticated)/(buyer)/car/${car.id}`)
                   }
                 />
-              ))}
-            </ListGroup>
-          ) : (
-            <EmptyState message="Todavía no hay autos disponibles" />
-          )}
-        </View>
-      )}
+              </StaggerCard>
+            ))}
+          </ListGroup>
+        ) : (
+          <EmptyState
+            message="Todavía no hay autos disponibles"
+            action={
+              <AppButton
+                variant="outline"
+                onPress={() => router.push('/(authenticated)/(buyer)/catalog')}
+              >
+                Explorar el catálogo
+              </AppButton>
+            }
+          />
+        )}
+      </View>
     </ScreenShell>
   )
 }

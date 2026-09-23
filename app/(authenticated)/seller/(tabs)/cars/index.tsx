@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { View, FlatList, RefreshControl } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { useRouter } from 'expo-router'
 import { useCreateSellerCar, useSellerCars } from '@/hooks/useSellerCars'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage, isImageUrl } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
@@ -21,8 +22,6 @@ import {
 import { AppInput, StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
-const NOTICE_MS = 6000
-
 export default function SellerCarsScreen() {
   const router = useRouter()
   const { columns: numColumns, isPhone, isDesktop } = useBreakpoints()
@@ -37,13 +36,7 @@ export default function SellerCarsScreen() {
   const [nameError, setNameError] = useState<string | null>(null)
   const [priceError, setPriceError] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!notice) return
-    const timer = setTimeout(() => setNotice(null), NOTICE_MS)
-    return () => clearTimeout(timer)
-  }, [notice])
+  const [notice, setNotice] = useTransientNotice()
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus autos')
@@ -62,7 +55,16 @@ export default function SellerCarsScreen() {
     setFormOpen(true)
   }
 
-  const closeForm = () => setFormOpen(false)
+  const closeForm = () => {
+    setFormOpen(false)
+    setName('')
+    setPhotoUrl('')
+    setPriceText('')
+    setNameError(null)
+    setPriceError(null)
+    setPhotoError(null)
+    createCar.reset()
+  }
 
   const onSubmit = () => {
     const trimmedName = name.trim()
@@ -105,10 +107,7 @@ export default function SellerCarsScreen() {
       },
       {
         onSuccess: () => {
-          setFormOpen(false)
-          setName('')
-          setPhotoUrl('')
-          setPriceText('')
+          closeForm()
           setNotice(`${trimmedName} publicado`)
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
         },
@@ -155,6 +154,7 @@ export default function SellerCarsScreen() {
           message={errorMessage}
           onRetry={() => refetch()}
           retrying={isRefetching}
+          centered
         />
       ) : (
         <>
@@ -164,7 +164,7 @@ export default function SellerCarsScreen() {
             numColumns={numColumns}
             columnWrapperStyle={numColumns > 1 ? { gap: 12 } : undefined}
             className="flex-1"
-            contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
+            contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
             data={cars}
             keyExtractor={(item) => String(item.id)}
             renderItem={renderItem}
@@ -177,7 +177,11 @@ export default function SellerCarsScreen() {
             ListEmptyComponent={
               <EmptyState
                 message="Todavía no publicaste autos"
-                action={<AppButton onPress={openForm}>Publicar auto</AppButton>}
+                action={
+                  isPhone ? undefined : (
+                    <AppButton onPress={openForm}>Publicar auto</AppButton>
+                  )
+                }
               />
             }
           />
@@ -193,6 +197,7 @@ export default function SellerCarsScreen() {
         onClose={closeForm}
         title="Nuevo auto"
         maxWidth={520}
+        busy={createCar.isPending}
       >
         <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
           <View className="flex-1">

@@ -1,23 +1,23 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
-import { formatDate } from '@/utils/dates'
+import { formatDate, isValidISODate } from '@/utils/dates'
 import { StaggerCard } from '@/components/StaggerCard'
-import { SkeletonList } from '@/components/Skeleton'
+import { SkeletonRow } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
-import { isValidISODate } from '@/utils/dates'
 import {
   AppButton,
   AppCard,
   EmptyState,
   ErrorState,
   FormError,
+  ListGroup,
 } from '@/components/ui-kit'
 import { DateField } from '@/components/DateField'
 
@@ -47,8 +47,10 @@ export default function CatalogScreen() {
 
   const cars = data?.pages.flatMap((page) => page) ?? []
   const filtered = Boolean(filters.start_date && filters.end_date)
-  const retryNextPage = () => fetchNextPage()
-  const today = new Date()
+  const today = useMemo(() => new Date(), [])
+  const loadNextPage = () => {
+    void fetchNextPage()
+  }
 
   const changeStart = (v: string) => {
     setStartDate(v)
@@ -160,23 +162,37 @@ export default function CatalogScreen() {
             </View>
           )}
           <View className="flex-row gap-2">
-            <AppButton onPress={applyFilters}>Filtrar</AppButton>
-            <AppButton variant="ghost" onPress={clearFilters}>
+            <AppButton
+              className={isPhone ? 'flex-1' : undefined}
+              onPress={applyFilters}
+            >
+              Filtrar
+            </AppButton>
+            <AppButton
+              className={isPhone ? 'flex-1' : undefined}
+              variant="ghost"
+              onPress={clearFilters}
+            >
               Limpiar filtros
             </AppButton>
           </View>
         </View>
       </AppCard>
       {isLoading ? (
-        <SkeletonList count={4} variant="row" />
+        <ListGroup fill>
+          {[0, 1, 2].map((i) => (
+            <SkeletonRow key={i} />
+          ))}
+        </ListGroup>
       ) : isError ? (
         <ErrorState
           message={errorMessage}
           onRetry={() => refetch()}
           retrying={isRefetching}
+          centered
         />
       ) : (
-        <View className="flex-1">
+        <ListGroup fill>
           <FlatList
             className="flex-1"
             data={cars}
@@ -193,7 +209,7 @@ export default function CatalogScreen() {
               />
             }
             onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+              if (hasNextPage && !isFetchingNextPage) loadNextPage()
             }}
             onEndReachedThreshold={0.4}
             ListEmptyComponent={
@@ -223,18 +239,14 @@ export default function CatalogScreen() {
               ) : isFetchNextPageError ? (
                 <View className="items-center gap-2 py-4">
                   <FormError message="No pudimos cargar más autos" />
-                  <AppButton
-                    variant="outline"
-                    size="sm"
-                    onPress={retryNextPage}
-                  >
+                  <AppButton variant="outline" size="sm" onPress={loadNextPage}>
                     Reintentar
                   </AppButton>
                 </View>
               ) : null
             }
           />
-        </View>
+        </ListGroup>
       )}
     </ScreenShell>
   )

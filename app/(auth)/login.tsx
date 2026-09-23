@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Pressable, Text } from 'react-native'
+import { Text } from 'react-native'
 import type { TextInput } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/hooks/useAuth'
@@ -8,7 +8,7 @@ import {
   validateEmail,
   validatePassword,
 } from '@/utils/errors'
-import { AppButton, FormError } from '@/components/ui-kit'
+import { AppButton, AppPressable, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { AuthShell } from '@/components/AuthShell'
 
@@ -64,6 +64,7 @@ export default function LoginScreen() {
         autoCorrect={false}
         keyboardType="email-address"
         returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()}
         value={email}
         onChangeText={(v) => {
           setEmail(v)
@@ -89,19 +90,19 @@ export default function LoginScreen() {
         }}
         error={clientErrors.password}
       />
-      <Pressable
+      <AppPressable
         accessibilityRole="button"
         accessibilityLabel={
           showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
         }
         onPress={() => setShowPassword((v) => !v)}
         className="min-h-11 self-end justify-center rounded-lg px-2 py-3"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+        hoverClassName="underline"
       >
         <Text className="text-sm text-primary">
           {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
         </Text>
-      </Pressable>
+      </AppPressable>
 
       <FormError message={error} className="text-center" />
 

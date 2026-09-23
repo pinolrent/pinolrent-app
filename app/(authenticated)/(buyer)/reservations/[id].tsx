@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
@@ -31,7 +31,7 @@ export default function ReservationDetailScreen() {
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
-  const [paidMessage, setPaidMessage] = useState<string | null>(null)
+  const [paidMessage, setPaidMessage] = useTransientNotice()
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar la reserva')
@@ -39,15 +39,15 @@ export default function ReservationDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell>
-        <SkeletonList count={1} variant="row" />
+      <ScreenShell topInset={false}>
+        <SkeletonList count={1} variant="cardRow" />
       </ScreenShell>
     )
   }
 
   if (invalidId || isError || !data) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <ErrorState
           message={
             invalidId
@@ -56,6 +56,7 @@ export default function ReservationDetailScreen() {
           }
           onRetry={invalidId ? undefined : () => refetch()}
           retrying={isRefetching}
+          centered
         />
       </ScreenShell>
     )
@@ -72,7 +73,7 @@ export default function ReservationDetailScreen() {
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
       className="flex-1"
     >
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}

@@ -1,8 +1,11 @@
 import type { ComponentProps, ReactNode } from 'react'
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
+import { useHover } from '@/hooks/useHover'
 
 type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
+
+export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-sm'
 
 export function AppButton({
   children,
@@ -35,6 +38,35 @@ export function AppButton({
       ) : null}
       <ButtonText>{children}</ButtonText>
     </Button>
+  )
+}
+
+export function AppPressable({
+  hoverClassName,
+  className = '',
+  style,
+  children,
+  ...rest
+}: Omit<ComponentProps<typeof Pressable>, 'children'> & {
+  children?: ReactNode
+  hoverClassName?: string
+}) {
+  const { hovered, hoverProps } = useHover()
+
+  return (
+    <Pressable
+      {...rest}
+      {...(hoverClassName ? hoverProps : {})}
+      className={`${className}${
+        hoverClassName && hovered ? ` ${hoverClassName}` : ''
+      }`}
+      style={(state) => [
+        typeof style === 'function' ? style(state) : style,
+        state.pressed ? { opacity: 0.9 } : null,
+      ]}
+    >
+      {children}
+    </Pressable>
   )
 }
 
@@ -76,19 +108,25 @@ export function AppCard({
 
 export function ListGroup({
   title,
+  fill = false,
   children,
 }: {
   title?: string
+  fill?: boolean
   children: ReactNode
 }) {
   return (
-    <View className="gap-2">
+    <View className={`gap-2 ${fill ? 'flex-1' : ''}`}>
       {title ? (
         <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
           {title}
         </Text>
       ) : null}
-      <View className="overflow-hidden rounded-xl border border-border bg-card">
+      <View
+        className={`overflow-hidden rounded-xl border border-border bg-card shadow-sm ${
+          fill ? 'flex-1' : ''
+        }`}
+      >
         {children}
       </View>
     </View>
@@ -182,13 +220,17 @@ export function ErrorState({
   message,
   onRetry,
   retrying = false,
+  centered = false,
 }: {
   message: string | null
   onRetry?: () => void
   retrying?: boolean
+  centered?: boolean
 }) {
   return (
-    <View className="items-center gap-3 py-8">
+    <View
+      className={`items-center gap-3 py-8 ${centered ? 'flex-1 justify-center' : ''}`}
+    >
       <FormError message={message} />
       {onRetry ? (
         <AppButton onPress={onRetry} loading={retrying}>

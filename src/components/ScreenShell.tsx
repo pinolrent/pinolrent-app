@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 const MAX_WIDTH = {
@@ -12,24 +13,30 @@ export function ScreenShell({
   subtitle,
   action,
   width = 'default',
+  topInset = true,
   children,
 }: {
   title?: string
   subtitle?: string
   action?: ReactNode
   width?: keyof typeof MAX_WIDTH
+  topInset?: boolean
   children: ReactNode
 }) {
   const { isPhone } = useBreakpoints()
+  const insets = useSafeAreaInsets()
   const hasHeader = Boolean(title || action)
+  const vertical = isPhone ? 16 : 24
 
   return (
     <View className="flex-1 items-center bg-background">
       <View
-        className={`w-full flex-1 ${
-          isPhone ? 'gap-4 px-4 py-4' : 'gap-6 px-6 py-6'
-        }`}
-        style={{ maxWidth: MAX_WIDTH[width] }}
+        className={`w-full flex-1 ${isPhone ? 'gap-4 px-4' : 'gap-6 px-6'}`}
+        style={{
+          maxWidth: MAX_WIDTH[width],
+          paddingTop: (topInset ? insets.top : 0) + vertical,
+          paddingBottom: vertical,
+        }}
       >
         {hasHeader && (
           <View className="flex-row items-start justify-between gap-3">

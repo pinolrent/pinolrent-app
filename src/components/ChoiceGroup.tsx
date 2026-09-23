@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { Check } from 'lucide-react-native'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { AppPressable } from '@/components/ui-kit'
 
 export function ChoiceGroup<T extends string>({
   label,
@@ -26,7 +27,7 @@ export function ChoiceGroup<T extends string>({
       {options.map((option) => {
         const selected = option.value === value
         return (
-          <Pressable
+          <AppPressable
             key={option.value}
             accessibilityRole="radio"
             aria-checked={selected}
@@ -35,7 +36,6 @@ export function ChoiceGroup<T extends string>({
             className={`min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-2 ${
               selected ? 'border-primary bg-primary' : 'border-border bg-card'
             }`}
-            style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
           >
             {selected ? (
               <Check size={16} color={colors.primaryForeground} />
@@ -47,7 +47,7 @@ export function ChoiceGroup<T extends string>({
             >
               {option.label}
             </Text>
-          </Pressable>
+          </AppPressable>
         )
       })}
     </View>

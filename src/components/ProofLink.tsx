@@ -1,5 +1,6 @@
-import { Linking, Pressable, Text } from 'react-native'
+import { Linking, Text } from 'react-native'
 import { isImageUrl, resolveImageUrl } from '@/utils/errors'
+import { AppPressable } from '@/components/ui-kit'
 
 export function ProofLink({
   url,
@@ -16,12 +17,12 @@ export function ProofLink({
   }
 
   return (
-    <Pressable
+    <AppPressable
       accessibilityRole="link"
       accessibilityLabel="Ver comprobante del pago"
       onPress={open}
       className={`min-h-11 justify-center ${className}`}
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+      hoverClassName="underline"
     >
       <Text
         className="text-sm text-primary"
@@ -30,6 +31,6 @@ export function ProofLink({
       >
         Ver comprobante
       </Text>
-    </Pressable>
+    </AppPressable>
   )
 }
