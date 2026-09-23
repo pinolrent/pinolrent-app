@@ -3,7 +3,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   View,
@@ -19,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
 
 const DISMISS_DISTANCE = 110
 const DISMISS_VELOCITY = 800
@@ -29,12 +29,14 @@ export function ModalSheet({
   title,
   children,
   maxWidth = 480,
+  busy = false,
 }: {
   visible: boolean
   onClose: () => void
   title: string
   children: ReactNode
   maxWidth?: number
+  busy?: boolean
 }) {
   const { isDesktop } = useBreakpoints()
   const insets = useSafeAreaInsets()
@@ -45,7 +47,12 @@ export function ModalSheet({
     if (visible) translateY.value = 0
   }, [visible, translateY])
 
+  const requestClose = () => {
+    if (!busy) onClose()
+  }
+
   const pan = Gesture.Pan()
+    .enabled(!busy)
     .onUpdate((event) => {
       if (event.translationY > 0) translateY.value = event.translationY
     })
@@ -55,7 +62,7 @@ export function ModalSheet({
         event.velocityY > DISMISS_VELOCITY
       ) {
         translateY.value = withTiming(height, { duration: 180 }, () => {
-          runOnJS(onClose)()
+          runOnJS(requestClose)()
         })
       } else {
         translateY.value = withSpring(0)
@@ -74,15 +81,20 @@ export function ModalSheet({
       >
         {title}
       </Text>
-      <Pressable
+      <AppPressable
         accessibilityRole="button"
         accessibilityLabel="Cerrar"
-        onPress={onClose}
+        disabled={busy}
+        onPress={requestClose}
         className="min-h-11 justify-center px-2"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+        hoverClassName="underline"
       >
-        <Text className="text-sm text-primary">Cerrar</Text>
-      </Pressable>
+        <Text
+          className={`text-sm ${busy ? 'text-muted-foreground' : 'text-primary'}`}
+        >
+          Cerrar
+        </Text>
+      </AppPressable>
     </View>
   )
 
@@ -91,22 +103,24 @@ export function ModalSheet({
       visible={visible}
       transparent
       animationType={isDesktop ? 'fade' : 'slide'}
-      onRequestClose={onClose}
+      onRequestClose={requestClose}
     >
       <View
-        className={`flex-1 bg-black/40 ${
+        className={`flex-1 bg-overlay/40 ${
           isDesktop ? 'items-center justify-center p-4' : 'justify-end'
         }`}
       >
-        <Pressable
-          accessibilityLabel="Cerrar"
-          onPress={onClose}
+        <AppPressable
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          onPress={requestClose}
           className="absolute inset-0"
         />
         {isDesktop ? (
           <View
             accessibilityViewIsModal
-            className="w-full gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
+            className={`w-full gap-3 p-4 ${CARD_SURFACE}`}
             style={{ maxWidth }}
           >
             {header}
@@ -119,33 +133,36 @@ export function ModalSheet({
             </ScrollView>
           </View>
         ) : (
-          <GestureDetector gesture={pan}>
-            <Animated.View
-              accessibilityViewIsModal
-              style={sheetStyle}
-              className="rounded-t-2xl border border-border bg-card px-4 pt-2"
-            >
-              <View className="items-center pb-2">
-                <View className="h-1 w-10 rounded-full bg-border" />
+          <Animated.View
+            accessibilityViewIsModal
+            style={sheetStyle}
+            className="rounded-t-2xl border border-border bg-card"
+          >
+            <GestureDetector gesture={pan}>
+              <View className="px-4 pt-2">
+                <View className="items-center pb-2">
+                  <View className="h-1 w-10 rounded-full bg-border" />
+                </View>
+                {header}
               </View>
-              {header}
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            </GestureDetector>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            >
+              <ScrollView
+                style={{ maxHeight: Math.round(height * 0.75) }}
+                contentContainerStyle={{
+                  gap: 12,
+                  paddingHorizontal: 16,
+                  paddingTop: 12,
+                  paddingBottom: insets.bottom + 16,
+                }}
+                keyboardShouldPersistTaps="handled"
               >
-                <ScrollView
-                  style={{ maxHeight: Math.round(height * 0.8) }}
-                  contentContainerStyle={{
-                    gap: 12,
-                    paddingTop: 12,
-                    paddingBottom: insets.bottom + 16,
-                  }}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  {children}
-                </ScrollView>
-              </KeyboardAvoidingView>
-            </Animated.View>
-          </GestureDetector>
+                {children}
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </Animated.View>
         )}
       </View>
     </Modal>

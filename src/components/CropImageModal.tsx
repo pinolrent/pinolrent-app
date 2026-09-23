@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Modal, Pressable, Text, View, useWindowDimensions } from 'react-native'
+import { Modal, Text, View, useWindowDimensions } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
   useAnimatedStyle,
@@ -28,6 +29,7 @@ export function CropImageModal({
   onCropped: (croppedUri: string) => void
 }) {
   const { width: screenWidth } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -121,7 +123,7 @@ export function CropImageModal({
       })
       onCropped(result.uri)
     } catch {
-      setError('No pudimos recortar la imagen, probá de nuevo')
+      setError('No pudimos recortar la imagen, inténtalo de nuevo')
     } finally {
       setSaving(false)
     }
@@ -135,22 +137,16 @@ export function CropImageModal({
       presentationStyle="fullScreen"
     >
       <View className="flex-1 bg-background">
-        <View className="flex-row items-center justify-between gap-3 border-b border-border px-4 py-2">
+        <View
+          className="flex-row items-center justify-between gap-3 border-b border-border px-4 py-2"
+          style={{ paddingTop: insets.top + 8 }}
+        >
           <Text
             accessibilityRole="header"
             className="text-lg font-bold text-foreground"
           >
             Recortar foto
           </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar"
-            onPress={onCancel}
-            className="min-h-11 justify-center px-2"
-            style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-          >
-            <Text className="text-sm text-primary">Cerrar</Text>
-          </Pressable>
         </View>
         <View className="flex-1 items-center justify-center gap-4 px-4">
           <GestureDetector gesture={Gesture.Simultaneous(pan, pinch)}>
@@ -176,7 +172,7 @@ export function CropImageModal({
             </View>
           </GestureDetector>
           <Text className="text-center text-sm text-muted-foreground">
-            Arrastrá y pellizcá para ajustar el encuadre
+            Arrastra y pellizca para ajustar el encuadre
           </Text>
           <View className="flex-row items-center gap-2">
             <AppButton
