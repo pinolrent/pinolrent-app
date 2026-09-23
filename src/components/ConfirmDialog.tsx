@@ -31,6 +31,7 @@ export function ConfirmDialog({
       onClose={onCancel}
       title={title}
       maxWidth={420}
+      busy={loading}
     >
       <View className="gap-4">
         <Text
@@ -41,7 +42,7 @@ export function ConfirmDialog({
         </Text>
         <FormError message={error} />
         <View className="flex-row flex-wrap justify-end gap-2">
-          <AppButton variant="ghost" onPress={onCancel}>
+          <AppButton variant="ghost" onPress={onCancel} disabled={loading}>
             {cancelLabel}
           </AppButton>
           <AppButton
