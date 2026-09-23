@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native'
+import { Linking, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams, Stack } from 'expo-router'
@@ -10,8 +10,13 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ReserveCarModal } from '@/components/ReserveCarModal'
-import { AppButton, AppCard, ErrorState, FormError } from '@/components/ui-kit'
-import { StatusBadge } from '@/components/fields'
+import {
+  AppButton,
+  AppCard,
+  AppPressable,
+  ErrorState,
+  FormError,
+} from '@/components/ui-kit'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function CarDetailScreen() {
@@ -37,7 +42,7 @@ export default function CarDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <Stack.Screen options={{ title: 'Auto' }} />
         <SkeletonList count={1} />
       </ScreenShell>
@@ -46,12 +51,13 @@ export default function CarDetailScreen() {
 
   if (invalidId || isError || !car) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <Stack.Screen options={{ title: 'Auto' }} />
         <ErrorState
           message={errorMessage ?? 'No encontramos ese auto'}
           onRetry={invalidId ? undefined : () => refetch()}
           retrying={isRefetching}
+          centered
         />
       </ScreenShell>
     )
@@ -63,19 +69,14 @@ export default function CarDetailScreen() {
       className="flex-1"
     >
       <Stack.Screen options={{ title: car.name }} />
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="text-base font-semibold text-foreground">
-              {formatPricePerDay(car.price_per_day)}
-            </Text>
-            <StatusBadge tone={car.active ? 'success' : 'muted'}>
-              {car.active ? 'Activo' : 'Inactivo'}
-            </StatusBadge>
-          </View>
+          <Text className="text-base font-semibold text-foreground">
+            {formatPricePerDay(car.price_per_day)}
+          </Text>
           <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
             <View className="flex-1">
               <CarPhoto uri={car.photo_url} name={car.name} />
@@ -101,30 +102,38 @@ export default function CarDetailScreen() {
                     </AppButton>
                   </View>
                 ) : contact.isLoading ? (
-                  <Text className="text-base text-muted-foreground">
-                    Cargando el contacto…
-                  </Text>
+                  <View className="gap-2">
+                    <View className="h-4 w-2/3 rounded bg-muted" />
+                    <View className="h-3 w-1/3 rounded bg-muted" />
+                  </View>
                 ) : contact.data?.whatsapp_url ? (
-                  <Pressable
+                  <AppPressable
                     accessibilityRole="link"
                     accessibilityLabel="Contactar al vendedor por WhatsApp"
                     onPress={() => Linking.openURL(contact.data!.whatsapp_url)}
                     className="min-h-11 justify-center"
-                    style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                   >
                     <Text className="text-base font-semibold text-primary">
                       Contactar al vendedor por WhatsApp
                     </Text>
-                  </Pressable>
+                  </AppPressable>
                 ) : (
                   <Text className="text-base text-foreground">
                     El vendedor todavía no cargó un teléfono.
                   </Text>
                 )}
               </AppCard>
-              <AppButton onPress={() => setShowReserve(true)}>
+              <AppButton
+                onPress={() => setShowReserve(true)}
+                disabled={!car.active}
+              >
                 Reservar este auto
               </AppButton>
+              {!car.active ? (
+                <Text className="text-center text-sm text-muted-foreground">
+                  No disponible por ahora
+                </Text>
+              ) : null}
             </View>
           </View>
         </ScrollView>
