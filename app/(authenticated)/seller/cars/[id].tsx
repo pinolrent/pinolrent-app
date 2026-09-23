@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { RefreshControl, ScrollView, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useSellerCars, useToggleSellerCar } from '@/hooks/useSellerCars'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { CarPhoto } from '@/components/rows'
 import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -17,16 +17,18 @@ import {
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerCarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { isPhone } = useBreakpoints()
+  const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const toggleCar = useToggleSellerCar()
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useTransientNotice()
 
   const car = data?.find((item) => item.id === idNum)
 
@@ -36,7 +38,7 @@ export default function SellerCarDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <Stack.Screen options={{ title: 'Auto' }} />
         <SkeletonList count={1} />
       </ScreenShell>
@@ -45,12 +47,13 @@ export default function SellerCarDetailScreen() {
 
   if (invalidId || isError || !car) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <Stack.Screen options={{ title: 'Auto' }} />
         <ErrorState
           message={errorMessage ?? 'No encontramos ese auto'}
           onRetry={invalidId ? undefined : () => refetch()}
           retrying={isRefetching}
+          centered
         />
       </ScreenShell>
     )
@@ -77,11 +80,20 @@ export default function SellerCarDetailScreen() {
     : null
 
   return (
-    <ScreenShell>
+    <ScreenShell topInset={false}>
       <Stack.Screen options={{ title: car.name }} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 16 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.card}
+          />
+        }
       >
         <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
           <View className="flex-1">
