@@ -137,7 +137,7 @@ export function ImageUploadField({
         </AppButton>
         {value ? (
           <Text className="flex-1 text-sm text-muted-foreground">
-            Foto lista
+            Imagen subida
           </Text>
         ) : null}
       </View>
@@ -145,14 +145,6 @@ export function ImageUploadField({
         JPG, PNG o WebP, hasta 5 MB
       </Text>
       <FormError message={error} />
-      {uploading ? (
-        <Text
-          accessibilityLiveRegion="polite"
-          className="text-sm text-muted-foreground"
-        >
-          Subiendo imagen
-        </Text>
-      ) : null}
       {pendingCrop && cropAspect ? (
         <CropImageModal
           uri={pendingCrop.uri}
