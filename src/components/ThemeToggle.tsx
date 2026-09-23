@@ -1,7 +1,8 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text } from 'react-native'
 import { Moon, Sun } from 'lucide-react-native'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { useThemeStore } from '@/stores/theme.store'
+import { AppPressable } from '@/components/ui-kit'
 
 export function ThemeToggle() {
   const theme = useThemeStore((s) => s.theme)
@@ -11,19 +12,16 @@ export function ThemeToggle() {
   const Icon = dark ? Sun : Moon
 
   return (
-    <Pressable
+    <AppPressable
       accessibilityRole="button"
       accessibilityLabel={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
       onPress={() => toggle()}
       className="min-h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-2"
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
     >
       <Icon size={16} color={colors.text} />
-      <View>
-        <Text className="text-sm text-foreground">
-          {dark ? 'Claro' : 'Oscuro'}
-        </Text>
-      </View>
-    </Pressable>
+      <Text className="text-sm text-foreground">
+        {dark ? 'Claro' : 'Oscuro'}
+      </Text>
+    </AppPressable>
   )
 }

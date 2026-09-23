@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { formatDate, formatDateRange, isValidISODate } from '@/utils/dates'
 import { RangeDateSheet, SingleDateSheet } from './CalendarSheet'
-import { FormError } from './ui-kit'
+import { AppPressable, FormError } from './ui-kit'
 
 export function DateField({
   label,
@@ -24,18 +24,18 @@ export function DateField({
   return (
     <View className="gap-1">
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Pressable
+      <AppPressable
         accessibilityRole="button"
         accessibilityLabel={value ? `${label}: ${formatDate(value)}` : label}
         accessibilityHint="Abre el calendario"
         onPress={() => setOpen(true)}
         className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+        hoverClassName="border-primary/40"
       >
         <Text className={value ? 'text-foreground' : 'text-muted-foreground'}>
           {value ? formatDate(value) : 'Seleccionar fecha'}
         </Text>
-      </Pressable>
+      </AppPressable>
       <SingleDateSheet
         visible={open}
         title={label}
@@ -79,20 +79,20 @@ export function DateRangeField({
   return (
     <View className="gap-1">
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Pressable
+      <AppPressable
         accessibilityRole="button"
         accessibilityLabel={hasStart ? `${label}: ${summary}` : label}
         accessibilityHint="Abre el calendario para elegir inicio y fin"
         onPress={() => setOpen(true)}
         className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
-        style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+        hoverClassName="border-primary/40"
       >
         <Text
           className={hasStart ? 'text-foreground' : 'text-muted-foreground'}
         >
           {summary}
         </Text>
-      </Pressable>
+      </AppPressable>
       <RangeDateSheet
         visible={open}
         title={label}

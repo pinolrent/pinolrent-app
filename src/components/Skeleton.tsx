@@ -58,12 +58,36 @@ export function SkeletonRow() {
   )
 }
 
+export function SkeletonCardRow() {
+  const style = usePulse()
+
+  return (
+    <View
+      aria-hidden
+      importantForAccessibility="no-hide-descendants"
+      className="gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+    >
+      <View className="flex-row items-center gap-3">
+        <Animated.View
+          style={style}
+          className="h-16 w-16 rounded-lg bg-muted"
+        />
+        <View className="flex-1 gap-2">
+          <View className="h-4 w-1/2 rounded bg-muted" />
+          <View className="h-3 w-1/3 rounded bg-muted" />
+        </View>
+      </View>
+      <View className="h-3 w-2/3 rounded bg-muted" />
+    </View>
+  )
+}
+
 export function SkeletonList({
   count = 4,
   variant = 'card',
 }: {
   count?: number
-  variant?: 'card' | 'row'
+  variant?: 'card' | 'row' | 'cardRow'
 }) {
   return (
     <View
@@ -72,9 +96,11 @@ export function SkeletonList({
       accessibilityLiveRegion="polite"
       className="gap-3 p-4"
     >
-      {Array.from({ length: count }).map((_, i) =>
-        variant === 'row' ? <SkeletonRow key={i} /> : <SkeletonCard key={i} />
-      )}
+      {Array.from({ length: count }).map((_, i) => {
+        if (variant === 'row') return <SkeletonRow key={i} />
+        if (variant === 'cardRow') return <SkeletonCardRow key={i} />
+        return <SkeletonCard key={i} />
+      })}
     </View>
   )
 }
