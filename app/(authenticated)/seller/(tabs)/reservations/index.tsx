@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native'
+import { FlatList, RefreshControl, Text, View } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import { useSellerReservations } from '@/hooks/useReservations'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -11,13 +11,16 @@ import {
   ConfirmReservationBlock,
   canConfirmReservation,
 } from '@/components/ReservationActions'
-import { EmptyState, ErrorState, SuccessNote } from '@/components/ui-kit'
+import {
+  AppPressable,
+  EmptyState,
+  ErrorState,
+  SuccessNote,
+} from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
-
-const NOTICE_MS = 6000
 
 export default function SellerReservationsScreen() {
   const router = useRouter()
@@ -25,13 +28,7 @@ export default function SellerReservationsScreen() {
   const { isDesktop } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerReservations()
-  const [notice, setNotice] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!notice) return
-    const timer = setTimeout(() => setNotice(null), NOTICE_MS)
-    return () => clearTimeout(timer)
-  }, [notice])
+  const [notice, setNotice] = useTransientNotice()
 
   const reservations = data ?? []
   const pending = reservations.filter(
@@ -49,18 +46,6 @@ export default function SellerReservationsScreen() {
 
   const detailHref = (id: number) =>
     `/(authenticated)/seller/reservations/${id}`
-
-  const detailLink = (id: number) => (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel="Ver detalle de la reserva"
-      onPress={() => router.push(detailHref(id))}
-      className="min-h-11 justify-center"
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-    >
-      <Text className="text-sm text-primary">Ver detalle</Text>
-    </Pressable>
-  )
 
   const proofLink = (item: Reservation) => (
     <ProofLink url={item.payment?.proof_url} />
@@ -85,16 +70,13 @@ export default function SellerReservationsScreen() {
               action={
                 <View className="items-end gap-2">
                   <Link href={detailHref(item.id)} asChild>
-                    <Pressable
+                    <AppPressable
                       accessibilityRole="link"
                       accessibilityLabel="Ver detalle de la reserva"
                       className="min-h-11 justify-center"
-                      style={({ pressed }) =>
-                        pressed ? { opacity: 0.9 } : null
-                      }
                     >
                       <Text className="text-sm text-primary">Ver detalle</Text>
-                    </Pressable>
+                    </AppPressable>
                   </Link>
                   {proofLink(item)}
                 </View>
@@ -117,17 +99,14 @@ export default function SellerReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
-          onPress={
-            confirmable ? undefined : () => router.push(detailHref(item.id))
-          }
+          onPress={() => router.push(detailHref(item.id))}
           action={
-            <View className="gap-2">
-              {confirmable && detailLink(item.id)}
+            confirmable ? (
               <ConfirmReservationBlock
                 reservation={item}
                 onConfirmed={onConfirmed}
               />
-            </View>
+            ) : undefined
           }
         />
       </StaggerCard>
@@ -144,12 +123,13 @@ export default function SellerReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} variant="row" />
+        <SkeletonList count={4} variant="cardRow" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}
           onRetry={() => refetch()}
           retrying={isRefetching}
+          centered
         />
       ) : (
         <View className="flex-1 gap-3">

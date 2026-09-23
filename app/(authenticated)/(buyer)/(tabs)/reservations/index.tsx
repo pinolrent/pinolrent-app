@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
-import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native'
+import { useEffect } from 'react'
+import { FlatList, RefreshControl, Text, View } from 'react-native'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useMyReservations } from '@/hooks/useReservations'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -9,6 +10,7 @@ import { CancelReservationBlock } from '@/components/ReservationActions'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import {
   AppButton,
+  AppPressable,
   EmptyState,
   ErrorState,
   SuccessNote,
@@ -17,8 +19,6 @@ import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
-
-const NOTICE_MS = 6000
 
 function canCancel(reservation: Reservation) {
   return reservation.status === 'pending' && !reservation.payment
@@ -31,7 +31,7 @@ export default function ReservationsScreen() {
   const { created } = useLocalSearchParams<{ created?: string }>()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
-  const [createdNotice, setCreatedNotice] = useState<string | null>(null)
+  const [createdNotice, setCreatedNotice] = useTransientNotice()
 
   useEffect(() => {
     if (!created) return
@@ -39,13 +39,7 @@ export default function ReservationsScreen() {
       `Reserva #${created} creada, queda pendiente de confirmación`
     )
     router.setParams({ created: '' })
-  }, [created, router])
-
-  useEffect(() => {
-    if (!createdNotice) return
-    const timer = setTimeout(() => setCreatedNotice(null), NOTICE_MS)
-    return () => clearTimeout(timer)
-  }, [createdNotice])
+  }, [created, router, setCreatedNotice])
 
   const reservations = data ?? []
   const pending = reservations.filter((r) => r.status === 'pending').length
@@ -57,18 +51,6 @@ export default function ReservationsScreen() {
 
   const detailHref = (id: number) =>
     `/(authenticated)/(buyer)/reservations/${id}`
-
-  const detailLink = (id: number) => (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel="Ver detalle de la reserva"
-      onPress={() => router.push(detailHref(id))}
-      className="min-h-11 justify-center"
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
-    >
-      <Text className="text-sm text-primary">Ver detalle</Text>
-    </Pressable>
-  )
 
   const renderItem = ({
     item,
@@ -88,14 +70,13 @@ export default function ReservationsScreen() {
               columns
               action={
                 <Link href={detailHref(item.id)} asChild>
-                  <Pressable
+                  <AppPressable
                     accessibilityRole="link"
                     accessibilityLabel="Ver detalle de la reserva"
                     className="min-h-11 justify-center"
-                    style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
                   >
                     <Text className="text-sm text-primary">Ver detalle</Text>
-                  </Pressable>
+                  </AppPressable>
                 </Link>
               }
             />
@@ -113,14 +94,11 @@ export default function ReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
-          onPress={
-            cancellable ? undefined : () => router.push(detailHref(item.id))
-          }
+          onPress={() => router.push(detailHref(item.id))}
           action={
-            <View className="gap-2">
-              {cancellable && detailLink(item.id)}
+            cancellable ? (
               <CancelReservationBlock reservation={item} />
-            </View>
+            ) : undefined
           }
         />
       </StaggerCard>
@@ -137,12 +115,13 @@ export default function ReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} variant="row" />
+        <SkeletonList count={4} variant="cardRow" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}
           onRetry={() => refetch()}
           retrying={isRefetching}
+          centered
         />
       ) : (
         <View className="flex-1 gap-3">

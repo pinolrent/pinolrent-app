@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
@@ -15,6 +15,7 @@ import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   ConfirmReservationBlock,
   PaymentSummary,
@@ -26,9 +27,10 @@ export default function SellerReservationDetailScreen() {
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
   const { isPhone } = useBreakpoints()
+  const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useTransientNotice()
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar la reserva')
@@ -36,15 +38,15 @@ export default function SellerReservationDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell>
-        <SkeletonList count={1} variant="row" />
+      <ScreenShell topInset={false}>
+        <SkeletonList count={1} variant="cardRow" />
       </ScreenShell>
     )
   }
 
   if (invalidId || isError || !data) {
     return (
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <ErrorState
           message={
             invalidId
@@ -53,6 +55,7 @@ export default function SellerReservationDetailScreen() {
           }
           onRetry={invalidId ? undefined : () => refetch()}
           retrying={isRefetching}
+          centered
         />
       </ScreenShell>
     )
@@ -69,7 +72,7 @@ export default function SellerReservationDetailScreen() {
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
       className="flex-1"
     >
-      <ScreenShell>
+      <ScreenShell topInset={false}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
@@ -77,6 +80,9 @@ export default function SellerReservationDetailScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.card}
             />
           }
         >
