@@ -4,6 +4,7 @@ import {
   getApiErrorMessage,
   isHttpUrl,
   isImageUrl,
+  isInvalidCredentialsError,
   resolveImageUrl,
   validateEmail,
   validatePassword,
@@ -201,5 +202,80 @@ describe('validators', () => {
     expect(validatePhone('912345678', true)).toBeNull()
     expect(validatePhone('+56912345678', true)).toBeNull()
     expect(validatePhone('abc', true)).toBe('Ingresa un teléfono válido')
+  })
+})
+
+describe('new api messages', () => {
+  const fromApi = (error: string, status = 400) => ({
+    isAxiosError: true,
+    response: { data: { error }, status },
+    message: 'axios',
+  })
+
+  it('translates the car delete and deactivate guards', () => {
+    expect(
+      getApiErrorMessage(
+        fromApi('car has reservations, cannot delete', 409),
+        'fallback'
+      )
+    ).toBe(
+      'No se puede eliminar: tiene reservas registradas, desactívalo en su lugar'
+    )
+    expect(
+      getApiErrorMessage(
+        fromApi('car has future reservations, cannot deactivate', 409),
+        'fallback'
+      )
+    ).toBe('No se puede desactivar: tiene reservas futuras')
+  })
+
+  it('translates the upload guards', () => {
+    expect(
+      getApiErrorMessage(fromApi('invalid image data'), 'fallback')
+    ).toBe('La imagen está dañada o no se pudo procesar')
+    expect(
+      getApiErrorMessage(fromApi('image dimensions too large', 413), 'fallback')
+    ).toBe('La imagen es demasiado grande (máx. 50 MP)')
+    expect(
+      getApiErrorMessage(fromApi('storage quota exceeded', 507), 'fallback')
+    ).toBe('El servidor no tiene espacio para más imágenes')
+    expect(
+      getApiErrorMessage(
+        {
+          isAxiosError: true,
+          response: { status: 507, data: {} },
+          message: 'axios',
+        },
+        'fallback'
+      )
+    ).toBe('El servidor no tiene espacio para más imágenes')
+  })
+
+  it('translates invalid credentials', () => {
+    expect(
+      getApiErrorMessage(fromApi('invalid credentials', 401), 'fallback')
+    ).toBe('Email o contraseña incorrectos')
+  })
+})
+
+describe('isInvalidCredentialsError', () => {
+  it('detects the backend message', () => {
+    expect(
+      isInvalidCredentialsError({
+        isAxiosError: true,
+        response: { data: { error: 'invalid credentials' }, status: 401 },
+      })
+    ).toBe(true)
+  })
+
+  it('ignores other errors', () => {
+    expect(
+      isInvalidCredentialsError({
+        isAxiosError: true,
+        response: { data: { error: 'payment already recorded' }, status: 409 },
+      })
+    ).toBe(false)
+    expect(isInvalidCredentialsError(new Error('boom'))).toBe(false)
+    expect(isInvalidCredentialsError(null)).toBe(false)
   })
 })

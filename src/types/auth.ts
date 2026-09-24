@@ -38,3 +38,8 @@ export interface RegisterResponse {
 export interface UpdateProfileRequest {
   phone: string
 }
+
+export interface ChangePasswordRequest {
+  current_password: string
+  new_password: string
+}

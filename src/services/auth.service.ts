@@ -1,5 +1,6 @@
 import api from './api'
 import type {
+  ChangePasswordRequest,
   LoginRequest,
   LoginResponse,
   RefreshRequest,
@@ -35,4 +36,7 @@ export const authService = {
 
   updateProfile: (data: UpdateProfileRequest) =>
     api.patch<User>('/auth/me', data).then((r) => r.data),
+
+  changePassword: (data: ChangePasswordRequest) =>
+    api.patch<{ status: string }>('/auth/password', data).then((r) => r.data),
 }

@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import { queryKeys } from '@/constants/query-keys'
+import type { ChangePasswordRequest } from '@/types/auth'
 
 interface LoginInput {
   email: string
@@ -101,6 +102,24 @@ export function useUpdateProfile() {
     onSuccess: (user) => {
       useAuthStore.getState().setUser(user)
       queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
+    },
+  })
+}
+
+export function useChangePassword() {
+  const router = useRouter()
+  const clearAuth = useAuthStore((s) => s.clearAuth)
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) =>
+      authService.changePassword(data),
+    onSuccess: async () => {
+      // La API revoca todas las sesiones al cambiar la contraseña: se limpia
+      // la sesión local y se vuelve al login con un aviso.
+      await clearAuth()
+      router.replace({
+        pathname: '/(auth)/login',
+        params: { passwordChanged: '1' },
+      })
     },
   })
 }
