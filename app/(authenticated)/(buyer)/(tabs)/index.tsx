@@ -19,7 +19,7 @@ const PREVIEW_CARS = 3
 
 export default function BuyerHomeScreen() {
   const router = useRouter()
-  const { columns } = useBreakpoints()
+  const { columns, isWide } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
   const carsQuery = useCars(PREVIEW_CARS)
@@ -45,10 +45,10 @@ export default function BuyerHomeScreen() {
     : { days: 0, total: 0 }
 
   const gridItem =
-    columns === 3 ? 'min-w-[200px]' : columns === 2 ? 'min-w-[280px]' : ''
+    columns === 3 ? 'min-w-[280px]' : columns === 2 ? 'min-w-[240px]' : ''
 
   return (
-    <ScreenShell title="Inicio" width="form" scroll>
+    <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
       <View className="gap-6">
         {isLoading ? (
           <SkeletonList count={1} />
@@ -115,7 +115,10 @@ export default function BuyerHomeScreen() {
           <SkeletonList count={PREVIEW_CARS} />
         ) : available.length > 0 ? (
           <View className="gap-2">
-            <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
+            <Text
+              accessibilityRole="header"
+              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+            >
               Autos disponibles
             </Text>
             <View className="flex-row flex-wrap gap-3">

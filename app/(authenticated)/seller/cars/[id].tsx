@@ -33,7 +33,7 @@ export default function SellerCarDetailScreen() {
   const router = useRouter()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { isPhone } = useBreakpoints()
+  const { isWide } = useBreakpoints()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
@@ -128,11 +128,11 @@ export default function SellerCarDetailScreen() {
           />
         }
       >
-        <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
+        <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
           <View className="flex-1">
             <CarPhoto uri={car.photo_url} name={car.name} />
           </View>
-          <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
+          <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
             <AppCard gap="sm">
               <Text className="text-lg font-bold text-foreground">
                 {car.name}
@@ -162,16 +162,18 @@ export default function SellerCarDetailScreen() {
             >
               {car.active ? 'Desactivar' : 'Activar'}
             </AppButton>
-            <AppButton
-              variant="destructive"
-              onPress={() => {
-                setNotice(null)
-                deleteCar.reset()
-                setDeleteOpen(true)
-              }}
-            >
-              Eliminar
-            </AppButton>
+            <View className="mt-1 border-t border-border pt-4">
+              <AppButton
+                variant="destructive-outline"
+                onPress={() => {
+                  setNotice(null)
+                  deleteCar.reset()
+                  setDeleteOpen(true)
+                }}
+              >
+                Eliminar
+              </AppButton>
+            </View>
           </View>
         </View>
       </ScrollView>

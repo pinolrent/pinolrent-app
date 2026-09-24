@@ -28,12 +28,17 @@ export function CropImageModal({
   onCancel: () => void
   onCropped: (croppedUri: string) => void
 }) {
-  const { width: screenWidth } = useWindowDimensions()
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const frameWidth = Math.min(screenWidth - 32, MAX_FRAME_WIDTH)
+  // El marco también respeta la altura: calculado solo desde el ancho, en un
+  // viewport bajo (o con el texto ampliado) empuja la fila de zoom y el pie
+  // fuera de la pantalla.
+  const maxFrameWidth = Math.min(screenWidth - 32, MAX_FRAME_WIDTH)
+  const maxFrameHeight = Math.max(160, screenHeight * 0.42)
+  const frameWidth = Math.round(Math.min(maxFrameWidth, maxFrameHeight * aspect))
   const frameHeight = Math.round(frameWidth / aspect)
   const baseScale = Math.max(frameWidth / width, frameHeight / height)
   const displayWidth = width * baseScale

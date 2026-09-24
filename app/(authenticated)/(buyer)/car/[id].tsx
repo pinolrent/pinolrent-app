@@ -23,7 +23,7 @@ export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [showReserve, setShowReserve] = useState(false)
   const reduceMotion = useReduceMotion()
-  const { isPhone } = useBreakpoints()
+  const { isWide } = useBreakpoints()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const {
@@ -77,11 +77,11 @@ export default function CarDetailScreen() {
           <Text className="text-base font-semibold text-foreground">
             {formatPricePerDay(car.price_per_day)}
           </Text>
-          <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
+          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
             <View className="flex-1">
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
-            <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
+            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
               <AppCard>
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
                 {contact.isError ? (

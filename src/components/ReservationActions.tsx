@@ -31,7 +31,7 @@ const PAYMENT_METHODS = [
 export function PaymentSummary({ payment }: { payment: Payment }) {
   return (
     <View className="gap-1">
-      <Text className="text-muted-foreground">
+      <Text className="text-base text-muted-foreground">
         Pago {PAYMENT_METHOD_LABELS[payment.method]} ·{' '}
         {PAYMENT_STATUS_LABELS[payment.status]}
       </Text>
@@ -163,7 +163,7 @@ export function RejectReservationBlock({
   return (
     <>
       <AppButton
-        variant="destructive"
+        variant="destructive-outline"
         onPress={() => setRejectOpen(true)}
         loading={reject.isPending}
       >

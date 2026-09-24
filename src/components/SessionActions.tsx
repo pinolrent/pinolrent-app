@@ -18,7 +18,7 @@ export function SessionActions() {
       <ThemeToggle />
       <FormError message={logoutError} />
       <AppButton
-        variant="destructive"
+        variant="outline"
         onPress={() => setConfirmOpen(true)}
         loading={logout.isPending}
       >
@@ -29,7 +29,6 @@ export function SessionActions() {
         title="Cerrar sesión"
         message="¿Seguro que quieres cerrar sesión?"
         confirmLabel="Cerrar sesión"
-        destructive
         loading={logout.isPending}
         error={logoutError}
         onCancel={() => setConfirmOpen(false)}

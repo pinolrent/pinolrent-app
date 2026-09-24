@@ -27,7 +27,8 @@ function canCancel(reservation: Reservation) {
 export default function ReservationsScreen() {
   const router = useRouter()
   const colors = useThemeColors()
-  const { isDesktop } = useBreakpoints()
+  const { contentWidth } = useBreakpoints()
+  const showTable = contentWidth >= 760
   const { created } = useLocalSearchParams<{ created?: string }>()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useMyReservations()
@@ -61,7 +62,7 @@ export default function ReservationsScreen() {
   }) => {
     const cancellable = canCancel(item)
 
-    if (isDesktop) {
+    if (showTable) {
       return (
         <StaggerCard index={index}>
           <View className="border-b border-border">
@@ -129,7 +130,7 @@ export default function ReservationsScreen() {
           <FlatList
             className="flex-1"
             contentContainerStyle={
-              isDesktop
+              showTable
                 ? { flexGrow: 1, paddingBottom: 16 }
                 : { flexGrow: 1, gap: 12, paddingBottom: 16 }
             }
@@ -137,7 +138,7 @@ export default function ReservationsScreen() {
             keyExtractor={(item) => String(item.id)}
             renderItem={renderItem}
             ListHeaderComponent={
-              isDesktop && reservations.length > 0 ? (
+              showTable && reservations.length > 0 ? (
                 <ReservationColumns />
               ) : null
             }

@@ -65,7 +65,7 @@ export function SkeletonCardRow() {
     <View
       aria-hidden
       importantForAccessibility="no-hide-descendants"
-      className="gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+      className="gap-3 rounded-xl border border-border bg-card p-3 shadow-xs"
     >
       <View className="flex-row items-center gap-3">
         <Animated.View
