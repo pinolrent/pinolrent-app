@@ -1,14 +1,14 @@
 import { useState, type ReactNode } from 'react'
-import { Image, Pressable, Text, View } from 'react-native'
+import { Image, Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
-import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
+import { CARD_WIDTH } from '@/constants/layout'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -70,13 +70,11 @@ export function CarCard({
   onPress?: () => void
   footer?: ReactNode
 }) {
-  const { hovered, hoverProps } = useHover()
-
   const content = (
     <>
       <CarPhoto uri={car.photo_url} name={car.name} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-base font-bold text-foreground">
+        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
           {car.name}
         </Text>
         <Text className="text-sm font-semibold text-foreground">
@@ -91,7 +89,7 @@ export function CarCard({
     return (
       <View
         className={`flex-1 gap-3 p-3 ${CARD_SURFACE}`}
-        style={{ maxWidth: 360 }}
+        style={{ maxWidth: CARD_WIDTH }}
       >
         {content}
       </View>
@@ -99,21 +97,16 @@ export function CarCard({
   }
 
   return (
-    <Pressable
+    <AppPressable
       accessibilityRole="button"
       accessibilityLabel={car.name}
       onPress={onPress}
-      {...hoverProps}
-      className={`flex-1 gap-3 p-3 ${CARD_SURFACE} ${
-        hovered ? 'border-primary/40' : ''
-      }`}
-      style={({ pressed }) => [
-        { maxWidth: 360 },
-        pressed ? { opacity: 0.9 } : null,
-      ]}
+      hoverClassName="border-primary/40"
+      className={`flex-1 gap-3 p-3 ${CARD_SURFACE}`}
+      style={{ maxWidth: CARD_WIDTH }}
     >
       {content}
-    </Pressable>
+    </AppPressable>
   )
 }
 
@@ -130,7 +123,7 @@ export function CarRow({
     <View className="flex-row items-center gap-3">
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-base font-bold text-foreground">
+        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
           {car.name}
         </Text>
         <Text className="text-sm font-semibold text-foreground">
@@ -154,25 +147,23 @@ export function CarListRow({
   last?: boolean
   meta?: ReactNode
 }) {
-  const { hovered, hoverProps } = useHover()
   const colors = useThemeColors()
 
   return (
-    <Pressable
+    <AppPressable
       accessibilityRole="button"
       accessibilityLabel={`${car.name}, ${formatPricePerDay(car.price_per_day)}`}
       onPress={onPress}
-      {...hoverProps}
+      hoverClassName="bg-accent"
       className={`min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
         last ? '' : 'border-b'
-      } ${hovered ? 'bg-accent' : ''}`}
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
+      }`}
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
         <Text
           numberOfLines={1}
-          className="text-base font-semibold text-foreground"
+          className="text-lg font-semibold text-foreground"
         >
           {car.name}
         </Text>
@@ -182,7 +173,7 @@ export function CarListRow({
         {meta}
       </View>
       <ChevronRight size={20} color={colors.mutedText} />
-    </Pressable>
+    </AppPressable>
   )
 }
 
@@ -268,7 +259,7 @@ export function ReservationRow({
           <View className="flex-1 gap-1">
             <Text
               numberOfLines={1}
-              className="text-base font-bold text-foreground"
+              className="text-lg font-bold text-foreground"
             >
               {reservation.car.name}
             </Text>
@@ -310,10 +301,7 @@ export function ReservationRow({
           variant="row"
         />
         <View className="flex-1 gap-1">
-          <Text
-            numberOfLines={2}
-            className="text-base font-bold text-foreground"
-          >
+          <Text numberOfLines={2} className="text-lg font-bold text-foreground">
             {reservation.car.name}
           </Text>
           <Text className="text-sm text-foreground">

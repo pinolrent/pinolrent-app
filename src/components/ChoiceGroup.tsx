@@ -41,9 +41,9 @@ export function ChoiceGroup<T extends string>({
               <Check size={16} color={colors.primaryForeground} />
             ) : null}
             <Text
-              className={
+              className={`text-base ${
                 selected ? 'text-primary-foreground' : 'text-foreground'
-              }
+              }`}
             >
               {option.label}
             </Text>

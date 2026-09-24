@@ -30,13 +30,12 @@ export function ConfirmDialog({
       visible={visible}
       onClose={onCancel}
       title={title}
-      maxWidth={420}
       busy={loading}
     >
       <View className="gap-4">
         <Text
           accessibilityLiveRegion="polite"
-          className="text-muted-foreground"
+          className="text-sm text-muted-foreground"
         >
           {message}
         </Text>

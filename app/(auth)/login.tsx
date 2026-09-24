@@ -1,18 +1,26 @@
 import { useRef, useState } from 'react'
 import { Text } from 'react-native'
 import type { TextInput } from 'react-native'
-import { Link } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
+import { Eye, EyeOff } from 'lucide-react-native'
 import { useAuth } from '@/hooks/useAuth'
 import {
   getApiErrorMessage,
   validateEmail,
   validatePassword,
 } from '@/utils/errors'
-import { AppButton, AppPressable, FormError } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppPressable,
+  FormError,
+  SuccessNote,
+} from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { AuthShell } from '@/components/AuthShell'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function LoginScreen() {
+  const { passwordChanged } = useLocalSearchParams<{ passwordChanged?: string }>()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -22,6 +30,7 @@ export default function LoginScreen() {
   }>({})
   const emailRef = useRef<TextInput>(null)
   const passwordRef = useRef<TextInput>(null)
+  const colors = useThemeColors()
   const { login } = useAuth()
 
   const onLogin = () => {
@@ -53,6 +62,10 @@ export default function LoginScreen() {
       >
         Iniciar sesión
       </Text>
+
+      {passwordChanged ? (
+        <SuccessNote message="Contraseña actualizada, inicia sesión de nuevo" />
+      ) : null}
 
       <AppInput
         ref={emailRef}
@@ -89,20 +102,23 @@ export default function LoginScreen() {
           if (login.isError) login.reset()
         }}
         error={clientErrors.password}
-      />
-      <AppPressable
-        accessibilityRole="button"
-        accessibilityLabel={
-          showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+        trailing={
+          <AppPressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+            }
+            onPress={() => setShowPassword((v) => !v)}
+            className="min-h-11 min-w-11 items-center justify-center rounded-lg"
+          >
+            {showPassword ? (
+              <EyeOff size={20} color={colors.mutedText} />
+            ) : (
+              <Eye size={20} color={colors.mutedText} />
+            )}
+          </AppPressable>
         }
-        onPress={() => setShowPassword((v) => !v)}
-        className="min-h-11 self-end justify-center rounded-lg px-2 py-3"
-        hoverClassName="underline"
-      >
-        <Text className="text-sm text-primary">
-          {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-        </Text>
-      </AppPressable>
+      />
 
       <FormError message={error} className="text-center" />
 
@@ -110,7 +126,7 @@ export default function LoginScreen() {
         Iniciar sesión
       </AppButton>
       <Link href="/(auth)/register" className="mt-1 self-center px-3 py-3.5">
-        <Text className="text-primary">Crear cuenta</Text>
+        <Text className="text-base text-primary">Crear cuenta</Text>
       </Link>
     </AuthShell>
   )

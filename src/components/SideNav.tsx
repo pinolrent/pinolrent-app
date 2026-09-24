@@ -1,11 +1,11 @@
-import { Image, Pressable, Text, View } from 'react-native'
+import { Image, Text, View } from 'react-native'
 import { usePathname, useRouter } from 'expo-router'
 import { NAV_ICONS } from './nav-icons'
 import type { NavItem } from '@/constants/nav'
-import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { SessionActions } from './SessionActions'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { AppPressable } from '@/components/ui-kit'
 
 const LOGO = require('../assets/icon.png')
 
@@ -33,34 +33,32 @@ function NavRow({
   active: boolean
   onPress: () => void
 }) {
-  const { hovered, hoverProps } = useHover()
   const colors = useThemeColors()
   const Icon = NAV_ICONS[item.icon]
 
   return (
-    <Pressable
+    <AppPressable
       accessibilityRole="button"
       accessibilityLabel={item.label}
       accessibilityState={{ selected: active }}
       onPress={onPress}
-      {...hoverProps}
+      hoverClassName={active ? undefined : 'bg-accent'}
       className={`min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 ${
-        active ? 'bg-primary' : hovered ? 'bg-accent' : ''
+        active ? 'bg-primary' : ''
       }`}
-      style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
     >
       <Icon
         size={20}
         color={active ? colors.primaryForeground : colors.mutedText}
       />
       <Text
-        className={
+        className={`text-base ${
           active ? 'font-semibold text-primary-foreground' : 'text-foreground'
-        }
+        }`}
       >
         {item.label}
       </Text>
-    </Pressable>
+    </AppPressable>
   )
 }
 

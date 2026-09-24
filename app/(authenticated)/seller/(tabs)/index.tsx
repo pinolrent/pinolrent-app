@@ -1,26 +1,35 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
 import { useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
 import { useSellerCars } from '@/hooks/useSellerCars'
-import { useHover } from '@/hooks/useHover'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { reservationTotal } from '@/utils/reservations'
-import {
-  AppCard,
-  ErrorState,
-  ListGroup,
-  ListRow,
-} from '@/components/ui-kit'
-import { StatusBadge } from '@/components/fields'
+import { AppCard, ErrorState } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
+function Metric({
+  label,
+  value,
+  tone = 'text-foreground',
+}: {
+  label: string
+  value: string
+  tone?: string
+}) {
+  return (
+    <View className="min-w-[150px] flex-1 gap-1 rounded-xl border border-border bg-card p-4">
+      <Text className="text-sm text-muted-foreground">{label}</Text>
+      <Text className={`text-2xl font-bold ${tone}`}>{value}</Text>
+    </View>
+  )
+}
+
 export default function SellerHomeScreen() {
   const router = useRouter()
-  const { hovered, hoverProps } = useHover()
   const colors = useThemeColors()
   const {
     data: cars,
@@ -60,7 +69,7 @@ export default function SellerHomeScreen() {
     )
 
   return (
-    <ScreenShell title="Inicio" width="form">
+    <ScreenShell title="Inicio" width="form" scroll>
       {carsLoading || resLoading ? (
         <SkeletonList count={4} variant="row" />
       ) : loadError ? (
@@ -75,63 +84,45 @@ export default function SellerHomeScreen() {
       ) : (
         <View className="gap-6">
           {pendingPay > 0 ? (
-            <Pressable
-              accessibilityRole="button"
+            <AppCard
+              onPress={() => router.push('/(authenticated)/seller/reservations')}
               accessibilityLabel="Ver las reservas por confirmar"
-              onPress={() =>
-                router.push('/(authenticated)/seller/reservations')
-              }
-              {...hoverProps}
-              style={({ pressed }) => (pressed ? { opacity: 0.9 } : null)}
             >
-              <AppCard hovered={hovered}>
-                <View className="flex-row items-center justify-between gap-3">
-                  <Text className="flex-1 text-base font-semibold text-foreground">
-                    {pendingPay === 1
-                      ? '1 reserva espera tu confirmación'
-                      : `${pendingPay} reservas esperan tu confirmación`}
-                  </Text>
-                  <ChevronRight size={20} color={colors.mutedText} />
-                </View>
-                <Text className="text-sm text-muted-foreground">
-                  Revisa el comprobante y confirma para cerrar la reserva.
+              <View className="flex-row items-center justify-between gap-3">
+                <Text className="flex-1 text-base font-semibold text-foreground">
+                  {pendingPay === 1
+                    ? '1 reserva espera tu confirmación'
+                    : `${pendingPay} reservas esperan tu confirmación`}
                 </Text>
-              </AppCard>
-            </Pressable>
+                <ChevronRight size={20} color={colors.mutedText} />
+              </View>
+              <Text className="text-sm text-muted-foreground">
+                Revisa el comprobante y confirma para cerrar la reserva.
+              </Text>
+            </AppCard>
           ) : null}
 
-          <ListGroup title="Resumen">
-            <ListRow>
-              <Text className="text-sm text-muted-foreground">
-                Autos publicados
-              </Text>
-              <Text className="text-base text-foreground">
-                {cars?.length ?? 0}
-              </Text>
-            </ListRow>
-            <ListRow>
-              <Text className="text-sm text-muted-foreground">
-                Por confirmar
-              </Text>
-              {pendingPay > 0 ? (
-                <StatusBadge tone="warning">{pendingPay}</StatusBadge>
-              ) : (
-                <Text className="text-base text-foreground">0</Text>
-              )}
-            </ListRow>
-            <ListRow>
-              <Text className="text-sm text-muted-foreground">Confirmadas</Text>
-              <Text className="text-base text-foreground">{confirmed}</Text>
-            </ListRow>
-            <ListRow last>
-              <Text className="text-sm text-muted-foreground">
-                Ingresos confirmados
-              </Text>
-              <Text className="text-base font-semibold text-foreground">
-                {formatPrice(earnings)}
-              </Text>
-            </ListRow>
-          </ListGroup>
+          <View className="gap-2">
+            <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
+              Resumen
+            </Text>
+            <View className="flex-row flex-wrap gap-3">
+              <Metric
+                label="Autos publicados"
+                value={String(cars?.length ?? 0)}
+              />
+              <Metric
+                label="Por confirmar"
+                value={String(pendingPay)}
+                tone={pendingPay > 0 ? 'text-warning' : 'text-foreground'}
+              />
+              <Metric label="Confirmadas" value={String(confirmed)} />
+              <Metric
+                label="Ingresos confirmados"
+                value={formatPrice(earnings)}
+              />
+            </View>
+          </View>
         </View>
       )}
     </ScreenShell>
