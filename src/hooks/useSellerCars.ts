@@ -2,8 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   sellerCarsService,
   type CreateSellerCarRequest,
+  type UpdateSellerCarRequest,
 } from '@/services/seller-cars.service'
 import { queryKeys } from '@/constants/query-keys'
+
+function invalidateCarCaches(
+  queryClient: ReturnType<typeof useQueryClient>
+) {
+  queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
+  queryClient.invalidateQueries({ queryKey: ['cars'] })
+  queryClient.invalidateQueries({ queryKey: ['car'] })
+}
 
 export function useSellerCars() {
   return useQuery({
@@ -19,22 +28,28 @@ export function useCreateSellerCar() {
     mutationFn: (data: CreateSellerCarRequest) =>
       sellerCarsService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
-      queryClient.invalidateQueries({ queryKey: ['car'] })
+      invalidateCarCaches(queryClient)
     },
   })
 }
 
-export function useToggleSellerCar() {
+export function useUpdateSellerCar() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, active }: { id: number; active: boolean }) =>
-      sellerCarsService.setActive(id, active),
+    mutationFn: ({ id, data }: { id: number; data: UpdateSellerCarRequest }) =>
+      sellerCarsService.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.sellerCars })
-      queryClient.invalidateQueries({ queryKey: ['cars'] })
-      queryClient.invalidateQueries({ queryKey: ['car'] })
+      invalidateCarCaches(queryClient)
+    },
+  })
+}
+
+export function useDeleteSellerCar() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => sellerCarsService.remove(id),
+    onSuccess: () => {
+      invalidateCarCaches(queryClient)
     },
   })
 }
