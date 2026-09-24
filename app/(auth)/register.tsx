@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Text } from 'react-native'
 import type { TextInput } from 'react-native'
 import { Link } from 'expo-router'
+import { Eye, EyeOff } from 'lucide-react-native'
 import { useAuth } from '@/hooks/useAuth'
 import {
   getApiErrorMessage,
@@ -13,6 +14,7 @@ import { AppButton, AppPressable, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { AuthShell } from '@/components/AuthShell'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 type Role = 'buyer' | 'seller'
 
@@ -35,6 +37,7 @@ export default function RegisterScreen() {
   const emailRef = useRef<TextInput>(null)
   const passwordRef = useRef<TextInput>(null)
   const phoneRef = useRef<TextInput>(null)
+  const colors = useThemeColors()
   const { register } = useAuth()
 
   const onRegister = () => {
@@ -115,20 +118,23 @@ export default function RegisterScreen() {
           if (register.isError) register.reset()
         }}
         error={clientErrors.password}
-      />
-      <AppPressable
-        accessibilityRole="button"
-        accessibilityLabel={
-          showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+        trailing={
+          <AppPressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+            }
+            onPress={() => setShowPassword((v) => !v)}
+            className="min-h-11 min-w-11 items-center justify-center rounded-lg"
+          >
+            {showPassword ? (
+              <EyeOff size={20} color={colors.mutedText} />
+            ) : (
+              <Eye size={20} color={colors.mutedText} />
+            )}
+          </AppPressable>
         }
-        onPress={() => setShowPassword((v) => !v)}
-        className="min-h-11 self-end justify-center rounded-lg px-2 py-3"
-        hoverClassName="underline"
-      >
-        <Text className="text-sm text-primary">
-          {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-        </Text>
-      </AppPressable>
+      />
 
       <ChoiceGroup
         label="Tipo de cuenta"
@@ -164,7 +170,7 @@ export default function RegisterScreen() {
       </AppButton>
 
       <Link href="/(auth)/login" className="mt-1 self-center px-3 py-3.5">
-        <Text className="text-primary">Iniciar sesión</Text>
+        <Text className="text-base text-primary">Iniciar sesión</Text>
       </Link>
     </AuthShell>
   )

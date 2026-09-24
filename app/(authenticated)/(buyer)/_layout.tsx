@@ -53,6 +53,18 @@ export default function BuyerLayout() {
             ...headerColors(theme),
           }}
         />
+        <Stack.Screen
+          name="profile/password"
+          options={{
+            headerShown: true,
+            title: 'Cambiar contraseña',
+            ...headerBackOptions(
+              theme,
+              '/(authenticated)/(buyer)/profile/edit'
+            ),
+            ...headerColors(theme),
+          }}
+        />
       </Stack.Protected>
     </Stack>
   )

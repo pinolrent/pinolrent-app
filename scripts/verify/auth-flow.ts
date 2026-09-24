@@ -125,6 +125,85 @@ async function main() {
     logout.status === 200 && (await logout.json()).status === 'ok'
   )
 
+  const buyerEmail = `compra_${stamp}@example.com`
+  const relogin = await api('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: buyerEmail, password: 'secret123' }),
+  })
+  const reloginPair = (await relogin.json()) as { token: string }
+  check('re-login del comprador -> 200', relogin.status === 200 && !!reloginPair.token)
+
+  // La comparación de iat contra token_valid_after es estricta y en segundos:
+  // se cruza el borde de segundo como hace el demo de la API.
+  await new Promise((r) => setTimeout(r, 1100))
+
+  const changed = await api(
+    '/auth/password',
+    {
+      method: 'PATCH',
+      body: JSON.stringify({
+        current_password: 'secret123',
+        new_password: 'nuevaClave456',
+      }),
+    },
+    reloginPair.token
+  )
+  check('PATCH /auth/password -> 200 ok', changed.status === 200, changed.status)
+
+  const oldToken = await api('/auth/me', {}, reloginPair.token)
+  check(
+    'el token viejo deja de servir tras el cambio -> 401',
+    oldToken.status === 401,
+    oldToken.status
+  )
+
+  const loginOld = await api('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: buyerEmail, password: 'secret123' }),
+  })
+  check('login con la contraseña vieja -> 401', loginOld.status === 401)
+
+  const loginNew = await api('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: buyerEmail, password: 'nuevaClave456' }),
+  })
+  const newPair = (await loginNew.json()) as { token: string }
+  check(
+    'login con la contraseña nueva -> 200',
+    loginNew.status === 200 && !!newPair.token,
+    loginNew.status
+  )
+
+  const wrongCurrent = await api(
+    '/auth/password',
+    {
+      method: 'PATCH',
+      body: JSON.stringify({
+        current_password: 'incorrecta',
+        new_password: 'otraClave789',
+      }),
+    },
+    newPair.token
+  )
+  check(
+    'cambio de contraseña con la actual incorrecta -> 401',
+    wrongCurrent.status === 401,
+    wrongCurrent.status
+  )
+
+  const shortNew = await api(
+    '/auth/password',
+    {
+      method: 'PATCH',
+      body: JSON.stringify({
+        current_password: 'nuevaClave456',
+        new_password: 'corta',
+      }),
+    },
+    newPair.token
+  )
+  check('nueva contraseña corta -> 400', shortNew.status === 400, shortNew.status)
+
   summary()
 }
 

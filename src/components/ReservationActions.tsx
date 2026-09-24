@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics'
 import {
   useCancelReservation,
   useConfirmReservation,
+  useRejectReservation,
 } from '@/hooks/useReservations'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
@@ -16,6 +17,7 @@ import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { ProofLink } from '@/components/ProofLink'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ModalSheet } from '@/components/ModalSheet'
+import { DIALOG_WIDTH } from '@/constants/layout'
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -143,6 +145,58 @@ export function ConfirmReservationBlock({
   )
 }
 
+export function RejectReservationBlock({
+  reservation,
+  onRejected,
+}: {
+  reservation: Reservation
+  onRejected?: (reservation: Reservation) => void
+}) {
+  const reject = useRejectReservation()
+  const [rejectOpen, setRejectOpen] = useState(false)
+  const rejectError = reject.isError
+    ? getApiErrorMessage(reject.error, 'Error al rechazar la reserva')
+    : null
+
+  if (!canConfirmReservation(reservation)) return null
+
+  return (
+    <>
+      <AppButton
+        variant="destructive"
+        onPress={() => setRejectOpen(true)}
+        loading={reject.isPending}
+      >
+        Rechazar reserva
+      </AppButton>
+      <ConfirmDialog
+        visible={rejectOpen}
+        title="Rechazar reserva"
+        message={`¿Rechazar el pago de la reserva de ${reservation.car.name}? Se cancela la reserva y el comprador tendrá que reservar de nuevo.`}
+        confirmLabel="Rechazar reserva"
+        destructive
+        loading={reject.isPending}
+        error={rejectError}
+        onCancel={() => setRejectOpen(false)}
+        onConfirm={() =>
+          reject.mutate(reservation.id, {
+            onSuccess: () => {
+              setRejectOpen(false)
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              )
+              onRejected?.(reservation)
+            },
+            onError: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            },
+          })
+        }
+      />
+    </>
+  )
+}
+
 export function PayReservationBlock({
   reservation,
   onPaid,
@@ -198,7 +252,7 @@ export function PayReservationBlock({
         visible={open}
         onClose={() => setOpen(false)}
         title="Registrar pago"
-        maxWidth={440}
+        maxWidth={DIALOG_WIDTH}
       >
         <ChoiceGroup
           label="Método de pago"

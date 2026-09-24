@@ -17,18 +17,22 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { X } from 'lucide-react-native'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
+import { useThemeColors } from '@/hooks/useThemeColors'
+import { AppPressable } from '@/components/ui-kit'
+import { DIALOG_WIDTH } from '@/constants/layout'
 
 const DISMISS_DISTANCE = 110
 const DISMISS_VELOCITY = 800
+const MODAL_ELEVATION = 12
 
 export function ModalSheet({
   visible,
   onClose,
   title,
   children,
-  maxWidth = 480,
+  maxWidth = DIALOG_WIDTH,
   busy = false,
 }: {
   visible: boolean
@@ -39,6 +43,7 @@ export function ModalSheet({
   busy?: boolean
 }) {
   const { isDesktop } = useBreakpoints()
+  const colors = useThemeColors()
   const insets = useSafeAreaInsets()
   const { height } = useWindowDimensions()
   const translateY = useSharedValue(0)
@@ -86,14 +91,10 @@ export function ModalSheet({
         accessibilityLabel="Cerrar"
         disabled={busy}
         onPress={requestClose}
-        className="min-h-11 justify-center px-2"
-        hoverClassName="underline"
+        className="min-h-11 min-w-11 items-center justify-center rounded-lg"
+        hoverClassName="bg-accent"
       >
-        <Text
-          className={`text-sm ${busy ? 'text-muted-foreground' : 'text-primary'}`}
-        >
-          Cerrar
-        </Text>
+        <X size={20} color={busy ? colors.mutedText : colors.text} />
       </AppPressable>
     </View>
   )
@@ -120,8 +121,8 @@ export function ModalSheet({
         {isDesktop ? (
           <View
             accessibilityViewIsModal
-            className={`w-full gap-3 p-4 ${CARD_SURFACE}`}
-            style={{ maxWidth }}
+            className="w-full gap-3 rounded-2xl border border-border bg-card p-4"
+            style={{ maxWidth, elevation: MODAL_ELEVATION }}
           >
             {header}
             <ScrollView
@@ -135,7 +136,7 @@ export function ModalSheet({
         ) : (
           <Animated.View
             accessibilityViewIsModal
-            style={sheetStyle}
+            style={[sheetStyle, { elevation: MODAL_ELEVATION }]}
             className="rounded-t-2xl border border-border bg-card"
           >
             <GestureDetector gesture={pan}>

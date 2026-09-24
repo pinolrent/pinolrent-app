@@ -5,9 +5,11 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, ListGroup, ListRow } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SessionActions } from '@/components/SessionActions'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export function ProfileScreen() {
   const router = useRouter()
+  const { isDesktop } = useBreakpoints()
   const { user } = useAuth()
   const roleLabel = user?.role === 'seller' ? 'Vendedor' : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
@@ -16,32 +18,23 @@ export function ProfileScreen() {
       ? '/(authenticated)/seller/profile/edit'
       : '/(authenticated)/(buyer)/profile/edit'
 
-  return (
-    <ScreenShell
-      title="Mi perfil"
-      width="form"
-      action={
-        <AppButton variant="outline" onPress={() => router.push(editHref)}>
-          Editar perfil
-        </AppButton>
-      }
-    >
-      <View className="items-center gap-3 py-4">
-        <View
-          accessibilityLabel={`Cuenta de ${user?.email ?? ''}`}
-          className="h-24 w-24 items-center justify-center rounded-full bg-primary/10"
-        >
-          <Text className="text-3xl font-bold text-primary">{initial}</Text>
-        </View>
-        <Text
-          numberOfLines={1}
-          className="text-lg font-semibold text-foreground"
-        >
-          {user?.email}
-        </Text>
-        <StatusBadge tone="muted">{roleLabel}</StatusBadge>
+  const identity = (
+    <View className="items-center gap-3 py-4">
+      <View
+        accessibilityLabel={`Cuenta de ${user?.email ?? ''}`}
+        className="h-24 w-24 items-center justify-center rounded-full bg-primary/10"
+      >
+        <Text className="text-3xl font-bold text-primary">{initial}</Text>
       </View>
+      <Text numberOfLines={1} className="text-lg font-semibold text-foreground">
+        {user?.email}
+      </Text>
+      <StatusBadge tone="muted">{roleLabel}</StatusBadge>
+    </View>
+  )
 
+  const groups = (
+    <View className="gap-4">
       <ListGroup title="Cuenta">
         <ListRow>
           <Text className="text-sm text-muted-foreground">Email</Text>
@@ -74,6 +67,33 @@ export function ProfileScreen() {
           <SessionActions />
         </View>
       </ListGroup>
+    </View>
+  )
+
+  return (
+    <ScreenShell
+      title="Mi perfil"
+      width={isDesktop ? 'default' : 'form'}
+      scroll
+      action={
+        <AppButton variant="outline" onPress={() => router.push(editHref)}>
+          Editar perfil
+        </AppButton>
+      }
+    >
+      {isDesktop ? (
+        <View className="flex-row items-start gap-6">
+          <View className="w-80 rounded-xl border border-border bg-card p-4">
+            {identity}
+          </View>
+          <View className="flex-1">{groups}</View>
+        </View>
+      ) : (
+        <View className="gap-4">
+          {identity}
+          {groups}
+        </View>
+      )}
     </ScreenShell>
   )
 }

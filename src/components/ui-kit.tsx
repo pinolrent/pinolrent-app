@@ -1,15 +1,19 @@
 import type { ComponentProps, ReactNode } from 'react'
-import { ActivityIndicator, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 import { useHover } from '@/hooks/useHover'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
 type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
 
 export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-sm'
 
+const PRESSED_STYLE = { opacity: 0.7, transform: [{ scale: 0.99 }] }
+
 export function AppButton({
   children,
   variant = 'default',
+  className = '',
   loading = false,
   disabled,
   ...props
@@ -18,9 +22,19 @@ export function AppButton({
   variant?: Variant
   loading?: boolean
 } & Omit<ComponentProps<typeof Button>, 'variant' | 'children'>) {
+  const colors = useThemeColors()
   return (
     <Button
       variant={variant}
+      className={`data-[active=true]:scale-[0.98] ${className}`}
+      {...(Platform.OS === 'android'
+        ? {
+            android_ripple: {
+              color: `${colors.mutedText}33`,
+              borderless: false,
+            },
+          }
+        : {})}
       {...props}
       isDisabled={disabled || loading}
       disabled={disabled || loading}
@@ -52,17 +66,19 @@ export function AppPressable({
   hoverClassName?: string
 }) {
   const { hovered, hoverProps } = useHover()
+  const colors = useThemeColors()
 
   return (
     <Pressable
       {...rest}
       {...(hoverClassName ? hoverProps : {})}
+      android_ripple={{ color: `${colors.mutedText}22`, borderless: false }}
       className={`${className}${
         hoverClassName && hovered ? ` ${hoverClassName}` : ''
       }`}
       style={(state) => [
         typeof style === 'function' ? style(state) : style,
-        state.pressed ? { opacity: 0.9 } : null,
+        state.pressed ? PRESSED_STYLE : null,
       ]}
     >
       {children}
@@ -88,21 +104,35 @@ export function AppCard({
   gap = 'md',
   hovered = false,
   className = '',
+  onPress,
+  accessibilityLabel,
 }: {
   children: ReactNode
   padding?: keyof typeof CARD_PADDING
   gap?: keyof typeof CARD_GAP
   hovered?: boolean
   className?: string
+  onPress?: () => void
+  accessibilityLabel?: string
 }) {
+  const classes = `rounded-xl border ${
+    hovered ? 'border-primary/40' : 'border-border'
+  } bg-card shadow-sm ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
+
+  if (!onPress) {
+    return <View className={classes}>{children}</View>
+  }
+
   return (
-    <View
-      className={`rounded-xl border ${
-        hovered ? 'border-primary/40' : 'border-border'
-      } bg-card shadow-sm ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`}
+    <AppPressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      hoverClassName="border-primary/40"
+      className={classes}
     >
       {children}
-    </View>
+    </AppPressable>
   )
 }
 
@@ -198,7 +228,9 @@ export function EmptyState({
 }) {
   return (
     <View className="flex-1 items-center justify-center gap-3 p-6">
-      <Text className="text-center text-muted-foreground">{message}</Text>
+      <Text className="text-center text-base text-muted-foreground">
+        {message}
+      </Text>
       {action}
     </View>
   )

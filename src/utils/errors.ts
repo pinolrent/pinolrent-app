@@ -56,6 +56,17 @@ export function resolveImageUrl(value: string | undefined): string | undefined {
   return trimmed
 }
 
+export function isInvalidCredentialsError(err: unknown): boolean {
+  if (!axios.isAxiosError<ApiError>(err)) return false
+  const data = err.response?.data as ApiError | string | undefined
+  const message =
+    typeof data === 'string' ? data : (data?.error ?? data?.message)
+  return (
+    typeof message === 'string' &&
+    message.toLowerCase().includes('invalid credentials')
+  )
+}
+
 export function getApiErrorMessage(err: unknown, fallback: string): string {
   if (axios.isAxiosError<ApiError>(err)) {
     if (!err.response) {
@@ -104,12 +115,16 @@ function translateBackendMessage(msg: string): string {
     return 'El pago ya no está pendiente'
   if (lower.includes('future reservations'))
     return 'No se puede desactivar: tiene reservas futuras'
+  if (lower.includes('car has reservations, cannot delete'))
+    return 'No se puede eliminar: tiene reservas registradas, desactívalo en su lugar'
   if (lower.includes('reservation cannot be longer'))
     return 'La reserva no puede superar los 30 días'
   if (lower.includes('start_date cannot be in the past'))
     return 'La fecha de inicio no puede ser anterior a hoy'
   if (lower.includes('invalid email')) return 'Ingresa un email válido'
   if (lower.includes('invalid phone')) return 'Ingresa un teléfono válido'
+  if (lower.includes('invalid credentials'))
+    return 'Email o contraseña incorrectos'
   if (lower.includes('phone is required for sellers'))
     return 'El teléfono es obligatorio para vendedores'
   if (lower.includes('password must be'))
@@ -121,6 +136,12 @@ function translateBackendMessage(msg: string): string {
     return 'Imagen inválida: sube una foto o pega una URL válida'
   if (lower.includes('only jpg, png or webp'))
     return 'Solo se permiten imágenes JPG, PNG o WebP'
+  if (lower.includes('invalid image data'))
+    return 'La imagen está dañada o no se pudo procesar'
+  if (lower.includes('image dimensions too large'))
+    return 'La imagen es demasiado grande (máx. 50 MP)'
+  if (lower.includes('storage quota exceeded'))
+    return 'El servidor no tiene espacio para más imágenes'
   if (lower.includes('file is required')) return 'Selecciona una imagen'
   if (lower.includes('seller has no contact phone'))
     return 'El vendedor todavía no cargó un teléfono'
@@ -144,6 +165,7 @@ function statusFallback(status?: number): string | null {
   if (status === 415) return 'El formato del archivo no es compatible'
   if (status === 422) return 'Revisa los datos e inténtalo de nuevo'
   if (status === 429) return 'Demasiados intentos, espera un minuto y reintenta'
+  if (status === 507) return 'El servidor no tiene espacio para más imágenes'
   if (status && status >= 500)
     return 'No pudimos completar la acción, reintenta en unos minutos'
   return null

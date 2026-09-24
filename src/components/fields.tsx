@@ -9,8 +9,9 @@ export const AppInput = forwardRef<
   {
     label: string
     error?: string | null
+    trailing?: ReactNode
   } & React.ComponentProps<typeof InputField>
->(function AppInput({ label, error, ...props }, ref) {
+>(function AppInput({ label, error, trailing, ...props }, ref) {
   const colors = useThemeColors()
   const errorId = useId()
   return (
@@ -29,6 +30,7 @@ export const AppInput = forwardRef<
           className="text-foreground"
           {...props}
         />
+        {trailing}
       </Input>
       <FormError message={error ?? null} nativeID={errorId} />
     </View>
