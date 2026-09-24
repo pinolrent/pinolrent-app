@@ -156,8 +156,90 @@ async function main() {
     sellerDetail.status === 200
   )
 
-  const cashStart = isoDaysFromNow(10)
-  const cashEnd = isoDaysFromNow(12)
+  const rejectStart = isoDaysFromNow(6)
+  const rejectEnd = isoDaysFromNow(8)
+  const rejectRes = await api(
+    '/reservations',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        car_id: car.id,
+        start_date: rejectStart,
+        end_date: rejectEnd,
+      }),
+    },
+    buyer.token
+  )
+  const rejectCreated = (await rejectRes.json()) as { id: number }
+  const rejectPay = await api(
+    `/reservations/${rejectCreated.id}/payment`,
+    { method: 'POST', body: JSON.stringify({ method: 'cash' }) },
+    buyer.token
+  )
+  check('reserva lista para rechazo: pago registrado', rejectPay.status === 201)
+
+  const reject = await api(
+    `/seller/reservations/${rejectCreated.id}/reject`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  const rejected = (await reject.json()) as {
+    status: string
+    payment?: { status: string }
+  }
+  check(
+    'PATCH /seller/reservations/{id}/reject -> cancelled + rejected',
+    reject.status === 200 &&
+      rejected.status === 'cancelled' &&
+      rejected.payment?.status === 'rejected',
+    rejected
+  )
+
+  const rejectAgain = await api(
+    `/seller/reservations/${rejectCreated.id}/reject`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  check('rechazar una reserva ya cancelada -> 409', rejectAgain.status === 409)
+
+  const buyerCancelRejected = await api(
+    `/reservations/${rejectCreated.id}/cancel`,
+    { method: 'PATCH' },
+    buyer.token
+  )
+  check(
+    'el comprador no puede cancelar una reserva rechazada -> 409',
+    buyerCancelRejected.status === 409
+  )
+
+  const noPayStart = isoDaysFromNow(10)
+  const noPayEnd = isoDaysFromNow(12)
+  const noPayRes = await api(
+    '/reservations',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        car_id: car.id,
+        start_date: noPayStart,
+        end_date: noPayEnd,
+      }),
+    },
+    buyer.token
+  )
+  const noPayCreated = (await noPayRes.json()) as { id: number }
+
+  const rejectWithoutPayment = await api(
+    `/seller/reservations/${noPayCreated.id}/reject`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  check(
+    'rechazar sin pago registrado -> 409',
+    rejectWithoutPayment.status === 409
+  )
+
+  const cashStart = isoDaysFromNow(14)
+  const cashEnd = isoDaysFromNow(16)
   const cashRes = await api(
     '/reservations',
     {
@@ -215,10 +297,6 @@ async function main() {
     seller.token
   )
   check('PATCH auto ajeno sin reservas -> 404', foreignPatch.status === 404)
-  // Nota: con reservas futuras un PATCH ajeno responde 409 en vez de 404
-  // (el backend chequea futuras antes que dueño). No se testea como 404
-  // hasta que el backend lo corrija. Tampoco existe `payment is not pending`
-  // en docs pero el código lo devuelve: la UI lo trata como 409 genérico.
 
   const buyerWrite = await api(
     '/seller/cars',
