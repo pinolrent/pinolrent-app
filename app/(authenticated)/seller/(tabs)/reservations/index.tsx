@@ -9,6 +9,7 @@ import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import {
   ConfirmReservationBlock,
+  RejectReservationBlock,
   canConfirmReservation,
 } from '@/components/ReservationActions'
 import {
@@ -42,6 +43,10 @@ export default function SellerReservationsScreen() {
 
   const onConfirmed = (reservation: Reservation) => {
     setNotice(`Reserva #${reservation.id} confirmada`)
+  }
+
+  const onRejected = (reservation: Reservation) => {
+    setNotice(`Reserva #${reservation.id} rechazada`)
   }
 
   const detailHref = (id: number) =>
@@ -83,10 +88,14 @@ export default function SellerReservationsScreen() {
               }
             />
             {confirmable && (
-              <View className="border-t border-border bg-muted/40 px-4 py-3">
+              <View className="flex-row items-center gap-2 border-t border-border bg-muted/40 px-4 py-3">
                 <ConfirmReservationBlock
                   reservation={item}
                   onConfirmed={onConfirmed}
+                />
+                <RejectReservationBlock
+                  reservation={item}
+                  onRejected={onRejected}
                 />
               </View>
             )}
@@ -102,10 +111,16 @@ export default function SellerReservationsScreen() {
           onPress={() => router.push(detailHref(item.id))}
           action={
             confirmable ? (
-              <ConfirmReservationBlock
-                reservation={item}
-                onConfirmed={onConfirmed}
-              />
+              <View className="gap-2">
+                <ConfirmReservationBlock
+                  reservation={item}
+                  onConfirmed={onConfirmed}
+                />
+                <RejectReservationBlock
+                  reservation={item}
+                  onRejected={onRejected}
+                />
+              </View>
             ) : undefined
           }
         />

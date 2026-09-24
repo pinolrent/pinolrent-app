@@ -19,6 +19,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   ConfirmReservationBlock,
   PaymentSummary,
+  RejectReservationBlock,
 } from '@/components/ReservationActions'
 
 export default function SellerReservationDetailScreen() {
@@ -137,6 +138,12 @@ export default function SellerReservationDetailScreen() {
                 reservation={data}
                 onConfirmed={(reservation) =>
                   setNotice(`Reserva #${reservation.id} confirmada`)
+                }
+              />
+              <RejectReservationBlock
+                reservation={data}
+                onRejected={(reservation) =>
+                  setNotice(`Reserva #${reservation.id} rechazada`)
                 }
               />
             </View>

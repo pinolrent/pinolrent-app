@@ -20,4 +20,9 @@ export const reservationsService = {
     api
       .patch<Reservation>(`/seller/reservations/${id}/confirm`)
       .then((r) => r.data),
+
+  reject: (id: number) =>
+    api
+      .patch<Reservation>(`/seller/reservations/${id}/reject`)
+      .then((r) => r.data),
 }

@@ -67,3 +67,13 @@ export function useConfirmReservation() {
     },
   })
 }
+
+export function useRejectReservation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservationsService.reject(id),
+    onSuccess: () => {
+      invalidateReservationCaches(queryClient)
+    },
+  })
+}
