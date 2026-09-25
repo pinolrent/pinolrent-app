@@ -9,6 +9,7 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { reservationTotal } from '@/utils/reservations'
 import { AppCard, ErrorState } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
+import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
 function Metric({
@@ -31,6 +32,7 @@ function Metric({
 export default function SellerHomeScreen() {
   const router = useRouter()
   const colors = useThemeColors()
+  const { isWide } = useBreakpoints()
   const {
     data: cars,
     isLoading: carsLoading,
@@ -54,6 +56,7 @@ export default function SellerHomeScreen() {
       ? getApiErrorMessage(resErr, 'Error al cargar tus reservas')
       : null
 
+  const activeCars = (cars ?? []).filter((car) => car.active).length
   const list = reservations ?? []
   const pendingPay = list.filter(
     (r) => r.status === 'pending' && r.payment?.status === 'pending'
@@ -69,7 +72,7 @@ export default function SellerHomeScreen() {
     )
 
   return (
-    <ScreenShell title="Inicio" width="form" scroll>
+    <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
       {carsLoading || resLoading ? (
         <SkeletonList count={4} variant="row" />
       ) : loadError ? (
@@ -103,14 +106,14 @@ export default function SellerHomeScreen() {
           ) : null}
 
           <View className="gap-2">
-            <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
+            <Text
+              accessibilityRole="header"
+              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+            >
               Resumen
             </Text>
             <View className="flex-row flex-wrap gap-3">
-              <Metric
-                label="Autos publicados"
-                value={String(cars?.length ?? 0)}
-              />
+              <Metric label="Autos activos" value={String(activeCars)} />
               <Metric
                 label="Por confirmar"
                 value={String(pendingPay)}

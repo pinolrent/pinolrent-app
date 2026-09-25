@@ -27,7 +27,7 @@ export default function ReservationDetailScreen() {
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
-  const { isPhone } = useBreakpoints()
+  const { isWide } = useBreakpoints()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
@@ -87,7 +87,7 @@ export default function ReservationDetailScreen() {
             />
           }
         >
-          <View className={isPhone ? 'gap-4' : 'flex-row items-start gap-6'}>
+          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
             <View className="flex-1">
               <AppCard gap="lg">
                 <CarRow
@@ -98,7 +98,7 @@ export default function ReservationDetailScreen() {
                     </StatusBadge>
                   }
                 />
-                <View className={isPhone ? 'gap-4' : 'flex-row gap-6'}>
+                <View className={isWide ? 'flex-row gap-6' : 'gap-4'}>
                   <View className="flex-1 gap-1">
                     <Text className="text-sm text-muted-foreground">
                       Fechas
@@ -123,7 +123,7 @@ export default function ReservationDetailScreen() {
                 </View>
               </AppCard>
             </View>
-            <View className={isPhone ? 'gap-3' : 'w-80 gap-3'}>
+            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
               <AppCard gap="sm">
                 <Text className="text-sm text-muted-foreground">
                   {formatPricePerDay(data.car.price_per_day)} ×{' '}

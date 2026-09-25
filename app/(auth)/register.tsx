@@ -19,8 +19,8 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 type Role = 'buyer' | 'seller'
 
 const ROLE_OPTIONS = [
-  { value: 'buyer', label: 'Comprador' },
-  { value: 'seller', label: 'Vendedor' },
+  { value: 'buyer', label: 'Rentar auto' },
+  { value: 'seller', label: 'Ofertar mi auto' },
 ] as const
 
 export default function RegisterScreen() {
@@ -146,8 +146,8 @@ export default function RegisterScreen() {
 
       <AppInput
         ref={phoneRef}
-        label={role === 'seller' ? 'Teléfono' : 'Teléfono (opcional)'}
-        placeholder="Tu WhatsApp"
+        label={role === 'seller' ? 'Teléfono' : 'Numero de Whatsapp'}
+        placeholder="Ej: +505 11111111"
         autoComplete="tel"
         textContentType="telephoneNumber"
         keyboardType="phone-pad"

@@ -28,6 +28,8 @@ const buttonStyle = tva({
         'bg-primary data-[hover=true]:bg-primary/90 data-[active=true]:bg-primary/90',
       destructive:
         'bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+      'destructive-outline':
+        'border border-destructive/40 bg-background data-[hover=true]:bg-tint-destructive data-[active=true]:bg-tint-destructive dark:bg-input/[0.045] dark:border-destructive/50 dark:data-[hover=true]:bg-tint-destructive',
       outline:
         'border border-border bg-background shadow-xs data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:bg-input/[0.045] dark:border-border/90 dark:data-[hover=true]:bg-input/[0.075] dark:data-[active=true]:bg-input/[0.075]',
       secondary:
@@ -49,6 +51,7 @@ const buttonTextStyle = tva({
     variant: {
       default: 'text-primary-foreground',
       destructive: 'text-white',
+      'destructive-outline': 'text-destructive',
       outline: 'text-foreground data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground',
       secondary: 'text-secondary-foreground',
       ghost: 'text-foreground ',
@@ -81,6 +84,7 @@ const buttonIconStyle = tva({
     variant: {
       default: 'text-primary-foreground',
       destructive: 'text-white',
+      'destructive-outline': 'text-destructive',
       outline:
         'text-foreground data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground',
       secondary: 'text-secondary-foreground',

@@ -29,10 +29,14 @@ export function DateField({
         accessibilityLabel={value ? `${label}: ${formatDate(value)}` : label}
         accessibilityHint="Abre el calendario"
         onPress={() => setOpen(true)}
-        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
+        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-xs"
         hoverClassName="border-primary/40"
       >
-        <Text className={value ? 'text-foreground' : 'text-muted-foreground'}>
+        <Text
+          className={`text-base ${
+            value ? 'text-foreground' : 'text-muted-foreground'
+          }`}
+        >
           {value ? formatDate(value) : 'Seleccionar fecha'}
         </Text>
       </AppPressable>
@@ -84,11 +88,13 @@ export function DateRangeField({
         accessibilityLabel={hasStart ? `${label}: ${summary}` : label}
         accessibilityHint="Abre el calendario para elegir inicio y fin"
         onPress={() => setOpen(true)}
-        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-sm"
+        className="min-h-11 justify-center rounded-lg border border-border bg-card px-3 py-2.5 shadow-xs"
         hoverClassName="border-primary/40"
       >
         <Text
-          className={hasStart ? 'text-foreground' : 'text-muted-foreground'}
+          className={`text-base ${
+            hasStart ? 'text-foreground' : 'text-muted-foreground'
+          }`}
         >
           {summary}
         </Text>

@@ -9,7 +9,7 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export function ProfileScreen() {
   const router = useRouter()
-  const { isDesktop } = useBreakpoints()
+  const { isWide } = useBreakpoints()
   const { user } = useAuth()
   const roleLabel = user?.role === 'seller' ? 'Vendedor' : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
@@ -73,7 +73,7 @@ export function ProfileScreen() {
   return (
     <ScreenShell
       title="Mi perfil"
-      width={isDesktop ? 'default' : 'form'}
+      width={isWide ? 'default' : 'form'}
       scroll
       action={
         <AppButton variant="outline" onPress={() => router.push(editHref)}>
@@ -81,7 +81,7 @@ export function ProfileScreen() {
         </AppButton>
       }
     >
-      {isDesktop ? (
+      {isWide ? (
         <View className="flex-row items-start gap-6">
           <View className="w-80 rounded-xl border border-border bg-card p-4">
             {identity}

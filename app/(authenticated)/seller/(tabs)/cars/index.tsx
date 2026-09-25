@@ -27,7 +27,7 @@ export default function SellerCarsScreen() {
   const router = useRouter()
   const colors = useThemeColors()
   const { deleted } = useLocalSearchParams<{ deleted?: string }>()
-  const { columns: numColumns, isPhone, isDesktop } = useBreakpoints()
+  const { columns: numColumns, isWide } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
   const createCar = useCreateSellerCar()
@@ -82,7 +82,7 @@ export default function SellerCarsScreen() {
       title="Mis autos"
       subtitle={`${cars.length} ${cars.length === 1 ? 'publicado' : 'publicados'} · ${activeCount} ${activeCount === 1 ? 'activo' : 'activos'}`}
       action={
-        isDesktop ? (
+        isWide ? (
           <AppButton onPress={openForm}>Publicar auto</AppButton>
         ) : undefined
       }
@@ -121,14 +121,14 @@ export default function SellerCarsScreen() {
               <EmptyState
                 message="Todavía no publicaste autos"
                 action={
-                  isPhone ? undefined : (
+                  isWide ? (
                     <AppButton onPress={openForm}>Publicar auto</AppButton>
-                  )
+                  ) : undefined
                 }
               />
             }
           />
-          {isPhone && (
+          {!isWide && (
             <View className="pt-1">
               <AppButton onPress={openForm}>Publicar auto</AppButton>
             </View>

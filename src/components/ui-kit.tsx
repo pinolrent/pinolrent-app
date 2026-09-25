@@ -4,9 +4,15 @@ import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
-type Variant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost'
+type Variant =
+  | 'default'
+  | 'destructive'
+  | 'destructive-outline'
+  | 'outline'
+  | 'secondary'
+  | 'ghost'
 
-export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-sm'
+export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
 
 const PRESSED_STYLE = { opacity: 0.7, transform: [{ scale: 0.99 }] }
 
@@ -117,7 +123,7 @@ export function AppCard({
 }) {
   const classes = `rounded-xl border ${
     hovered ? 'border-primary/40' : 'border-border'
-  } bg-card shadow-sm ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
+      } bg-card shadow-xs ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
 
   if (!onPress) {
     return <View className={classes}>{children}</View>
@@ -148,12 +154,15 @@ export function ListGroup({
   return (
     <View className={`gap-2 ${fill ? 'flex-1' : ''}`}>
       {title ? (
-        <Text className="px-1 text-xs font-semibold uppercase text-muted-foreground">
+        <Text
+          accessibilityRole="header"
+          className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+        >
           {title}
         </Text>
       ) : null}
       <View
-        className={`overflow-hidden rounded-xl border border-border bg-card shadow-sm ${
+        className={`overflow-hidden rounded-xl border border-border bg-card shadow-xs ${
           fill ? 'flex-1' : ''
         }`}
       >
