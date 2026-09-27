@@ -14,7 +14,7 @@ import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ModalSheet } from '@/components/ModalSheet'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { ConfirmAction } from '@/components/ConfirmAction'
 import {
   AppButton,
   AppCard,
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { SHEET_FORM_WIDTH } from '@/constants/layout'
 import { NUMERIC } from '@/constants/typography'
@@ -34,7 +34,7 @@ export default function SellerCarDetailScreen() {
   const router = useRouter()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const { isWide } = useBreakpoints()
+  const { container, main, side } = useDetailSplit()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerCars()
@@ -42,7 +42,6 @@ export default function SellerCarDetailScreen() {
   const deleteCar = useDeleteSellerCar()
   const [notice, setNotice] = useTransientNotice()
   const [editOpen, setEditOpen] = useState(false)
-  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const car = data?.find((item) => item.id === idNum)
 
@@ -77,10 +76,6 @@ export default function SellerCarDetailScreen() {
     ? getApiErrorMessage(updateCar.error, 'Error al actualizar el auto')
     : null
 
-  const deleteError = deleteCar.isError
-    ? getApiErrorMessage(deleteCar.error, 'Error al eliminar el auto')
-    : null
-
   const onToggle = () => {
     setNotice(null)
     updateCar.mutate(
@@ -95,22 +90,6 @@ export default function SellerCarDetailScreen() {
         },
       }
     )
-  }
-
-  const onDelete = () => {
-    deleteCar.mutate(car.id, {
-      onSuccess: () => {
-        setDeleteOpen(false)
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        router.replace({
-          pathname: '/(authenticated)/seller/cars',
-          params: { deleted: '1' },
-        })
-      },
-      onError: () => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      },
-    })
   }
 
   return (
@@ -129,11 +108,11 @@ export default function SellerCarDetailScreen() {
           />
         }
       >
-        <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
-          <View className="flex-1">
+        <View className={container}>
+          <View className={main}>
             <CarPhoto uri={car.photo_url} name={car.name} />
           </View>
-          <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+          <View className={side}>
             <AppCard gap="sm">
               <Text className="text-lg font-bold text-foreground">
                 {car.name}
@@ -164,16 +143,22 @@ export default function SellerCarDetailScreen() {
               {car.active ? 'Desactivar' : 'Activar'}
             </AppButton>
             <View className="mt-1 border-t border-border pt-4">
-              <AppButton
+              <ConfirmAction
+                label="Eliminar"
                 variant="destructive-outline"
-                onPress={() => {
-                  setNotice(null)
-                  deleteCar.reset()
-                  setDeleteOpen(true)
-                }}
-              >
-                Eliminar
-              </AppButton>
+                title="Eliminar auto"
+                message={`¿Eliminar ${car.name}? Solo se puede eliminar un auto que nunca tuvo reservas; si las tiene, desactívalo en su lugar.`}
+                confirmLabel="Eliminar"
+                destructive
+                errorFallback="Error al eliminar el auto"
+                action={() => deleteCar.mutateAsync(car.id)}
+                onDone={() =>
+                  router.replace({
+                    pathname: '/(authenticated)/seller/cars',
+                    params: { deleted: '1' },
+                  })
+                }
+              />
             </View>
           </View>
         </View>
@@ -226,17 +211,6 @@ export default function SellerCarDetailScreen() {
           />
         ) : null}
       </ModalSheet>
-      <ConfirmDialog
-        visible={deleteOpen}
-        title="Eliminar auto"
-        message={`¿Eliminar ${car.name}? Solo se puede eliminar un auto que nunca tuvo reservas; si las tiene, desactívalo en su lugar.`}
-        confirmLabel="Eliminar"
-        destructive
-        loading={deleteCar.isPending}
-        error={deleteError}
-        onCancel={() => setDeleteOpen(false)}
-        onConfirm={onDelete}
-      />
     </ScreenShell>
   )
 }

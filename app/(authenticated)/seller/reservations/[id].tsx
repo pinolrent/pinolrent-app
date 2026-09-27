@@ -15,7 +15,7 @@ import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { NUMERIC } from '@/constants/typography'
 import {
@@ -29,7 +29,7 @@ export default function SellerReservationDetailScreen() {
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
-  const { isWide } = useBreakpoints()
+  const { isWide, container, main, side } = useDetailSplit()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
@@ -89,8 +89,8 @@ export default function SellerReservationDetailScreen() {
             />
           }
         >
-          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
-            <View className="flex-1">
+          <View className={container}>
+            <View className={main}>
               <AppCard gap="lg">
                 <CarRow
                   car={data.car}
@@ -125,7 +125,7 @@ export default function SellerReservationDetailScreen() {
                 </View>
               </AppCard>
             </View>
-            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+            <View className={side}>
               <AppCard gap="sm">
                 <Text style={NUMERIC} className="text-sm text-muted-foreground">
                   {formatPricePerDay(data.car.price_per_day)}

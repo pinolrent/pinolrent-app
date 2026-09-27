@@ -15,7 +15,7 @@ import { AppInput } from '@/components/fields'
 import { ImageUploadField } from '@/components/ImageUploadField'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { ProofLink } from '@/components/ProofLink'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { ConfirmAction } from '@/components/ConfirmAction'
 import { ModalSheet } from '@/components/ModalSheet'
 import { DIALOG_WIDTH } from '@/constants/layout'
 import {
@@ -46,45 +46,23 @@ export function CancelReservationBlock({
   reservation: Reservation
 }) {
   const cancel = useCancelReservation()
-  const [confirmOpen, setConfirmOpen] = useState(false)
   const [done, setDone] = useState(false)
-  const cancelError = cancel.isError
-    ? getApiErrorMessage(cancel.error, 'Error al cancelar la reserva')
-    : null
 
   if (reservation.status !== 'pending' || reservation.payment || done)
     return null
 
   return (
-    <>
-      <AppButton variant="outline" onPress={() => setConfirmOpen(true)}>
-        Cancelar reserva
-      </AppButton>
-      <ConfirmDialog
-        visible={confirmOpen}
-        title="Cancelar reserva"
-        message={`¿Cancelar la reserva de ${reservation.car.name}?`}
-        confirmLabel="Cancelar reserva"
-        destructive
-        loading={cancel.isPending}
-        error={cancelError}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() =>
-          cancel.mutate(reservation.id, {
-            onSuccess: () => {
-              setConfirmOpen(false)
-              setDone(true)
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success
-              )
-            },
-            onError: () => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-            },
-          })
-        }
-      />
-    </>
+    <ConfirmAction
+      label="Cancelar reserva"
+      variant="outline"
+      title="Cancelar reserva"
+      message={`¿Cancelar la reserva de ${reservation.car.name}?`}
+      confirmLabel="Cancelar reserva"
+      destructive
+      errorFallback="Error al cancelar la reserva"
+      action={() => cancel.mutateAsync(reservation.id)}
+      onDone={() => setDone(true)}
+    />
   )
 }
 
@@ -103,45 +81,19 @@ export function ConfirmReservationBlock({
   onConfirmed?: (reservation: Reservation) => void
 }) {
   const confirm = useConfirmReservation()
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const confirmError = confirm.isError
-    ? getApiErrorMessage(confirm.error, 'Error al confirmar la reserva')
-    : null
 
   if (!canConfirmReservation(reservation)) return null
 
   return (
-    <>
-      <AppButton
-        onPress={() => setConfirmOpen(true)}
-        loading={confirm.isPending}
-      >
-        Confirmar reserva
-      </AppButton>
-      <ConfirmDialog
-        visible={confirmOpen}
-        title="Confirmar reserva"
-        message={`¿Confirmar la reserva de ${reservation.car.name}? Se aprueba el pago registrado.`}
-        confirmLabel="Confirmar reserva"
-        loading={confirm.isPending}
-        error={confirmError}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() =>
-          confirm.mutate(reservation.id, {
-            onSuccess: () => {
-              setConfirmOpen(false)
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success
-              )
-              onConfirmed?.(reservation)
-            },
-            onError: () => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-            },
-          })
-        }
-      />
-    </>
+    <ConfirmAction
+      label="Confirmar reserva"
+      title="Confirmar reserva"
+      message={`¿Confirmar la reserva de ${reservation.car.name}? Se aprueba el pago registrado.`}
+      confirmLabel="Confirmar reserva"
+      errorFallback="Error al confirmar la reserva"
+      action={() => confirm.mutateAsync(reservation.id)}
+      onDone={() => onConfirmed?.(reservation)}
+    />
   )
 }
 
@@ -153,47 +105,21 @@ export function RejectReservationBlock({
   onRejected?: (reservation: Reservation) => void
 }) {
   const reject = useRejectReservation()
-  const [rejectOpen, setRejectOpen] = useState(false)
-  const rejectError = reject.isError
-    ? getApiErrorMessage(reject.error, 'Error al rechazar la reserva')
-    : null
 
   if (!canConfirmReservation(reservation)) return null
 
   return (
-    <>
-      <AppButton
-        variant="destructive-outline"
-        onPress={() => setRejectOpen(true)}
-        loading={reject.isPending}
-      >
-        Rechazar reserva
-      </AppButton>
-      <ConfirmDialog
-        visible={rejectOpen}
-        title="Rechazar reserva"
-        message={`¿Rechazar el pago de la reserva de ${reservation.car.name}? Se cancela la reserva y el comprador tendrá que reservar de nuevo.`}
-        confirmLabel="Rechazar reserva"
-        destructive
-        loading={reject.isPending}
-        error={rejectError}
-        onCancel={() => setRejectOpen(false)}
-        onConfirm={() =>
-          reject.mutate(reservation.id, {
-            onSuccess: () => {
-              setRejectOpen(false)
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success
-              )
-              onRejected?.(reservation)
-            },
-            onError: () => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-            },
-          })
-        }
-      />
-    </>
+    <ConfirmAction
+      label="Rechazar reserva"
+      variant="destructive-outline"
+      title="Rechazar reserva"
+      message={`¿Rechazar el pago de la reserva de ${reservation.car.name}? Se cancela la reserva y el comprador tendrá que reservar de nuevo.`}
+      confirmLabel="Rechazar reserva"
+      destructive
+      errorFallback="Error al rechazar la reserva"
+      action={() => reject.mutateAsync(reservation.id)}
+      onDone={() => onRejected?.(reservation)}
+    />
   )
 }
 
