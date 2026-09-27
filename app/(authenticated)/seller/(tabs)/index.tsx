@@ -10,6 +10,7 @@ import { reservationTotal } from '@/utils/reservations'
 import { AppCard, ErrorState } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { NUMERIC, SECTION_LABEL } from '@/constants/typography'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
 function Metric({
@@ -24,7 +25,9 @@ function Metric({
   return (
     <View className="min-w-[150px] flex-1 gap-1 rounded-xl border border-border bg-card p-4">
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Text className={`text-2xl font-bold ${tone}`}>{value}</Text>
+      <Text style={NUMERIC} className={`text-2xl font-bold ${tone}`}>
+        {value}
+      </Text>
     </View>
   )
 }
@@ -108,6 +111,7 @@ export default function SellerHomeScreen() {
           <View className="gap-2">
             <Text
               accessibilityRole="header"
+              style={SECTION_LABEL}
               className="px-1 text-xs font-semibold uppercase text-muted-foreground"
             >
               Resumen

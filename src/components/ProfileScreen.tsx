@@ -26,7 +26,7 @@ export function ProfileScreen() {
       >
         <Text className="text-3xl font-bold text-primary">{initial}</Text>
       </View>
-      <Text numberOfLines={1} className="text-lg font-semibold text-foreground">
+      <Text className="text-center text-lg font-semibold text-foreground">
         {user?.email}
       </Text>
       <StatusBadge tone="muted">{roleLabel}</StatusBadge>

@@ -16,6 +16,7 @@ import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { NUMERIC } from '@/constants/typography'
 import {
   ConfirmReservationBlock,
   PaymentSummary,
@@ -125,11 +126,12 @@ export default function SellerReservationDetailScreen() {
             </View>
             <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
               <AppCard gap="sm">
-                <Text className="text-sm text-muted-foreground">
-                  {formatPricePerDay(data.car.price_per_day)} ×{' '}
+                <Text style={NUMERIC} className="text-sm text-muted-foreground">
+                  {formatPricePerDay(data.car.price_per_day)}
+                  {' × '}
                   {formatDays(days)}
                 </Text>
-                <Text className="text-2xl font-bold text-foreground">
+                <Text style={NUMERIC} className="text-2xl font-bold text-foreground">
                   {formatPrice(total)}
                 </Text>
               </AppCard>
