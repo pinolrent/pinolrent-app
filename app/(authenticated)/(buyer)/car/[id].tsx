@@ -18,14 +18,14 @@ import {
   ErrorState,
   FormError,
 } from '@/components/ui-kit'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { NUMERIC } from '@/constants/typography'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [showReserve, setShowReserve] = useState(false)
   const reduceMotion = useReduceMotion()
-  const { isWide } = useBreakpoints()
+  const { isWide, container, main, side } = useDetailSplit()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const {
@@ -82,11 +82,11 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
-            <View className="flex-1">
+          <View className={container}>
+            <View className={main}>
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
-            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+            <View className={side}>
               <AppCard gap="sm">
                 <Text
                   style={NUMERIC}
