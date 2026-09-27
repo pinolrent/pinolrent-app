@@ -3,6 +3,7 @@ import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { SECTION_LABEL } from '@/constants/typography'
 
 type Variant =
   | 'default'
@@ -156,6 +157,7 @@ export function ListGroup({
       {title ? (
         <Text
           accessibilityRole="header"
+          style={SECTION_LABEL}
           className="px-1 text-xs font-semibold uppercase text-muted-foreground"
         >
           {title}

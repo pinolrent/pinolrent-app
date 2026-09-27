@@ -13,6 +13,7 @@ import { CarCard } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { SECTION_LABEL } from '@/constants/typography'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 
 const PREVIEW_CARS = 3
@@ -120,6 +121,7 @@ export default function BuyerHomeScreen() {
           <View className="gap-2">
             <Text
               accessibilityRole="header"
+              style={SECTION_LABEL}
               className="px-1 text-xs font-semibold uppercase text-muted-foreground"
             >
               Autos disponibles

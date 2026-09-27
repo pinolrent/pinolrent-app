@@ -27,6 +27,7 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { SHEET_FORM_WIDTH } from '@/constants/layout'
+import { NUMERIC } from '@/constants/typography'
 
 export default function SellerCarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -137,7 +138,7 @@ export default function SellerCarDetailScreen() {
               <Text className="text-lg font-bold text-foreground">
                 {car.name}
               </Text>
-              <Text className="text-sm text-foreground">
+              <Text style={NUMERIC} className="text-sm text-foreground">
                 {formatPricePerDay(car.price_per_day)}
               </Text>
               <StatusBadge tone={car.active ? 'success' : 'muted'}>

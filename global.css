@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import 'uniwind';
 @layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   [role='button'],
   [role='radio'],
   [role='link'],

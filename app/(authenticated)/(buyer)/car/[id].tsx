@@ -18,6 +18,7 @@ import {
   FormError,
 } from '@/components/ui-kit'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { NUMERIC } from '@/constants/typography'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -74,7 +75,7 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <Text className="text-base font-semibold text-foreground">
+          <Text style={NUMERIC} className="text-base font-semibold text-foreground">
             {formatPricePerDay(car.price_per_day)}
           </Text>
           <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>

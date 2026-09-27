@@ -8,6 +8,7 @@ import { formatDateRange, formatDays } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
+import { NUMERIC } from '@/constants/typography'
 import { CARD_WIDTH } from '@/constants/layout'
 import {
   PAYMENT_METHOD_LABELS,
@@ -77,7 +78,7 @@ export function CarCard({
         <Text numberOfLines={2} className="text-lg font-bold text-foreground">
           {car.name}
         </Text>
-        <Text className="text-sm font-semibold text-foreground">
+        <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
           {formatPricePerDay(car.price_per_day)}
         </Text>
       </View>
@@ -126,7 +127,7 @@ export function CarRow({
         <Text numberOfLines={2} className="text-lg font-bold text-foreground">
           {car.name}
         </Text>
-        <Text className="text-sm font-semibold text-foreground">
+        <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
           {formatPricePerDay(car.price_per_day)}
         </Text>
         {meta}
@@ -167,7 +168,7 @@ export function CarListRow({
         >
           {car.name}
         </Text>
-        <Text className="text-sm text-muted-foreground">
+        <Text style={NUMERIC} className="text-sm text-muted-foreground">
           {formatPricePerDay(car.price_per_day)}
         </Text>
         {meta}
@@ -263,7 +264,7 @@ export function ReservationRow({
             >
               {reservation.car.name}
             </Text>
-            <Text className="text-sm text-muted-foreground">
+            <Text style={NUMERIC} className="text-sm text-muted-foreground">
               {formatPricePerDay(reservation.car.price_per_day)}
             </Text>
           </View>
@@ -277,6 +278,7 @@ export function ReservationRow({
           </Text>
         </View>
         <Text
+          style={NUMERIC}
           className={`${COLUMN.total} text-sm font-semibold text-foreground`}
         >
           {formatPrice(total)}
@@ -315,7 +317,7 @@ export function ReservationRow({
           {formatDays(days)} · {paymentLine(reservation)}
         </Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-sm font-semibold text-foreground">
+          <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
             {formatPrice(total)}
           </Text>
           {onPress ? <ChevronRight size={20} color={colors.mutedText} /> : null}
