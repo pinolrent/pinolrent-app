@@ -64,6 +64,12 @@ export default function CarDetailScreen() {
     )
   }
 
+  const reserveButton = (
+    <AppButton onPress={() => setShowReserve(true)} disabled={!car.active}>
+      Reservar este auto
+    </AppButton>
+  )
+
   return (
     <Animated.View
       entering={reduceMotion ? undefined : FadeIn.duration(200)}
@@ -75,14 +81,25 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <Text style={NUMERIC} className="text-base font-semibold text-foreground">
-            {formatPricePerDay(car.price_per_day)}
-          </Text>
           <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
             <View className="flex-1">
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
             <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+              <AppCard gap="sm">
+                <Text
+                  style={NUMERIC}
+                  className="text-2xl font-bold text-foreground"
+                >
+                  {formatPricePerDay(car.price_per_day)}
+                </Text>
+                {!car.active ? (
+                  <Text className="text-sm text-muted-foreground">
+                    No disponible por ahora
+                  </Text>
+                ) : null}
+                {isWide ? reserveButton : null}
+              </AppCard>
               <AppCard>
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
                 {contact.isError ? (
@@ -124,17 +141,7 @@ export default function CarDetailScreen() {
                   </Text>
                 )}
               </AppCard>
-              <AppButton
-                onPress={() => setShowReserve(true)}
-                disabled={!car.active}
-              >
-                Reservar este auto
-              </AppButton>
-              {!car.active ? (
-                <Text className="text-center text-sm text-muted-foreground">
-                  No disponible por ahora
-                </Text>
-              ) : null}
+              {!isWide ? reserveButton : null}
             </View>
           </View>
         </ScrollView>
