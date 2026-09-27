@@ -27,7 +27,9 @@ export default function SellerReservationsScreen() {
   const router = useRouter()
   const colors = useThemeColors()
   const { contentWidth } = useBreakpoints()
-  const showTable = contentWidth >= 760
+  // La tabla fija 688px de columnas más la celda del auto: por debajo de
+  // 880 el auto queda aplastado y las tarjetas leen mejor.
+  const showTable = contentWidth >= 880
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useSellerReservations()
   const [notice, setNotice] = useTransientNotice()

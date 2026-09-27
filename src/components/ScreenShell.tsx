@@ -34,7 +34,9 @@ export function ScreenShell({
         style={{
           maxWidth: SCREEN_WIDTH[width],
           paddingTop: (topInset ? insets.top : 0) + vertical,
-          paddingBottom: vertical,
+          // Las pantallas empujadas (topInset en false) no tienen tab bar que
+          // consuma el indicador de inicio, así que el inset va acá.
+          paddingBottom: vertical + (topInset ? 0 : insets.bottom),
         }}
       >
         {hasHeader && (
