@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
 import { AppButton, FormError } from '@/components/ui-kit'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 5
@@ -29,6 +30,7 @@ export function CropImageModal({
   onCropped: (croppedUri: string) => void
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
+  const reduceMotion = useReduceMotion()
   const insets = useSafeAreaInsets()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -137,7 +139,7 @@ export function CropImageModal({
   return (
     <Modal
       visible
-      animationType="slide"
+      animationType={reduceMotion ? 'none' : 'slide'}
       onRequestClose={onCancel}
       presentationStyle="fullScreen"
     >

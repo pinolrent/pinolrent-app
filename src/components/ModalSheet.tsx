@@ -19,6 +19,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { AppPressable } from '@/components/ui-kit'
 import { DIALOG_WIDTH } from '@/constants/layout'
@@ -43,6 +44,7 @@ export function ModalSheet({
   busy?: boolean
 }) {
   const { isDesktop } = useBreakpoints()
+  const reduceMotion = useReduceMotion()
   const colors = useThemeColors()
   const insets = useSafeAreaInsets()
   const { height } = useWindowDimensions()
@@ -103,7 +105,9 @@ export function ModalSheet({
     <Modal
       visible={visible}
       transparent
-      animationType={isDesktop ? 'fade' : 'slide'}
+      animationType={
+        reduceMotion ? 'none' : isDesktop ? 'fade' : 'slide'
+      }
       onRequestClose={requestClose}
     >
       <View
