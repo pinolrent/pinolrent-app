@@ -1,27 +1,35 @@
+import { useState } from 'react'
 import { Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
+import { ChevronRight } from 'lucide-react-native'
 import { useAuth } from '@/hooks/useAuth'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, ListGroup, ListRow } from '@/components/ui-kit'
+import { AppButton, AppPressable, ListGroup, ListRow } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SessionActions } from '@/components/SessionActions'
+import { BecomeSellerSheet } from '@/components/BecomeSellerSheet'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useThemeColors } from '@/hooks/useThemeColors'
 
-export function ProfileScreen() {
+export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
   const router = useRouter()
+  const colors = useThemeColors()
   const { isWide } = useBreakpoints()
   const { user } = useAuth()
+  const [becomeOpen, setBecomeOpen] = useState(false)
+
+  const isSeller = Boolean(user?.roles?.includes('seller'))
+  const isBuyer = Boolean(user?.roles?.includes('buyer'))
   const roleLabel =
-    user?.roles?.includes('seller') && user?.roles?.includes('buyer')
+    isSeller && isBuyer
       ? 'Vendedor y comprador'
-      : user?.roles?.includes('seller')
+      : isSeller
         ? 'Vendedor'
         : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
-  const editHref =
-    user?.roles?.includes('seller')
-      ? '/(authenticated)/seller/profile/edit'
-      : '/(authenticated)/(buyer)/profile/edit'
+  const editHref = isSeller
+    ? '/(authenticated)/seller/profile/edit'
+    : '/(authenticated)/(buyer)/profile/edit'
 
   const identity = (
     <View className="items-center gap-3 py-4">
@@ -36,6 +44,42 @@ export function ProfileScreen() {
       </Text>
       <StatusBadge tone="muted">{roleLabel}</StatusBadge>
     </View>
+  )
+
+  const modeLabel = isSeller
+    ? area === 'seller'
+      ? 'Ir a comprar'
+      : 'Ir a vender'
+    : 'Ofertar mi auto'
+
+  const modeRow = (
+    <AppPressable
+      accessibilityRole="button"
+      accessibilityLabel={modeLabel}
+      onPress={() => {
+        if (!isSeller) {
+          setBecomeOpen(true)
+          return
+        }
+        router.replace(
+          area === 'seller'
+            ? '/(authenticated)/(buyer)'
+            : '/(authenticated)/seller'
+        )
+      }}
+      hoverClassName="bg-accent"
+      className="min-h-14 flex-row items-center justify-between gap-3 px-4 py-3"
+    >
+      <View className="flex-1">
+        <Text className="text-base text-foreground">{modeLabel}</Text>
+        {!isSeller ? (
+          <Text className="text-sm text-muted-foreground">
+            Habilitá tus autos con un teléfono de contacto
+          </Text>
+        ) : null}
+      </View>
+      <ChevronRight size={20} color={colors.mutedText} />
+    </AppPressable>
   )
 
   const groups = (
@@ -67,11 +111,18 @@ export function ProfileScreen() {
         </ListRow>
       </ListGroup>
 
+      <ListGroup title="Modo">{modeRow}</ListGroup>
+
       <ListGroup title="Sesión">
         <View className="p-4">
           <SessionActions />
         </View>
       </ListGroup>
+
+      <BecomeSellerSheet
+        visible={becomeOpen}
+        onClose={() => setBecomeOpen(false)}
+      />
     </View>
   )
 
