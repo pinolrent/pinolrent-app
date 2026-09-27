@@ -180,9 +180,11 @@ export default function CatalogScreen() {
       </AppCard>
       {isLoading ? (
         <ListGroup fill>
-          {[0, 1, 2].map((i) => (
-            <SkeletonRow key={i} />
-          ))}
+          <View accessible accessibilityRole="progressbar" accessibilityLabel="Cargando el catálogo">
+            {[0, 1, 2].map((i) => (
+              <SkeletonRow key={i} />
+            ))}
+          </View>
         </ListGroup>
       ) : isError ? (
         <ErrorState

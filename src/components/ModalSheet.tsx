@@ -115,6 +115,7 @@ export function ModalSheet({
           accessible={false}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
+          focusable={false}
           onPress={requestClose}
           className="absolute inset-0"
         />

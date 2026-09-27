@@ -139,7 +139,11 @@ export default function SellerReservationsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} variant="cardRow" />
+        <SkeletonList
+          count={4}
+          variant="cardRow"
+          label="Cargando tus reservas"
+        />
       ) : isError ? (
         <ErrorState
           message={errorMessage}

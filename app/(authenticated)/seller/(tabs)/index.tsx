@@ -74,7 +74,7 @@ export default function SellerHomeScreen() {
   return (
     <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
       {carsLoading || resLoading ? (
-        <SkeletonList count={4} variant="row" />
+        <SkeletonList count={4} variant="row" label="Cargando tu resumen" />
       ) : loadError ? (
         <ErrorState
           message={loadError}
