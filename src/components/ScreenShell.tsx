@@ -29,6 +29,7 @@ export function ScreenShell({
   return (
     <View className="flex-1 items-center bg-background">
       <View
+        role="main"
         className={`w-full flex-1 ${isPhone ? 'gap-4 px-4' : 'gap-6 px-6'}`}
         style={{
           maxWidth: SCREEN_WIDTH[width],
@@ -48,7 +49,10 @@ export function ScreenShell({
                 </Text>
               ) : null}
               {subtitle ? (
-                <Text className="text-sm text-muted-foreground">
+                <Text
+                  accessibilityLiveRegion="polite"
+                  className="text-sm text-muted-foreground"
+                >
                   {subtitle}
                 </Text>
               ) : null}

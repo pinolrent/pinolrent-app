@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import 'uniwind';
 @layer base {
+  body {
+    overscroll-behavior: contain;
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
