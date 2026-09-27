@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Linking, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
 import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ReserveCarModal } from '@/components/ReserveCarModal'
 import {
@@ -72,7 +73,7 @@ export default function CarDetailScreen() {
 
   return (
     <Animated.View
-      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      entering={enterFade(reduceMotion)}
       className="flex-1"
     >
       <Stack.Screen options={{ title: car.name }} />
