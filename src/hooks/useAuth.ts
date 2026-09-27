@@ -3,7 +3,9 @@ import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import { queryKeys } from '@/constants/query-keys'
-import type { ChangePasswordRequest } from '@/types/auth'
+import type {
+  ChangePasswordRequest,
+} from '@/types/auth'
 
 interface LoginInput {
   email: string
@@ -98,6 +100,15 @@ export function useUpdateProfile() {
     onSuccess: (user) => {
       useAuthStore.getState().setUser(user)
       queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
+    },
+  })
+}
+
+export function useBecomeSeller() {
+  return useMutation({
+    mutationFn: (phone: string) => authService.becomeSeller({ phone }),
+    onSuccess: (user) => {
+      useAuthStore.getState().setUser(user)
     },
   })
 }

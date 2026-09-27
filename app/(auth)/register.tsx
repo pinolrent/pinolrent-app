@@ -112,7 +112,9 @@ export default function RegisterScreen() {
         autoCapitalize="none"
         secureTextEntry={!showPassword}
         returnKeyType="next"
-        onSubmitEditing={() => phoneRef.current?.focus()}
+        onSubmitEditing={() =>
+          role === 'seller' ? phoneRef.current?.focus() : onRegister()
+        }
         value={password}
         onChangeText={(v) => {
           setPassword(v)
@@ -145,24 +147,26 @@ export default function RegisterScreen() {
         className="my-1"
       />
 
-      <AppInput
-        ref={phoneRef}
-        label={role === 'seller' ? 'Teléfono' : 'Numero de Whatsapp'}
-        placeholder="Ej: +505 11111111"
-        autoComplete="tel"
-        textContentType="telephoneNumber"
-        keyboardType="phone-pad"
-        autoCapitalize="none"
-        autoCorrect={false}
-        returnKeyType="done"
-        onSubmitEditing={onRegister}
-        value={phone}
-        onChangeText={(v) => {
-          setPhone(v)
-          if (register.isError) register.reset()
-        }}
-        error={clientErrors.phone}
-      />
+      {role === 'seller' ? (
+        <AppInput
+          ref={phoneRef}
+          label="Teléfono"
+          placeholder="Ej: +505 11111111"
+          autoComplete="tel"
+          textContentType="telephoneNumber"
+          keyboardType="phone-pad"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="done"
+          onSubmitEditing={onRegister}
+          value={phone}
+          onChangeText={(v) => {
+            setPhone(v)
+            if (register.isError) register.reset()
+          }}
+          error={clientErrors.phone}
+        />
+      ) : null}
 
       <FormError message={error} className="text-center" />
 
