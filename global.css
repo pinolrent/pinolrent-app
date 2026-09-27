@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import 'uniwind';
 @layer base {
+  [role='button'],
+  [role='radio'],
+  [role='link'],
+  [role='tab'],
+  a,
+  button {
+    touch-action: manipulation;
+  }
+
   [role='button']:focus-visible,
   [role='radio']:focus-visible,
   [role='link']:focus-visible,

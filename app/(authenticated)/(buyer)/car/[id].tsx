@@ -44,7 +44,7 @@ export default function CarDetailScreen() {
     return (
       <ScreenShell topInset={false}>
         <Stack.Screen options={{ title: 'Auto' }} />
-        <SkeletonList count={1} />
+        <SkeletonList count={1} label="Cargando el auto" />
       </ScreenShell>
     )
   }

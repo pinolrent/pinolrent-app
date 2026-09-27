@@ -40,7 +40,7 @@ export default function SellerReservationDetailScreen() {
   if (isLoading) {
     return (
       <ScreenShell topInset={false}>
-        <SkeletonList count={1} variant="cardRow" />
+        <SkeletonList count={1} variant="cardRow" label="Cargando la reserva" />
       </ScreenShell>
     )
   }

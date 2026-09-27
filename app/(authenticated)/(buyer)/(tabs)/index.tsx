@@ -51,7 +51,7 @@ export default function BuyerHomeScreen() {
     <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
       <View className="gap-6">
         {isLoading ? (
-          <SkeletonList count={1} />
+          <SkeletonList count={1} label="Cargando tus reservas" />
         ) : loadError ? (
           <ErrorState
             message={loadError}
@@ -112,7 +112,10 @@ export default function BuyerHomeScreen() {
             retrying={carsQuery.isRefetching}
           />
         ) : carsQuery.isLoading ? (
-          <SkeletonList count={PREVIEW_CARS} />
+          <SkeletonList
+            count={PREVIEW_CARS}
+            label="Cargando los autos disponibles"
+          />
         ) : available.length > 0 ? (
           <View className="gap-2">
             <Text

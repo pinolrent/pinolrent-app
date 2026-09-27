@@ -85,14 +85,17 @@ export function SkeletonCardRow() {
 export function SkeletonList({
   count = 4,
   variant = 'card',
+  label = 'Cargando',
 }: {
   count?: number
   variant?: 'card' | 'row' | 'cardRow'
+  label?: string
 }) {
   return (
     <View
       accessible
-      accessibilityLabel="Cargando"
+      accessibilityRole="progressbar"
+      accessibilityLabel={label}
       accessibilityLiveRegion="polite"
       className="gap-3 p-4"
     >

@@ -88,7 +88,7 @@ export default function SellerCarsScreen() {
       }
     >
       {isLoading ? (
-        <SkeletonList count={4} />
+        <SkeletonList count={4} label="Cargando tus autos" />
       ) : isError ? (
         <ErrorState
           message={errorMessage}
