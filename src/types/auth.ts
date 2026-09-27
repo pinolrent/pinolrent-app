@@ -1,7 +1,9 @@
+export type Role = 'buyer' | 'seller'
+
 export interface User {
   id: number
   email: string
-  role: 'buyer' | 'seller'
+  roles: Role[]
   phone?: string
 }
 
@@ -15,11 +17,15 @@ export interface LoginResponse {
   refresh_token: string
 }
 
+// Una sola cuenta por email: con teléfono nace vendedora.
 export interface RegisterRequest {
   email: string
   password: string
   phone?: string
-  role?: 'buyer' | 'seller'
+}
+
+export interface BecomeSellerRequest {
+  phone: string
 }
 
 export interface RefreshRequest {

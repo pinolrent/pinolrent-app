@@ -22,7 +22,7 @@ export default function SellerLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
-      <Stack.Protected guard={!!token && user?.role === 'seller'}>
+      <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('seller'))}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="reservations/[id]"

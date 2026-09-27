@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
@@ -9,13 +9,15 @@ import { formatDateRange, formatDays } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { NUMERIC } from '@/constants/typography'
 import {
   CancelReservationBlock,
   PayReservationBlock,
@@ -27,7 +29,7 @@ export default function ReservationDetailScreen() {
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
-  const { isWide } = useBreakpoints()
+  const { isWide, container, main, side } = useDetailSplit()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
@@ -70,7 +72,7 @@ export default function ReservationDetailScreen() {
 
   return (
     <Animated.View
-      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      entering={enterFade(reduceMotion)}
       className="flex-1"
     >
       <ScreenShell topInset={false}>
@@ -87,8 +89,8 @@ export default function ReservationDetailScreen() {
             />
           }
         >
-          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
-            <View className="flex-1">
+          <View className={container}>
+            <View className={main}>
               <AppCard gap="lg">
                 <CarRow
                   car={data.car}
@@ -123,13 +125,14 @@ export default function ReservationDetailScreen() {
                 </View>
               </AppCard>
             </View>
-            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+            <View className={side}>
               <AppCard gap="sm">
-                <Text className="text-sm text-muted-foreground">
-                  {formatPricePerDay(data.car.price_per_day)} ×{' '}
+                <Text style={NUMERIC} className="text-sm text-muted-foreground">
+                  {formatPricePerDay(data.car.price_per_day)}
+                  {' × '}
                   {formatDays(days)}
                 </Text>
-                <Text className="text-2xl font-bold text-foreground">
+                <Text style={NUMERIC} className="text-2xl font-bold text-foreground">
                   {formatPrice(total)}
                 </Text>
               </AppCard>

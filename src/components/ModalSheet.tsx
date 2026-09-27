@@ -18,7 +18,9 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
+import { MOTION } from '@/constants/motion'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { AppPressable } from '@/components/ui-kit'
 import { DIALOG_WIDTH } from '@/constants/layout'
@@ -43,6 +45,7 @@ export function ModalSheet({
   busy?: boolean
 }) {
   const { isDesktop } = useBreakpoints()
+  const reduceMotion = useReduceMotion()
   const colors = useThemeColors()
   const insets = useSafeAreaInsets()
   const { height } = useWindowDimensions()
@@ -66,7 +69,7 @@ export function ModalSheet({
         event.translationY > DISMISS_DISTANCE ||
         event.velocityY > DISMISS_VELOCITY
       ) {
-        translateY.value = withTiming(height, { duration: 180 }, () => {
+        translateY.value = withTiming(height, { duration: MOTION.exit }, () => {
           runOnJS(requestClose)()
         })
       } else {
@@ -103,7 +106,9 @@ export function ModalSheet({
     <Modal
       visible={visible}
       transparent
-      animationType={isDesktop ? 'fade' : 'slide'}
+      animationType={
+        reduceMotion ? 'none' : isDesktop ? 'fade' : 'slide'
+      }
       onRequestClose={requestClose}
     >
       <View

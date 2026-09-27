@@ -91,6 +91,7 @@ export default function RegisterScreen() {
         textContentType="emailAddress"
         autoCapitalize="none"
         autoCorrect={false}
+        spellCheck={false}
         keyboardType="email-address"
         returnKeyType="next"
         onSubmitEditing={() => passwordRef.current?.focus()}

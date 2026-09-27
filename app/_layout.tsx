@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Platform } from 'react-native'
 import { Slot } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -31,6 +32,19 @@ export default function RootLayout() {
       useAuthStore.setState({ isLoaded: true })
     })
     loadTheme()
+  }, [])
+
+  useEffect(() => {
+    // El build web sirve su shell por defecto en inglés; el idioma del
+    // documento decide comillas, guionado y pronunciación. El shell propio
+    // (+html) solo se usa en el modo de exportación estático.
+    if (Platform.OS !== 'web') return
+    const doc = (
+      globalThis as {
+        document?: { documentElement?: { lang?: string } }
+      }
+    ).document
+    if (doc?.documentElement) doc.documentElement.lang = 'es'
   }, [])
 
   if (!themeLoaded) return null

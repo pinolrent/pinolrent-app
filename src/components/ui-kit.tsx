@@ -1,8 +1,12 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native'
+import Animated from 'react-native-reanimated'
+import { enterFade } from '@/constants/motion'
+import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { SECTION_LABEL } from '@/constants/typography'
 
 type Variant =
   | 'default'
@@ -14,7 +18,7 @@ type Variant =
 
 export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
 
-const PRESSED_STYLE = { opacity: 0.7, transform: [{ scale: 0.99 }] }
+const PRESSED_STYLE = { opacity: 0.7, transform: [{ scale: 0.98 }] }
 
 export function AppButton({
   children,
@@ -156,6 +160,7 @@ export function ListGroup({
       {title ? (
         <Text
           accessibilityRole="header"
+          style={SECTION_LABEL}
           className="px-1 text-xs font-semibold uppercase text-muted-foreground"
         >
           {title}
@@ -201,30 +206,36 @@ export function FormError({
   nativeID?: string
   className?: string
 }) {
+  const reduceMotion = useReduceMotion()
   if (!message) return null
   return (
-    <Text
+    <Animated.Text
+      entering={enterFade(reduceMotion)}
       nativeID={nativeID}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
       className={`text-sm text-destructive ${className}`}
     >
       {message}
-    </Text>
+    </Animated.Text>
   )
 }
 
 export function SuccessNote({ message }: { message: string | null }) {
+  const reduceMotion = useReduceMotion()
   if (!message) return null
   return (
-    <View className="rounded-lg bg-tint-success px-3 py-2">
+    <Animated.View
+      entering={enterFade(reduceMotion)}
+      className="rounded-lg bg-tint-success px-3 py-2"
+    >
       <Text
         accessibilityLiveRegion="polite"
         className="text-sm font-medium text-success"
       >
         {message}
       </Text>
-    </View>
+    </Animated.View>
   )
 }
 

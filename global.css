@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import 'uniwind';
 @layer base {
+  body {
+    overscroll-behavior: contain;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   [role='button'],
   [role='radio'],
   [role='link'],
@@ -26,72 +35,72 @@
 @layer theme {
   :root {
     @variant light {
-      --color-primary: #1D4ED8;
+      --color-primary: #004D91;
       --color-primary-foreground: #FFFFFF;
-      --color-blue-50: #EFF6FF;
-      --color-blue-100: #DBEAFE;
-      --color-blue-200: #BFDBFE;
-      --color-blue-300: #93C5FD;
-      --color-blue-400: #60A5FA;
-      --color-blue-500: #3B82F6;
-      --color-blue-600: #1D4ED8;
-      --color-blue-700: #1D40AF;
-      --color-blue-800: #1E40AF;
-      --color-blue-900: #1E3A8A;
+      --color-blue-50: #F3F7FC;
+      --color-blue-100: #E2ECF9;
+      --color-blue-200: #C5DAF2;
+      --color-blue-300: #A2C1E4;
+      --color-blue-400: #6F9CCF;
+      --color-blue-500: #427CBA;
+      --color-blue-600: #1F62A4;
+      --color-blue-700: #004D91;
+      --color-blue-800: #003D77;
+      --color-blue-900: #002E59;
       --color-card: #FFFFFF;
-      --color-secondary: #EFF6FF;
-      --color-secondary-foreground: #1E3A8A;
+      --color-secondary: #E2ECF9;
+      --color-secondary-foreground: #003D77;
       --color-background: #FFFFFF;
       --color-popover: #FFFFFF;
-      --color-popover-foreground: #0F172A;
-      --color-muted: #F1F5F9;
-      --color-muted-foreground: #5F6C80;
+      --color-popover-foreground: #13191F;
+      --color-muted: #F1F4F7;
+      --color-muted-foreground: #616A74;
       --color-destructive: #C81E1E;
       --color-success: #15803D;
       --color-warning: #B45309;
-      --color-foreground: #0F172A;
-      --color-border: #E2E8F0;
-      --color-input: #E2E8F0;
-      --color-ring: #1D4ED8;
-      --color-accent: #EFF6FF;
-      --color-accent-foreground: #1E3A8A;
-      --color-overlay: #0F172A;
+      --color-foreground: #13191F;
+      --color-border: #DCE2E9;
+      --color-input: #DCE2E9;
+      --color-ring: #004D91;
+      --color-accent: #F3F7FC;
+      --color-accent-foreground: #003D77;
+      --color-overlay: #141B24;
       --color-tint-warning: #FEF3C7;
       --color-tint-success: #DCFCE7;
       --color-tint-destructive: #FEE2E2;
     }
 
     @variant dark {
-      --color-primary: #60A5FA;
-      --color-primary-foreground: #0B1220;
-      --color-blue-50: #0B1220;
-      --color-blue-100: #172554;
-      --color-blue-200: #1E3A8A;
-      --color-blue-300: #1D4ED8;
-      --color-blue-400: #3B82F6;
-      --color-blue-500: #60A5FA;
-      --color-blue-600: #93C5FD;
-      --color-blue-700: #BFDBFE;
-      --color-blue-800: #DBEAFE;
-      --color-blue-900: #EFF6FF;
-      --color-card: #111C33;
-      --color-secondary: #16213A;
-      --color-secondary-foreground: #E2E8F0;
-      --color-background: #0B1220;
-      --color-popover: #111C33;
-      --color-popover-foreground: #E2E8F0;
-      --color-muted: #16213A;
-      --color-muted-foreground: #94A3B8;
+      --color-primary: #6F9CCF;
+      --color-primary-foreground: #0A121B;
+      --color-blue-50: #002E59;
+      --color-blue-100: #003D77;
+      --color-blue-200: #004D91;
+      --color-blue-300: #1F62A4;
+      --color-blue-400: #427CBA;
+      --color-blue-500: #6F9CCF;
+      --color-blue-600: #A2C1E4;
+      --color-blue-700: #C5DAF2;
+      --color-blue-800: #E2ECF9;
+      --color-blue-900: #F3F7FC;
+      --color-card: #151F2A;
+      --color-secondary: #1F2A36;
+      --color-secondary-foreground: #E4E8ED;
+      --color-background: #0A121B;
+      --color-popover: #151F2A;
+      --color-popover-foreground: #E4E8ED;
+      --color-muted: #1F2A36;
+      --color-muted-foreground: #9CA6B1;
       --color-destructive: #F87171;
       --color-success: #4ADE80;
       --color-warning: #FBBF24;
-      --color-foreground: #E2E8F0;
-      --color-border: #243352;
-      --color-input: #243352;
-      --color-accent: #16213A;
-      --color-accent-foreground: #E2E8F0;
-      --color-ring: #60A5FA;
-      --color-overlay: #020617;
+      --color-foreground: #E4E8ED;
+      --color-border: #2B394A;
+      --color-input: #2B394A;
+      --color-ring: #6F9CCF;
+      --color-accent: #1F2A36;
+      --color-accent-foreground: #E4E8ED;
+      --color-overlay: #03060C;
       --color-tint-warning: #422006;
       --color-tint-success: #052E16;
       --color-tint-destructive: #450A0A;

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Linking, ScrollView, Text, View } from 'react-native'
 import { SkeletonList } from '@/components/Skeleton'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
 import { formatPricePerDay } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ReserveCarModal } from '@/components/ReserveCarModal'
 import {
@@ -17,13 +18,14 @@ import {
   ErrorState,
   FormError,
 } from '@/components/ui-kit'
-import { useBreakpoints } from '@/hooks/useBreakpoints'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
+import { NUMERIC } from '@/constants/typography'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [showReserve, setShowReserve] = useState(false)
   const reduceMotion = useReduceMotion()
-  const { isWide } = useBreakpoints()
+  const { isWide, container, main, side } = useDetailSplit()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const {
@@ -63,9 +65,15 @@ export default function CarDetailScreen() {
     )
   }
 
+  const reserveButton = (
+    <AppButton onPress={() => setShowReserve(true)} disabled={!car.active}>
+      Reservar este auto
+    </AppButton>
+  )
+
   return (
     <Animated.View
-      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      entering={enterFade(reduceMotion)}
       className="flex-1"
     >
       <Stack.Screen options={{ title: car.name }} />
@@ -74,14 +82,25 @@ export default function CarDetailScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <Text className="text-base font-semibold text-foreground">
-            {formatPricePerDay(car.price_per_day)}
-          </Text>
-          <View className={isWide ? 'flex-row items-start gap-6' : 'gap-4'}>
-            <View className="flex-1">
+          <View className={container}>
+            <View className={main}>
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
-            <View className={isWide ? 'w-80 gap-3' : 'gap-3'}>
+            <View className={side}>
+              <AppCard gap="sm">
+                <Text
+                  style={NUMERIC}
+                  className="text-2xl font-bold text-foreground"
+                >
+                  {formatPricePerDay(car.price_per_day)}
+                </Text>
+                {!car.active ? (
+                  <Text className="text-sm text-muted-foreground">
+                    No disponible por ahora
+                  </Text>
+                ) : null}
+                {isWide ? reserveButton : null}
+              </AppCard>
               <AppCard>
                 <Text className="text-sm text-muted-foreground">Contacto</Text>
                 {contact.isError ? (
@@ -123,17 +142,7 @@ export default function CarDetailScreen() {
                   </Text>
                 )}
               </AppCard>
-              <AppButton
-                onPress={() => setShowReserve(true)}
-                disabled={!car.active}
-              >
-                Reservar este auto
-              </AppButton>
-              {!car.active ? (
-                <Text className="text-center text-sm text-muted-foreground">
-                  No disponible por ahora
-                </Text>
-              ) : null}
+              {!isWide ? reserveButton : null}
             </View>
           </View>
         </ScrollView>

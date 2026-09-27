@@ -29,11 +29,14 @@ export function ScreenShell({
   return (
     <View className="flex-1 items-center bg-background">
       <View
+        role="main"
         className={`w-full flex-1 ${isPhone ? 'gap-4 px-4' : 'gap-6 px-6'}`}
         style={{
           maxWidth: SCREEN_WIDTH[width],
           paddingTop: (topInset ? insets.top : 0) + vertical,
-          paddingBottom: vertical,
+          // Las pantallas empujadas (topInset en false) no tienen tab bar que
+          // consuma el indicador de inicio, así que el inset va acá.
+          paddingBottom: vertical + (topInset ? 0 : insets.bottom),
         }}
       >
         {hasHeader && (
@@ -48,7 +51,10 @@ export function ScreenShell({
                 </Text>
               ) : null}
               {subtitle ? (
-                <Text className="text-sm text-muted-foreground">
+                <Text
+                  accessibilityLiveRegion="polite"
+                  className="text-sm text-muted-foreground"
+                >
                   {subtitle}
                 </Text>
               ) : null}

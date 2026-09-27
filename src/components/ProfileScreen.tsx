@@ -11,10 +11,15 @@ export function ProfileScreen() {
   const router = useRouter()
   const { isWide } = useBreakpoints()
   const { user } = useAuth()
-  const roleLabel = user?.role === 'seller' ? 'Vendedor' : 'Comprador'
+  const roleLabel =
+    user?.roles?.includes('seller') && user?.roles?.includes('buyer')
+      ? 'Vendedor y comprador'
+      : user?.roles?.includes('seller')
+        ? 'Vendedor'
+        : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
   const editHref =
-    user?.role === 'seller'
+    user?.roles?.includes('seller')
       ? '/(authenticated)/seller/profile/edit'
       : '/(authenticated)/(buyer)/profile/edit'
 
@@ -26,7 +31,7 @@ export function ProfileScreen() {
       >
         <Text className="text-3xl font-bold text-primary">{initial}</Text>
       </View>
-      <Text numberOfLines={1} className="text-lg font-semibold text-foreground">
+      <Text className="text-center text-lg font-semibold text-foreground">
         {user?.email}
       </Text>
       <StatusBadge tone="muted">{roleLabel}</StatusBadge>

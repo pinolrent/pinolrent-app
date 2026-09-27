@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -32,6 +32,23 @@ export default function CatalogScreen() {
   const [startFilterError, setStartFilterError] = useState<string | null>(null)
   const [endFilterError, setEndFilterError] = useState<string | null>(null)
   const [filters, setFilters] = useState<CarsListParams>({})
+
+  // La búsqueda del inicio llega con fechas: se aplican al abrir.
+  const params = useLocalSearchParams<{
+    start_date?: string
+    end_date?: string
+  }>()
+  useEffect(() => {
+    if (!params.start_date || !params.end_date) return
+    setStartDate(params.start_date)
+    setEndDate(params.end_date)
+    setStartFilterError(null)
+    setEndFilterError(null)
+    setFilters({
+      start_date: params.start_date,
+      end_date: params.end_date,
+    })
+  }, [params.start_date, params.end_date])
   const {
     data,
     isLoading,

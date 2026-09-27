@@ -15,8 +15,11 @@ async function main() {
   const buyerMe = await me(buyer.token)
   check('login buyer devuelve token', !!buyer.token)
   check(
-    'me(token explícito) devuelve rol buyer',
-    buyerMe.status === 200 && buyerMe.body.role === 'buyer',
+    'me(token explícito) devuelve el rol buyer',
+    buyerMe.status === 200 &&
+      Array.isArray(buyerMe.body.roles) &&
+      buyerMe.body.roles.includes('buyer') &&
+      !buyerMe.body.roles.includes('seller'),
     buyerMe.body
   )
 
@@ -24,8 +27,10 @@ async function main() {
   const sellerMe = await me(seller.token)
   check('login seller devuelve token', !!seller.token)
   check(
-    'me(token explícito) devuelve rol seller',
-    sellerMe.status === 200 && sellerMe.body.role === 'seller',
+    'me(token explícito) devuelve el rol seller',
+    sellerMe.status === 200 &&
+      Array.isArray(sellerMe.body.roles) &&
+      sellerMe.body.roles.includes('seller'),
     sellerMe.body
   )
 
@@ -35,25 +40,38 @@ async function main() {
   })
   check('register buyer responde 201', regBuyer.status === 201, regBuyer.status)
 
-  const regSell = await api('/auth/register/seller', {
+  // Una sola cuenta por email: el teléfono es lo que habilita vender.
+  const regSell = await api('/auth/register', {
     method: 'POST',
     body: JSON.stringify({ email: SELLER_EMAIL, password: 'secret123', phone: '+56912345678' }),
   })
+  check('register con telefono responde 201', regSell.status === 201, regSell.status)
+
+  const sellerLogin = await api('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: SELLER_EMAIL, password: 'secret123' }),
+  })
+  const sellerPair = (await sellerLogin.json()) as { token: string }
+  const sellerProfile = await me(sellerPair.token)
   check(
-    'register/seller responde 201',
-    regSell.status === 201,
-    regSell.status
+    'una cuenta registrada con telefono nace vendedora',
+    sellerProfile.body.roles?.includes('seller') === true,
+    sellerProfile.body
   )
 
-  const regSellNoPhone = await api('/auth/register/seller', {
-    method: 'POST',
-    body: JSON.stringify({ email: `nophone_${stamp}@example.com`, password: 'secret123' }),
-  })
-  check(
-    'register/seller sin telefono -> 400',
-    regSellNoPhone.status === 400,
-    regSellNoPhone.status
+  const becomeNoPhone = await api(
+    '/auth/become-seller',
+    { method: 'POST', body: JSON.stringify({}) },
+    sellerPair.token
   )
+  check('become-seller sin telefono -> 400', becomeNoPhone.status === 400, becomeNoPhone.status)
+
+  const becomeAgain = await api(
+    '/auth/become-seller',
+    { method: 'POST', body: JSON.stringify({ phone: '+56912345678' }) },
+    sellerPair.token
+  )
+  check('become-seller es idempotente -> 200', becomeAgain.status === 200, becomeAgain.status)
 
   const patchPhone = await api('/auth/me', {
     method: 'PATCH',
