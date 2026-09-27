@@ -18,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
+import { MOTION } from '@/constants/motion'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { useThemeColors } from '@/hooks/useThemeColors'
@@ -68,7 +69,7 @@ export function ModalSheet({
         event.translationY > DISMISS_DISTANCE ||
         event.velocityY > DISMISS_VELOCITY
       ) {
-        translateY.value = withTiming(height, { duration: 180 }, () => {
+        translateY.value = withTiming(height, { duration: MOTION.exit }, () => {
           runOnJS(requestClose)()
         })
       } else {

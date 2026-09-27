@@ -1,5 +1,6 @@
-import Animated, { FadeInDown } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { View } from 'react-native'
+import { enterCard } from '@/constants/motion'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 
 export function StaggerCard({
@@ -19,7 +20,7 @@ export function StaggerCard({
 
   return (
     <Animated.View
-      entering={FadeInDown.duration(250).delay(Math.min(index, 10) * 30)}
+      entering={enterCard(reduce, index)}
       className={`flex-1 ${className}`}
     >
       {children}

@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
@@ -9,6 +9,7 @@ import { formatDateRange, formatDays } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
@@ -71,7 +72,7 @@ export default function SellerReservationDetailScreen() {
 
   return (
     <Animated.View
-      entering={reduceMotion ? undefined : FadeIn.duration(200)}
+      entering={enterFade(reduceMotion)}
       className="flex-1"
     >
       <ScreenShell topInset={false}>

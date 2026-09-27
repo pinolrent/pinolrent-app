@@ -6,6 +6,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
+import { MOTION } from '@/constants/motion'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 
 function usePulse() {
@@ -14,7 +15,11 @@ function usePulse() {
 
   useEffect(() => {
     if (!reduce) {
-      opacity.value = withRepeat(withTiming(1, { duration: 800 }), -1, true)
+      opacity.value = withRepeat(
+        withTiming(1, { duration: MOTION.pulse }),
+        -1,
+        true
+      )
     }
   }, [reduce, opacity])
 
