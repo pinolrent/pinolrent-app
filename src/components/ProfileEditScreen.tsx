@@ -40,13 +40,13 @@ export function ProfileEditScreen() {
 
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
   const passwordHref =
-    user?.role === 'seller'
+    user?.roles?.includes('seller')
       ? '/(authenticated)/seller/profile/password'
       : '/(authenticated)/(buyer)/profile/password'
 
   const onSave = () => {
     const trimmed = phone.trim()
-    const error = validatePhone(trimmed, user?.role === 'seller')
+    const error = validatePhone(trimmed, Boolean(user?.roles?.includes('seller')))
     setPhoneError(error)
     if (error) {
       phoneRef.current?.focus()
@@ -84,7 +84,7 @@ export function ProfileEditScreen() {
               <Text className="text-3xl font-bold text-primary">{initial}</Text>
             </View>
             <Text className="text-sm text-muted-foreground">
-              {user?.role === 'seller' ? 'Vendedor' : 'Comprador'}
+              {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
             </Text>
           </View>
 
@@ -103,7 +103,7 @@ export function ProfileEditScreen() {
                 Tipo de cuenta
               </Text>
               <Text className="text-base text-foreground">
-                {user?.role === 'seller' ? 'Vendedor' : 'Comprador'}
+                {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
               </Text>
             </ListRow>
           </ListGroup>
@@ -113,7 +113,7 @@ export function ProfileEditScreen() {
               <AppInput
                 ref={phoneRef}
                 label={
-                  user?.role === 'seller'
+                  user?.roles?.includes('seller')
                     ? 'Teléfono (WhatsApp)'
                     : 'Teléfono (opcional)'
                 }

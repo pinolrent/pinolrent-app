@@ -16,11 +16,11 @@ export default function Index() {
       return
     }
     router.replace(
-      user?.role === 'seller'
+      user?.roles?.includes('seller')
         ? '/(authenticated)/seller'
         : '/(authenticated)/(buyer)'
     )
-  }, [isLoaded, token, user?.role])
+  }, [isLoaded, token, user?.roles])
 
   return <LoadingState />
 }

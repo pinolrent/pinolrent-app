@@ -54,7 +54,10 @@ export async function registerOrLogin(
   seller: boolean,
   phone?: string
 ): Promise<{ token: string }> {
-  await api(seller ? '/auth/register/seller' : '/auth/register', {
+  // Una sola cuenta por email: el teléfono es lo que habilita vender, así que
+  // un vendedor se registra con teléfono.
+  void seller
+  await api('/auth/register', {
     method: 'POST',
     body: JSON.stringify(
       phone ? { email, password, phone } : { email, password }

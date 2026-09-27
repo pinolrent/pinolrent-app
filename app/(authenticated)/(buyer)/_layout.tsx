@@ -22,7 +22,7 @@ export default function BuyerLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
-      <Stack.Protected guard={!!token && user?.role === 'buyer'}>
+      <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('buyer'))}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="car/[id]"

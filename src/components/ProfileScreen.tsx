@@ -11,10 +11,15 @@ export function ProfileScreen() {
   const router = useRouter()
   const { isWide } = useBreakpoints()
   const { user } = useAuth()
-  const roleLabel = user?.role === 'seller' ? 'Vendedor' : 'Comprador'
+  const roleLabel =
+    user?.roles?.includes('seller') && user?.roles?.includes('buyer')
+      ? 'Vendedor y comprador'
+      : user?.roles?.includes('seller')
+        ? 'Vendedor'
+        : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
   const editHref =
-    user?.role === 'seller'
+    user?.roles?.includes('seller')
       ? '/(authenticated)/seller/profile/edit'
       : '/(authenticated)/(buyer)/profile/edit'
 

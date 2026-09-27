@@ -15,7 +15,7 @@ export default function AuthLayout() {
     return (
       <Redirect
         href={
-          user?.role === 'seller'
+          user?.roles?.includes('seller')
             ? '/(authenticated)/seller'
             : '/(authenticated)/(buyer)'
         }

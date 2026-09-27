@@ -37,7 +37,7 @@ export function useAuth() {
     onSuccess: async ({ token, refreshToken, user }) => {
       await setAuth(token, refreshToken, user)
       router.replace(
-        user.role === 'seller'
+        user.roles.includes('seller')
           ? '/(authenticated)/seller'
           : '/(authenticated)/(buyer)'
       )
@@ -45,13 +45,9 @@ export function useAuth() {
   })
 
   const register = useMutation({
-    mutationFn: async ({ email, password, phone, role }: RegisterInput) => {
+    mutationFn: async ({ email, password, phone }: RegisterInput) => {
       const payload = phone ? { email, password, phone } : { email, password }
-      if (role === 'seller') {
-        await authService.registerSeller(payload)
-      } else {
-        await authService.register(payload)
-      }
+      await authService.register(payload)
       const { token, refresh_token } = await authService.login({
         email,
         password,
@@ -62,7 +58,7 @@ export function useAuth() {
     onSuccess: async ({ token, refreshToken, user }) => {
       await setAuth(token, refreshToken, user)
       router.replace(
-        user.role === 'seller'
+        user.roles.includes('seller')
           ? '/(authenticated)/seller'
           : '/(authenticated)/(buyer)'
       )

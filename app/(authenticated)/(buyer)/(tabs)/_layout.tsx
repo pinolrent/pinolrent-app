@@ -42,7 +42,7 @@ export default function BuyerTabsLayout() {
               : tabBarColors(theme)),
           }}
         >
-          <Tabs.Protected guard={!!token && user?.role === 'buyer'}>
+          <Tabs.Protected guard={!!token && Boolean(user?.roles?.includes('buyer'))}>
             <Tabs.Screen
               name="index"
               options={{

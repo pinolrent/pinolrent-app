@@ -38,10 +38,10 @@ export default function AuthenticatedLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!token && user?.role === 'buyer'}>
+      <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('buyer'))}>
         <Stack.Screen name="(buyer)" />
       </Stack.Protected>
-      <Stack.Protected guard={!!token && user?.role === 'seller'}>
+      <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('seller'))}>
         <Stack.Screen name="seller" />
       </Stack.Protected>
     </Stack>
