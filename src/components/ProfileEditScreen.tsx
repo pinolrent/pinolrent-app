@@ -19,7 +19,6 @@ import {
   AppPressable,
   FormError,
   ListGroup,
-  ListRow,
   SuccessNote,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
@@ -88,30 +87,7 @@ export function ProfileEditScreen() {
             >
               <Text className="text-3xl font-bold text-primary">{initial}</Text>
             </View>
-            <Text className="text-sm text-muted-foreground">
-              {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
-            </Text>
           </View>
-
-          <ListGroup title="Cuenta">
-            <ListRow>
-              <Text className="text-sm text-muted-foreground">Email</Text>
-              <Text
-                numberOfLines={1}
-                className="flex-1 text-right text-base text-foreground"
-              >
-                {user?.email}
-              </Text>
-            </ListRow>
-            <ListRow last>
-              <Text className="text-sm text-muted-foreground">
-                Tipo de cuenta
-              </Text>
-              <Text className="text-base text-foreground">
-                {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
-              </Text>
-            </ListRow>
-          </ListGroup>
 
           <ListGroup title="Contacto">
             <View className="gap-3 p-4">

@@ -14,7 +14,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
   const router = useRouter()
   const colors = useThemeColors()
-  const { isWide } = useBreakpoints()
+  const { isWide, isDesktop } = useBreakpoints()
   const { user } = useAuth()
   const become = useBecomeSeller()
   const [becomeOpen, setBecomeOpen] = useState(false)
@@ -105,22 +105,6 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
 
   const groups = (
     <View className="gap-4">
-      <ListGroup title="Cuenta">
-        <ListRow>
-          <Text className="text-sm text-muted-foreground">Email</Text>
-          <Text
-            numberOfLines={1}
-            className="flex-1 text-right text-base text-foreground"
-          >
-            {user?.email}
-          </Text>
-        </ListRow>
-        <ListRow last>
-          <Text className="text-sm text-muted-foreground">Tipo de cuenta</Text>
-          <Text className="text-base text-foreground">{roleLabel}</Text>
-        </ListRow>
-      </ListGroup>
-
       <ListGroup title="Contacto">
         <ListRow last>
           <Text className="text-sm text-muted-foreground">
@@ -137,11 +121,13 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
         <FormError message={becomeError} className="px-4 pb-3" />
       </ListGroup>
 
-      <ListGroup title="Sesión">
-        <View className="p-4">
-          <SessionActions />
-        </View>
-      </ListGroup>
+      {isDesktop ? null : (
+        <ListGroup title="Sesión">
+          <View className="p-4">
+            <SessionActions />
+          </View>
+        </ListGroup>
+      )}
 
       <BecomeSellerSheet
         visible={becomeOpen}
