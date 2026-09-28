@@ -21,9 +21,12 @@ export function ScreenShell({
   scroll?: boolean
   children: ReactNode
 }) {
-  const { isPhone } = useBreakpoints()
+  const { isPhone, isDesktop } = useBreakpoints()
   const insets = useSafeAreaInsets()
-  const hasHeader = Boolean(title || action)
+  // En escritorio el sidebar ya marca la sección: el título del cuerpo
+  // sobra y quedan el subtítulo y la acción como barra de la pantalla.
+  const showTitle = Boolean(title) && !isDesktop
+  const hasHeader = Boolean(showTitle || subtitle || action)
   const vertical = isPhone ? 16 : 24
 
   return (
@@ -42,7 +45,7 @@ export function ScreenShell({
         {hasHeader && (
           <View className="flex-row items-start justify-between gap-3">
             <View className="flex-1 gap-1">
-              {title ? (
+              {showTitle ? (
                 <Text
                   accessibilityRole="header"
                   className="text-2xl font-bold text-foreground"
