@@ -11,10 +11,12 @@ export function BecomeSellerSheet({
   visible,
   onClose,
   initialPhone = '',
+  onEnabled,
 }: {
   visible: boolean
   onClose: () => void
   initialPhone?: string
+  onEnabled?: () => void
 }) {
   const become = useBecomeSeller()
   const inputRef = useRef<TextInput>(null)
@@ -44,7 +46,12 @@ export function BecomeSellerSheet({
       inputRef.current?.focus()
       return
     }
-    become.mutate(trimmed, { onSuccess: close })
+    become.mutate(trimmed, {
+      onSuccess: () => {
+        onEnabled?.()
+        close()
+      },
+    })
   }
 
   return (

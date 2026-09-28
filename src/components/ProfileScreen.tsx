@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator, Switch, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import { ChevronRight } from 'lucide-react-native'
 import { useAuth, useBecomeSeller } from '@/hooks/useAuth'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppPressable, ListGroup, ListRow } from '@/components/ui-kit'
+import { AppButton, FormError, ListGroup, ListRow } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { getApiErrorMessage } from '@/utils/errors'
 import { SessionActions } from '@/components/SessionActions'
 import { BecomeSellerSheet } from '@/components/BecomeSellerSheet'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -47,53 +47,60 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
     </View>
   )
 
-  const modeLabel = isSeller
-    ? area === 'seller'
-      ? 'Ir a comprar'
-      : 'Ir a vender'
-    : 'Ofertar mi auto'
+  const enableSelling = () => {
+    if (user?.phone) {
+      become.mutate(user.phone, {
+        onSuccess: () => router.replace('/(authenticated)/seller'),
+      })
+      return
+    }
+    setBecomeOpen(true)
+  }
+
+  const toggleMode = (next: boolean) => {
+    if (!isSeller) {
+      if (next) enableSelling()
+      return
+    }
+    router.replace(
+      next ? '/(authenticated)/seller' : '/(authenticated)/(buyer)'
+    )
+  }
+
+  const becomeError = become.isError
+    ? getApiErrorMessage(become.error, 'No pudimos habilitar tus autos')
+    : null
 
   const modeRow = (
-    <AppPressable
-      accessibilityRole="button"
-      accessibilityLabel={modeLabel}
-      disabled={become.isPending}
-      onPress={() => {
-        if (!isSeller) {
-          // Con teléfono ya registrado no hay nada que preguntar.
-          if (user?.phone) {
-            become.mutate(user.phone)
-            return
-          }
-          setBecomeOpen(true)
-          return
-        }
-        router.replace(
-          area === 'seller'
-            ? '/(authenticated)/(buyer)'
-            : '/(authenticated)/seller'
-        )
-      }}
-      hoverClassName="bg-accent"
-      className="min-h-14 flex-row items-center justify-between gap-3 px-4 py-3"
-    >
+    <View className="min-h-14 flex-row items-center justify-between gap-3 px-4 py-3">
       <View className="flex-1">
-        <Text className="text-base text-foreground">{modeLabel}</Text>
-        {!isSeller ? (
-          <Text className="text-sm text-muted-foreground">
-            Habilitá tus autos con un teléfono de contacto
-          </Text>
-        ) : null}
+        <Text className="text-base text-foreground">Vender mis autos</Text>
+        <Text className="text-sm text-muted-foreground">
+          {!isSeller
+            ? 'Habilitá tus autos con un teléfono de contacto'
+            : area === 'seller'
+              ? 'Ahora estás vendiendo'
+              : 'Ahora estás comprando'}
+        </Text>
       </View>
-      {become.isPending ? (
-        <ActivityIndicator
-          accessibilityLabel="Habilitando tus autos"
-          color={colors.mutedText}
+      <View className="flex-row items-center gap-2">
+        {become.isPending ? (
+          <ActivityIndicator
+            accessibilityLabel="Habilitando tus autos"
+            color={colors.mutedText}
+          />
+        ) : null}
+        <Switch
+          accessibilityLabel="Vender mis autos"
+          value={isSeller && area === 'seller'}
+          disabled={become.isPending}
+          onValueChange={toggleMode}
+          ios_backgroundColor={colors.border}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.card}
         />
-      ) : (
-        <ChevronRight size={20} color={colors.mutedText} />
-      )}
-    </AppPressable>
+      </View>
+    </View>
   )
 
   const groups = (
@@ -125,7 +132,10 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
         </ListRow>
       </ListGroup>
 
-      <ListGroup title="Modo">{modeRow}</ListGroup>
+      <ListGroup title="Modo">
+        {modeRow}
+        <FormError message={becomeError} className="px-4 pb-3" />
+      </ListGroup>
 
       <ListGroup title="Sesión">
         <View className="p-4">
@@ -137,6 +147,7 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
         visible={becomeOpen}
         onClose={() => setBecomeOpen(false)}
         initialPhone={user?.phone ?? ''}
+        onEnabled={() => router.replace('/(authenticated)/seller')}
       />
     </View>
   )
