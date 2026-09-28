@@ -33,12 +33,6 @@ export function validatePhone(value: string, required: boolean): string | null {
 const HTTP_URL_RE = /^https?:\/\/.+/i
 const UPLOAD_PATH_RE = /^\/uploads\/[^/\\]+\.(jpg|jpeg|png|webp)$/i
 
-export function isHttpUrl(value: string): boolean {
-  const trimmed = value.trim()
-  if (!trimmed || trimmed.length > 2048) return false
-  return HTTP_URL_RE.test(trimmed)
-}
-
 export function isImageUrl(value: string): boolean {
   const trimmed = value.trim()
   if (!trimmed || trimmed.length > 2048) return false

@@ -37,6 +37,8 @@
     @variant light {
       --color-primary: #004D91;
       --color-primary-foreground: #FFFFFF;
+      /* La rampa de marca se conserva sin consumidores: documenta la
+         escala construida en OKLCH y anclada al azul del arte. */
       --color-blue-50: #F3F7FC;
       --color-blue-100: #E2ECF9;
       --color-blue-200: #C5DAF2;
@@ -51,8 +53,6 @@
       --color-secondary: #E2ECF9;
       --color-secondary-foreground: #003D77;
       --color-background: #FFFFFF;
-      --color-popover: #FFFFFF;
-      --color-popover-foreground: #13191F;
       --color-muted: #F1F4F7;
       --color-muted-foreground: #616A74;
       --color-destructive: #C81E1E;
@@ -87,8 +87,6 @@
       --color-secondary: #1F2A36;
       --color-secondary-foreground: #E4E8ED;
       --color-background: #0A121B;
-      --color-popover: #151F2A;
-      --color-popover-foreground: #E4E8ED;
       --color-muted: #1F2A36;
       --color-muted-foreground: #9CA6B1;
       --color-destructive: #F87171;

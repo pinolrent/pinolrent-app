@@ -51,12 +51,10 @@ export async function api(
 export async function registerOrLogin(
   email: string,
   password: string,
-  seller: boolean,
   phone?: string
 ): Promise<{ token: string }> {
   // Una sola cuenta por email: el teléfono es lo que habilita vender, así que
   // un vendedor se registra con teléfono.
-  void seller
   await api('/auth/register', {
     method: 'POST',
     body: JSON.stringify(

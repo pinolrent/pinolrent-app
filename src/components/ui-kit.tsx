@@ -112,7 +112,6 @@ export function AppCard({
   children,
   padding = 'md',
   gap = 'md',
-  hovered = false,
   className = '',
   onPress,
   accessibilityLabel,
@@ -120,14 +119,11 @@ export function AppCard({
   children: ReactNode
   padding?: keyof typeof CARD_PADDING
   gap?: keyof typeof CARD_GAP
-  hovered?: boolean
   className?: string
   onPress?: () => void
   accessibilityLabel?: string
 }) {
-  const classes = `rounded-xl border ${
-    hovered ? 'border-primary/40' : 'border-border'
-      } bg-card shadow-xs ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
+  const classes = `rounded-xl border border-border bg-card shadow-xs ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
 
   if (!onPress) {
     return <View className={classes}>{children}</View>
