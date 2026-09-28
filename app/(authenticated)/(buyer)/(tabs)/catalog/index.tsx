@@ -128,8 +128,8 @@ export default function CatalogScreen() {
     >
       <AppCard>
         <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
-          <View className={isPhone ? 'flex-row gap-3' : 'w-44'}>
-            <View className="flex-1">
+          <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
+            <View className={isPhone ? undefined : 'w-44'}>
               <DateField
                 label="Desde"
                 value={startDate}
@@ -138,20 +138,7 @@ export default function CatalogScreen() {
                 minimumDate={today}
               />
             </View>
-            {isPhone && (
-              <View className="flex-1">
-                <DateField
-                  label="Hasta"
-                  value={endDate}
-                  onChange={changeEnd}
-                  error={endFilterError}
-                  minimumDate={today}
-                />
-              </View>
-            )}
-          </View>
-          {!isPhone && (
-            <View className="w-44">
+            <View className={isPhone ? undefined : 'w-44'}>
               <DateField
                 label="Hasta"
                 value={endDate}
@@ -160,7 +147,7 @@ export default function CatalogScreen() {
                 minimumDate={today}
               />
             </View>
-          )}
+          </View>
           <View className="flex-row gap-2">
             <AppButton
               className={isPhone ? 'flex-1' : undefined}
@@ -220,13 +207,6 @@ export default function CatalogScreen() {
                   filtered
                     ? 'Ningún auto libre en esas fechas'
                     : 'Todavía no hay autos publicados'
-                }
-                action={
-                  filtered ? (
-                    <AppButton variant="outline" onPress={clearFilters}>
-                      Limpiar filtros
-                    </AppButton>
-                  ) : null
                 }
               />
             }

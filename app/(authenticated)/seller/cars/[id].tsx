@@ -97,7 +97,6 @@ export default function SellerCarDetailScreen() {
       <Stack.Screen options={{ title: car.name }} />
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 16 }}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -114,9 +113,6 @@ export default function SellerCarDetailScreen() {
           </View>
           <View className={side}>
             <AppCard gap="sm">
-              <Text className="text-lg font-bold text-foreground">
-                {car.name}
-              </Text>
               <Text style={NUMERIC} className="text-sm text-foreground">
                 {formatPricePerDay(car.price_per_day)}
               </Text>

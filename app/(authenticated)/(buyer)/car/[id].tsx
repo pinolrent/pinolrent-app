@@ -80,7 +80,6 @@ export default function CarDetailScreen() {
       <ScreenShell topInset={false}>
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 16 }}
         >
           <View className={container}>
             <View className={main}>
