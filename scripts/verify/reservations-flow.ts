@@ -9,8 +9,8 @@ import {
 
 async function main() {
   const stamp = Date.now()
-  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true, '+56912345678')
-  const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123', false)
+  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', '+56912345678')
+  const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123')
   check('login buyer y seller entregan token', !!buyer.token && !!seller.token)
 
   const car = await createCar(seller.token, `reserva_${stamp}`)

@@ -12,13 +12,11 @@ async function main() {
   const seller = await registerOrLogin(
     `vende_pay_${stamp}@example.com`,
     'secret123',
-    true,
     '+56912345678'
   )
   const buyer = await registerOrLogin(
     `compra_pay_${stamp}@example.com`,
     'secret123',
-    false
   )
   check('login buyer y seller entregan token', !!buyer.token && !!seller.token)
 
@@ -287,7 +285,6 @@ async function main() {
   const otherSeller = await registerOrLogin(
     `vende2_${stamp}@example.com`,
     'secret123',
-    true,
     '+56912345678'
   )
   const lonelyCar = await createCar(otherSeller.token, `ajeno_${stamp}`)

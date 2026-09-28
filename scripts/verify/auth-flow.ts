@@ -11,7 +11,7 @@ const SELLER_EMAIL = `flow_${STAMP}seller@example.com`
 
 async function main() {
   const stamp = Date.now()
-  const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123', false)
+  const buyer = await registerOrLogin(`compra_${stamp}@example.com`, 'secret123')
   const buyerMe = await me(buyer.token)
   check('login buyer devuelve token', !!buyer.token)
   check(
@@ -23,7 +23,7 @@ async function main() {
     buyerMe.body
   )
 
-  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', true, '+56912345678')
+  const seller = await registerOrLogin(`vende_${stamp}@example.com`, 'secret123', '+56912345678')
   const sellerMe = await me(seller.token)
   check('login seller devuelve token', !!seller.token)
   check(

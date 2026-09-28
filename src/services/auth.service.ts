@@ -22,9 +22,6 @@ export const authService = {
   register: (data: RegisterRequest) =>
     api.post<RegisterResponse>('/auth/register', data).then((r) => r.data),
 
-  registerSeller: (data: RegisterRequest) =>
-    api.post<RegisterResponse>('/auth/register/seller', data).then((r) => r.data),
-
   logout: () =>
     api.post<{ status: string }>('/auth/logout').then((r) => r.data),
 

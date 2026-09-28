@@ -12,7 +12,6 @@ async function main() {
   const seller = await registerOrLogin(
     `vende_mg_${stamp}@example.com`,
     'secret123',
-    true,
     '+56912345678'
   )
   check('login seller entrega token', !!seller.token)
@@ -104,7 +103,6 @@ async function main() {
   const buyer = await registerOrLogin(
     `compra_mg_${stamp}@example.com`,
     'secret123',
-    false
   )
   const reservation = await api(
     '/reservations',

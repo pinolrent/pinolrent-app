@@ -20,4 +20,3 @@ export const THEME_COLORS = {
 } as const
 
 export type ThemeName = keyof typeof THEME_COLORS
-export type ThemePalette = (typeof THEME_COLORS)[ThemeName]

@@ -2,7 +2,6 @@ import axios from 'axios'
 import { describe, expect, it } from 'vitest'
 import {
   getApiErrorMessage,
-  isHttpUrl,
   isImageUrl,
   isInvalidCredentialsError,
   resolveImageUrl,
@@ -145,12 +144,6 @@ describe('validators', () => {
     expect(validatePassword('x'.repeat(73))).toBe(
       'La contraseña debe tener entre 8 y 72 caracteres'
     )
-  })
-
-  it('validates http urls', () => {
-    expect(isHttpUrl('https://x.com/a.jpg')).toBe(true)
-    expect(isHttpUrl('nota-url')).toBe(false)
-    expect(isHttpUrl('')).toBe(false)
   })
 
   it('accepts backend upload paths as images', () => {
