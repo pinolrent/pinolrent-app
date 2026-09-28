@@ -10,8 +10,8 @@ import { formatPrice } from '@/utils/currency'
 import {
   formatDateRange,
   formatDays,
-  isValidISODate,
   toISO,
+  validateDateRangeInput,
 } from '@/utils/dates'
 import { reservationTotal } from '@/utils/reservations'
 import {
@@ -51,30 +51,15 @@ export default function BuyerHomeScreen() {
   const onSearch = () => {
     const from = start.trim()
     const to = end.trim()
-    setStartError(null)
-    setEndError(null)
+    const { startError: nextStart, endError: nextEnd } = validateDateRangeInput(
+      from,
+      to
+    )
+    setStartError(nextStart)
+    setEndError(nextEnd)
+    if (nextStart || nextEnd) return
     if (!from && !to) {
       router.push('/(authenticated)/(buyer)/catalog')
-      return
-    }
-    if (from && !isValidISODate(from)) {
-      setStartError('Selecciona una fecha válida')
-      return
-    }
-    if (to && !isValidISODate(to)) {
-      setEndError('Selecciona una fecha válida')
-      return
-    }
-    if (from && !to) {
-      setEndError('Elige también la fecha de fin')
-      return
-    }
-    if (!from && to) {
-      setStartError('Elige también la fecha de inicio')
-      return
-    }
-    if (to < from) {
-      setEndError('La fecha de fin tiene que ser posterior a la de inicio')
       return
     }
     router.push({

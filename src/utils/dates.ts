@@ -32,3 +32,39 @@ export function daysBetween(start: string, end: string): number {
   const e = new Date(`${end}T00:00:00Z`).getTime()
   return Math.round((e - s) / 86400000)
 }
+
+export interface DateRangeInputErrors {
+  startError: string | null
+  endError: string | null
+}
+
+// Las mismas reglas para la búsqueda del inicio y los filtros del catálogo,
+// así no pueden divergir.
+export function validateDateRangeInput(
+  start: string,
+  end: string
+): DateRangeInputErrors {
+  const from = start.trim()
+  const to = end.trim()
+  const valid: DateRangeInputErrors = { startError: null, endError: null }
+  if (!from && !to) return valid
+  if (from && !isValidISODate(from)) {
+    return { startError: 'Selecciona una fecha válida', endError: null }
+  }
+  if (to && !isValidISODate(to)) {
+    return { startError: null, endError: 'Selecciona una fecha válida' }
+  }
+  if (from && !to) {
+    return { startError: null, endError: 'Elige también la fecha de fin' }
+  }
+  if (!from && to) {
+    return { startError: 'Elige también la fecha de inicio', endError: null }
+  }
+  if (to < from) {
+    return {
+      startError: null,
+      endError: 'La fecha de fin tiene que ser posterior a la de inicio',
+    }
+  }
+  return valid
+}
