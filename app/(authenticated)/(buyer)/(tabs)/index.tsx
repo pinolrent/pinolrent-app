@@ -104,8 +104,8 @@ export default function BuyerHomeScreen() {
             </Text>
           </View>
           <View className={isWide ? 'flex-row items-end gap-3' : 'gap-3'}>
-            <View className="flex-1 flex-row gap-3">
-              <View className="flex-1">
+            <View className={isWide ? 'flex-1 flex-row gap-3' : 'gap-3'}>
+              <View className={isWide ? 'flex-1' : undefined}>
                 <DateField
                   label="Desde"
                   value={start}
@@ -117,7 +117,7 @@ export default function BuyerHomeScreen() {
                   minimumDate={today}
                 />
               </View>
-              <View className="flex-1">
+              <View className={isWide ? 'flex-1' : undefined}>
                 <DateField
                   label="Hasta"
                   value={end}
@@ -130,12 +130,7 @@ export default function BuyerHomeScreen() {
                 />
               </View>
             </View>
-            <AppButton
-              className={isWide ? undefined : 'flex-1'}
-              onPress={onSearch}
-            >
-              Buscar autos
-            </AppButton>
+            <AppButton onPress={onSearch}>Buscar autos</AppButton>
           </View>
         </AppCard>
 
