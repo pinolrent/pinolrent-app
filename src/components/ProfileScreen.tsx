@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Text, View } from 'react-native'
+import { ActivityIndicator, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useBecomeSeller } from '@/hooks/useAuth'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AppButton, AppPressable, ListGroup, ListRow } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
@@ -16,6 +16,7 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
   const colors = useThemeColors()
   const { isWide } = useBreakpoints()
   const { user } = useAuth()
+  const become = useBecomeSeller()
   const [becomeOpen, setBecomeOpen] = useState(false)
 
   const isSeller = Boolean(user?.roles?.includes('seller'))
@@ -56,8 +57,14 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
     <AppPressable
       accessibilityRole="button"
       accessibilityLabel={modeLabel}
+      disabled={become.isPending}
       onPress={() => {
         if (!isSeller) {
+          // Con teléfono ya registrado no hay nada que preguntar.
+          if (user?.phone) {
+            become.mutate(user.phone)
+            return
+          }
           setBecomeOpen(true)
           return
         }
@@ -78,7 +85,14 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
           </Text>
         ) : null}
       </View>
-      <ChevronRight size={20} color={colors.mutedText} />
+      {become.isPending ? (
+        <ActivityIndicator
+          accessibilityLabel="Habilitando tus autos"
+          color={colors.mutedText}
+        />
+      ) : (
+        <ChevronRight size={20} color={colors.mutedText} />
+      )}
     </AppPressable>
   )
 
@@ -122,6 +136,7 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
       <BecomeSellerSheet
         visible={becomeOpen}
         onClose={() => setBecomeOpen(false)}
+        initialPhone={user?.phone ?? ''}
       />
     </View>
   )
