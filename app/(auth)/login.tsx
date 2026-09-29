@@ -17,6 +17,7 @@ import {
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { AuthShell } from '@/components/AuthShell'
+import { PasswordHelpSheet } from '@/components/PasswordHelpSheet'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function LoginScreen() {
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [clientErrors, setClientErrors] = useState<{
     email?: string | null
     password?: string | null
@@ -126,9 +128,23 @@ export default function LoginScreen() {
       <AppButton onPress={onLogin} loading={login.isPending}>
         Iniciar sesión
       </AppButton>
-      <Link href="/(auth)/register" className="mt-1 self-center px-3 py-3.5">
+      <AppPressable
+        accessibilityRole="button"
+        accessibilityLabel="¿Olvidaste tu contraseña?"
+        onPress={() => setHelpOpen(true)}
+        className="self-center px-3 py-3.5"
+      >
+        <Text className="text-base text-primary">
+          ¿Olvidaste tu contraseña?
+        </Text>
+      </AppPressable>
+      <Link href="/(auth)/register" className="self-center px-3 pb-3.5">
         <Text className="text-base text-primary">Crear cuenta</Text>
       </Link>
+      <PasswordHelpSheet
+        visible={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </AuthShell>
   )
 }
