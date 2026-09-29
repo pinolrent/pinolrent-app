@@ -9,7 +9,6 @@ import { getApiErrorMessage } from '@/utils/errors'
 import { reservationTotal } from '@/utils/reservations'
 import { AppCard, ErrorState } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
-import { RoleSwitch } from '@/components/RoleSwitch'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { NUMERIC, SECTION_LABEL } from '@/constants/typography'
 import { useThemeColors } from '@/hooks/useThemeColors'
@@ -77,7 +76,6 @@ export default function SellerHomeScreen() {
 
   return (
     <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
-      <RoleSwitch area="seller" />
       {carsLoading || resLoading ? (
         <SkeletonList count={4} variant="row" label="Cargando tu resumen" />
       ) : loadError ? (
