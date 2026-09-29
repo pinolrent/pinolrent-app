@@ -25,6 +25,7 @@ import { StatusBadge } from '@/components/fields'
 import { CarCard } from '@/components/rows'
 import { DateField } from '@/components/DateField'
 import { ScreenShell } from '@/components/ScreenShell'
+import { RoleSwitch } from '@/components/RoleSwitch'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
@@ -94,6 +95,7 @@ export default function BuyerHomeScreen() {
   return (
     <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
       <View className="gap-6">
+        <RoleSwitch area="buyer" />
         <AppCard gap="md">
           <View className="gap-1">
             <Text className="text-lg font-bold text-foreground">
