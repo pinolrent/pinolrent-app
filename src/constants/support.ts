@@ -1,3 +1,4 @@
-// Número de soporte en formato internacional (ej. +50588881234). Vacío: la
-// hoja de recuperación explica el camino manual y no ofrece el botón.
-export const SUPPORT_WHATSAPP = ''
+// Support number in international format. This value is a placeholder and must
+// be replaced before real users: the recovery sheet builds the WhatsApp link
+// from it.
+export const SUPPORT_WHATSAPP = '+505 11111111'
