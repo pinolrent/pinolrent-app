@@ -13,12 +13,12 @@ import { ChevronRight } from 'lucide-react-native'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { BackLink } from '@/components/header-back'
 import {
   AppButton,
   AppPressable,
   FormError,
   ListGroup,
-  ListRow,
   SuccessNote,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
@@ -39,10 +39,13 @@ export function ProfileEditScreen() {
     : null
 
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
-  const passwordHref =
-    user?.roles?.includes('seller')
-      ? '/(authenticated)/seller/profile/password'
-      : '/(authenticated)/(buyer)/profile/password'
+  const isSeller = Boolean(user?.roles?.includes('seller'))
+  const profileHref = isSeller
+    ? '/(authenticated)/seller/profile'
+    : '/(authenticated)/(buyer)/profile'
+  const passwordHref = isSeller
+    ? '/(authenticated)/seller/profile/password'
+    : '/(authenticated)/(buyer)/profile/password'
 
   const onSave = () => {
     const trimmed = phone.trim()
@@ -66,7 +69,7 @@ export function ProfileEditScreen() {
   }
 
   return (
-    <ScreenShell width="form" topInset={false}>
+    <ScreenShell width="form">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -74,8 +77,9 @@ export function ProfileEditScreen() {
         <ScrollView
           className="flex-1"
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ gap: 16, paddingBottom: 16 }}
+          contentContainerStyle={{ gap: 16 }}
         >
+          <BackLink fallbackHref={profileHref} />
           <View className="items-center gap-3 py-4">
             <View
               accessibilityLabel={`Cuenta de ${user?.email ?? ''}`}
@@ -83,30 +87,7 @@ export function ProfileEditScreen() {
             >
               <Text className="text-3xl font-bold text-primary">{initial}</Text>
             </View>
-            <Text className="text-sm text-muted-foreground">
-              {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
-            </Text>
           </View>
-
-          <ListGroup title="Cuenta">
-            <ListRow>
-              <Text className="text-sm text-muted-foreground">Email</Text>
-              <Text
-                numberOfLines={1}
-                className="flex-1 text-right text-base text-foreground"
-              >
-                {user?.email}
-              </Text>
-            </ListRow>
-            <ListRow last>
-              <Text className="text-sm text-muted-foreground">
-                Tipo de cuenta
-              </Text>
-              <Text className="text-base text-foreground">
-                {user?.roles?.includes('seller') ? 'Vendedor' : 'Comprador'}
-              </Text>
-            </ListRow>
-          </ListGroup>
 
           <ListGroup title="Contacto">
             <View className="gap-3 p-4">

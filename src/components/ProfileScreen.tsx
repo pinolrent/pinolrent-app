@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Text, View } from 'react-native'
+import { ActivityIndicator, Switch, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import { ChevronRight } from 'lucide-react-native'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useBecomeSeller } from '@/hooks/useAuth'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, AppPressable, ListGroup, ListRow } from '@/components/ui-kit'
+import { AppButton, FormError, ListGroup, ListRow } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { getApiErrorMessage } from '@/utils/errors'
 import { SessionActions } from '@/components/SessionActions'
 import { BecomeSellerSheet } from '@/components/BecomeSellerSheet'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -14,8 +14,9 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
   const router = useRouter()
   const colors = useThemeColors()
-  const { isWide } = useBreakpoints()
+  const { isWide, isDesktop } = useBreakpoints()
   const { user } = useAuth()
+  const become = useBecomeSeller()
   const [becomeOpen, setBecomeOpen] = useState(false)
 
   const isSeller = Boolean(user?.roles?.includes('seller'))
@@ -46,60 +47,64 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
     </View>
   )
 
-  const modeLabel = isSeller
-    ? area === 'seller'
-      ? 'Ir a comprar'
-      : 'Ir a vender'
-    : 'Ofertar mi auto'
+  const enableSelling = () => {
+    if (user?.phone) {
+      become.mutate(user.phone, {
+        onSuccess: () => router.replace('/(authenticated)/seller'),
+      })
+      return
+    }
+    setBecomeOpen(true)
+  }
+
+  const toggleMode = (next: boolean) => {
+    if (!isSeller) {
+      if (next) enableSelling()
+      return
+    }
+    router.replace(
+      next ? '/(authenticated)/seller' : '/(authenticated)/(buyer)'
+    )
+  }
+
+  const becomeError = become.isError
+    ? getApiErrorMessage(become.error, 'No pudimos habilitar tus autos')
+    : null
 
   const modeRow = (
-    <AppPressable
-      accessibilityRole="button"
-      accessibilityLabel={modeLabel}
-      onPress={() => {
-        if (!isSeller) {
-          setBecomeOpen(true)
-          return
-        }
-        router.replace(
-          area === 'seller'
-            ? '/(authenticated)/(buyer)'
-            : '/(authenticated)/seller'
-        )
-      }}
-      hoverClassName="bg-accent"
-      className="min-h-14 flex-row items-center justify-between gap-3 px-4 py-3"
-    >
+    <View className="min-h-14 flex-row items-center justify-between gap-3 px-4 py-3">
       <View className="flex-1">
-        <Text className="text-base text-foreground">{modeLabel}</Text>
-        {!isSeller ? (
-          <Text className="text-sm text-muted-foreground">
-            Habilitá tus autos con un teléfono de contacto
-          </Text>
-        ) : null}
+        <Text className="text-base text-foreground">Vender mis autos</Text>
+        <Text className="text-sm text-muted-foreground">
+          {!isSeller
+            ? 'Habilitá tus autos con un teléfono de contacto'
+            : area === 'seller'
+              ? 'Ahora estás vendiendo'
+              : 'Ahora estás comprando'}
+        </Text>
       </View>
-      <ChevronRight size={20} color={colors.mutedText} />
-    </AppPressable>
+      <View className="flex-row items-center gap-2">
+        {become.isPending ? (
+          <ActivityIndicator
+            accessibilityLabel="Habilitando tus autos"
+            color={colors.mutedText}
+          />
+        ) : null}
+        <Switch
+          accessibilityLabel="Vender mis autos"
+          value={isSeller && area === 'seller'}
+          disabled={become.isPending}
+          onValueChange={toggleMode}
+          ios_backgroundColor={colors.border}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.card}
+        />
+      </View>
+    </View>
   )
 
   const groups = (
     <View className="gap-4">
-      <ListGroup title="Cuenta">
-        <ListRow>
-          <Text className="text-sm text-muted-foreground">Email</Text>
-          <Text
-            numberOfLines={1}
-            className="flex-1 text-right text-base text-foreground"
-          >
-            {user?.email}
-          </Text>
-        </ListRow>
-        <ListRow last>
-          <Text className="text-sm text-muted-foreground">Tipo de cuenta</Text>
-          <Text className="text-base text-foreground">{roleLabel}</Text>
-        </ListRow>
-      </ListGroup>
-
       <ListGroup title="Contacto">
         <ListRow last>
           <Text className="text-sm text-muted-foreground">
@@ -111,17 +116,24 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
         </ListRow>
       </ListGroup>
 
-      <ListGroup title="Modo">{modeRow}</ListGroup>
-
-      <ListGroup title="Sesión">
-        <View className="p-4">
-          <SessionActions />
-        </View>
+      <ListGroup title="Modo">
+        {modeRow}
+        <FormError message={becomeError} className="px-4 pb-3" />
       </ListGroup>
+
+      {isDesktop ? null : (
+        <ListGroup title="Sesión">
+          <View className="p-4">
+            <SessionActions />
+          </View>
+        </ListGroup>
+      )}
 
       <BecomeSellerSheet
         visible={becomeOpen}
         onClose={() => setBecomeOpen(false)}
+        initialPhone={user?.phone ?? ''}
+        onEnabled={() => router.replace('/(authenticated)/seller')}
       />
     </View>
   )

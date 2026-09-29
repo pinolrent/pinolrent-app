@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Text } from 'react-native'
 import type { TextInput } from 'react-native'
 import { useBecomeSeller } from '@/hooks/useAuth'
@@ -10,14 +10,22 @@ import { AppInput } from '@/components/fields'
 export function BecomeSellerSheet({
   visible,
   onClose,
+  initialPhone = '',
+  onEnabled,
 }: {
   visible: boolean
   onClose: () => void
+  initialPhone?: string
+  onEnabled?: () => void
 }) {
   const become = useBecomeSeller()
   const inputRef = useRef<TextInput>(null)
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(initialPhone)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (visible) setPhone(initialPhone)
+  }, [visible, initialPhone])
 
   const serverError = become.isError
     ? getApiErrorMessage(become.error, 'No pudimos habilitar tus autos')
@@ -38,7 +46,12 @@ export function BecomeSellerSheet({
       inputRef.current?.focus()
       return
     }
-    become.mutate(trimmed, { onSuccess: close })
+    become.mutate(trimmed, {
+      onSuccess: () => {
+        onEnabled?.()
+        close()
+      },
+    })
   }
 
   return (

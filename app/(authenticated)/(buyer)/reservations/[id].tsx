@@ -78,7 +78,6 @@ export default function ReservationDetailScreen() {
       <ScreenShell topInset={false}>
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 16 }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}

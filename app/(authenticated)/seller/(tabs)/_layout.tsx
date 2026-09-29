@@ -3,21 +3,12 @@ import { Tabs } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useThemeStore } from '@/stores/theme.store'
 import { NAV_ICONS } from '@/components/nav-icons'
+import { TabIcon } from '@/components/TabIcon'
 import { tabBarColors } from '@/components/tab-bar'
 import { Sidebar } from '@/components/SideNav'
 import { LoadingState } from '@/components/ui-kit'
 import { sellerNav } from '@/constants/nav'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-
-function TabIcon({
-  Icon,
-  color,
-}: {
-  Icon: (typeof NAV_ICONS)[keyof typeof NAV_ICONS]
-  color: string
-}) {
-  return <Icon size={22} color={color} />
-}
 
 export default function SellerTabsLayout() {
   const token = useAuthStore((s) => s.token)

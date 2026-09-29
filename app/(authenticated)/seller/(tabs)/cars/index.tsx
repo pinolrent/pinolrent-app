@@ -118,14 +118,7 @@ export default function SellerCarsScreen() {
               />
             }
             ListEmptyComponent={
-              <EmptyState
-                message="Todavía no publicaste autos"
-                action={
-                  isWide ? (
-                    <AppButton onPress={openForm}>Publicar auto</AppButton>
-                  ) : undefined
-                }
-              />
+              <EmptyState message="Todavía no publicaste autos" />
             }
           />
           {!isWide && (

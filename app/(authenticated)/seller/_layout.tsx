@@ -42,15 +42,7 @@ export default function SellerLayout() {
             ...headerColors(theme),
           }}
         />
-        <Stack.Screen
-          name="profile/edit"
-          options={{
-            headerShown: true,
-            title: 'Editar perfil',
-            ...headerBackOptions(theme, '/(authenticated)/seller/profile'),
-            ...headerColors(theme),
-          }}
-        />
+        <Stack.Screen name="profile/edit" options={{ headerShown: false }} />
         <Stack.Screen
           name="profile/password"
           options={{

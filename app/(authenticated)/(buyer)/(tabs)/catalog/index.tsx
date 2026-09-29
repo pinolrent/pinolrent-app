@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
-import { formatDate, isValidISODate } from '@/utils/dates'
+import { formatDate, validateDateRangeInput } from '@/utils/dates'
 import { StaggerCard } from '@/components/StaggerCard'
 import { SkeletonRow } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -82,30 +82,13 @@ export default function CatalogScreen() {
   const applyFilters = () => {
     const start = startDate.trim()
     const end = endDate.trim()
-    setStartFilterError(null)
-    setEndFilterError(null)
-    if (start && !isValidISODate(start)) {
-      setStartFilterError('Selecciona una fecha válida')
-      return
-    }
-    if (end && !isValidISODate(end)) {
-      setEndFilterError('Selecciona una fecha válida')
-      return
-    }
-    if (start && !end) {
-      setEndFilterError('Elige también la fecha de fin')
-      return
-    }
-    if (!start && end) {
-      setStartFilterError('Elige también la fecha de inicio')
-      return
-    }
-    if (start && end && end < start) {
-      setEndFilterError(
-        'La fecha de fin tiene que ser posterior a la de inicio'
-      )
-      return
-    }
+    const { startError: nextStart, endError: nextEnd } = validateDateRangeInput(
+      start,
+      end
+    )
+    setStartFilterError(nextStart)
+    setEndFilterError(nextEnd)
+    if (nextStart || nextEnd) return
     setFilters(start && end ? { start_date: start, end_date: end } : {})
   }
 
@@ -145,8 +128,8 @@ export default function CatalogScreen() {
     >
       <AppCard>
         <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
-          <View className={isPhone ? 'flex-row gap-3' : 'w-44'}>
-            <View className="flex-1">
+          <View className={isPhone ? 'gap-3' : 'flex-row gap-3'}>
+            <View className={isPhone ? undefined : 'w-44'}>
               <DateField
                 label="Desde"
                 value={startDate}
@@ -155,20 +138,7 @@ export default function CatalogScreen() {
                 minimumDate={today}
               />
             </View>
-            {isPhone && (
-              <View className="flex-1">
-                <DateField
-                  label="Hasta"
-                  value={endDate}
-                  onChange={changeEnd}
-                  error={endFilterError}
-                  minimumDate={today}
-                />
-              </View>
-            )}
-          </View>
-          {!isPhone && (
-            <View className="w-44">
+            <View className={isPhone ? undefined : 'w-44'}>
               <DateField
                 label="Hasta"
                 value={endDate}
@@ -177,7 +147,7 @@ export default function CatalogScreen() {
                 minimumDate={today}
               />
             </View>
-          )}
+          </View>
           <View className="flex-row gap-2">
             <AppButton
               className={isPhone ? 'flex-1' : undefined}
@@ -237,13 +207,6 @@ export default function CatalogScreen() {
                   filtered
                     ? 'Ningún auto libre en esas fechas'
                     : 'Todavía no hay autos publicados'
-                }
-                action={
-                  filtered ? (
-                    <AppButton variant="outline" onPress={clearFilters}>
-                      Limpiar filtros
-                    </AppButton>
-                  ) : null
                 }
               />
             }

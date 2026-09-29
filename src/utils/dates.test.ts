@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, formatDate, formatDateRange, formatDays, toISO } from './dates'
+import { daysBetween, formatDate, formatDateRange, formatDays, toISO, validateDateRangeInput } from './dates'
 
 describe('formatDate', () => {
   it('formats YYYY-MM-DD as DD/MM/YYYY', () => {
@@ -38,5 +38,36 @@ describe('daysBetween', () => {
 
   it('same day is zero', () => {
     expect(daysBetween('2026-11-02', '2026-11-02')).toBe(0)
+  })
+})
+
+describe('validateDateRangeInput', () => {
+  it('deja pasar el par vacío y el par completo', () => {
+    expect(validateDateRangeInput('', '')).toEqual({ startError: null, endError: null })
+    expect(validateDateRangeInput('2026-10-01', '2026-10-05')).toEqual({
+      startError: null,
+      endError: null,
+    })
+  })
+
+  it('pide completar el par', () => {
+    expect(validateDateRangeInput('2026-10-01', '').endError).toBe(
+      'Elige también la fecha de fin'
+    )
+    expect(validateDateRangeInput('', '2026-10-05').startError).toBe(
+      'Elige también la fecha de inicio'
+    )
+  })
+
+  it('rechaza formatos y órdenes inválidos', () => {
+    expect(validateDateRangeInput('nope', '2026-10-05').startError).toBe(
+      'Selecciona una fecha válida'
+    )
+    expect(validateDateRangeInput('2026-10-01', 'nope').endError).toBe(
+      'Selecciona una fecha válida'
+    )
+    expect(validateDateRangeInput('2026-10-05', '2026-10-01').endError).toBe(
+      'La fecha de fin tiene que ser posterior a la de inicio'
+    )
   })
 })
