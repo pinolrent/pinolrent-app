@@ -75,6 +75,7 @@ export default function SellerReservationsScreen() {
             <ReservationRow
               reservation={item}
               columns
+              audience="seller"
               action={
                 <View className="items-end gap-2">
                   <Link href={detailHref(item.id)} asChild>
@@ -111,6 +112,7 @@ export default function SellerReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
+          audience="seller"
           onPress={() => router.push(detailHref(item.id))}
           action={
             confirmable ? (
@@ -168,7 +170,7 @@ export default function SellerReservationsScreen() {
             renderItem={renderItem}
             ListHeaderComponent={
               showTable && reservations.length > 0 ? (
-                <ReservationColumns />
+                <ReservationColumns audience="seller" />
               ) : null
             }
             refreshControl={

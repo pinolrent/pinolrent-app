@@ -5,7 +5,7 @@ import { resolveImageUrl } from '@/utils/errors'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
-import { reservationTotal } from '@/utils/reservations'
+import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
 import { NUMERIC } from '@/constants/typography'
@@ -14,7 +14,11 @@ import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
 } from '@/constants/payment-ui'
-import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
+import {
+  SELLER_NET_LABEL,
+  STATUS_LABELS,
+  STATUS_TONES,
+} from '@/constants/reservation-ui'
 import type { Car } from '@/types/car'
 import type { Reservation } from '@/types/reservation'
 
@@ -186,7 +190,11 @@ const COLUMN = {
   action: 'w-40 items-end',
 } as const
 
-export function ReservationColumns() {
+export function ReservationColumns({
+  audience,
+}: {
+  audience: 'buyer' | 'seller'
+}) {
   return (
     <View className="flex-row items-center gap-4 border-b border-border px-4 py-2">
       <Text
@@ -202,7 +210,7 @@ export function ReservationColumns() {
       <Text
         className={`${COLUMN.total} text-xs font-semibold text-muted-foreground`}
       >
-        Total
+        {audience === 'seller' ? SELLER_NET_LABEL : 'Total'}
       </Text>
       <Text
         className={`${COLUMN.status} text-xs font-semibold text-muted-foreground`}
@@ -221,27 +229,29 @@ function paymentLine(reservation: Reservation) {
   }`
 }
 
-function reservationTotals(reservation: Reservation) {
-  return reservationTotal(
-    reservation.start_date,
-    reservation.end_date,
-    reservation.car.price_per_day
-  )
-}
-
 export function ReservationRow({
   reservation,
   action,
   onPress,
   columns = false,
+  audience,
 }: {
   reservation: Reservation
   action?: ReactNode
   onPress?: () => void
   columns?: boolean
+  audience: 'buyer' | 'seller'
 }) {
   const colors = useThemeColors()
-  const { days, total } = reservationTotals(reservation)
+  const pricing = reservationPricing(
+    reservation.start_date,
+    reservation.end_date,
+    reservation.car.price_per_day
+  )
+  const { days } = pricing
+  const amount = formatPrice(
+    audience === 'seller' ? pricing.sellerNet : pricing.buyerTotal
+  )
   const badge = (
     <StatusBadge tone={STATUS_TONES[reservation.status]}>
       {STATUS_LABELS[reservation.status]}
@@ -281,7 +291,7 @@ export function ReservationRow({
           style={NUMERIC}
           className={`${COLUMN.total} text-sm font-semibold text-foreground`}
         >
-          {formatPrice(total)}
+          {amount}
         </Text>
         <View className={`${COLUMN.status} gap-1`}>
           {badge}
@@ -318,7 +328,7 @@ export function ReservationRow({
         </Text>
         <View className="flex-row items-center gap-2">
           <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
-            {formatPrice(total)}
+            {amount}
           </Text>
           {onPress ? <ChevronRight size={20} color={colors.mutedText} /> : null}
         </View>

@@ -2,30 +2,50 @@ import { describe, expect, it } from 'vitest'
 import {
   MAX_RESERVATION_NIGHTS,
   isValidReservationRange,
+  reservationPricing,
   reservationRangeError,
-  reservationTotal,
 } from './reservations'
 
-describe('reservationTotal', () => {
-  it('multiplies the days by the daily price', () => {
-    expect(reservationTotal('2026-09-15', '2026-09-18', 4500)).toEqual({
+describe('reservationPricing', () => {
+  it('applies the service fee and the seller deduction to the subtotal', () => {
+    expect(reservationPricing('2026-09-15', '2026-09-18', 4500)).toEqual({
       days: 3,
-      total: 13500,
+      subtotal: 13500,
+      serviceFee: 945,
+      buyerTotal: 14445,
+      sellerFee: 675,
+      sellerNet: 12825,
     })
   })
 
-  it('returns a single day for consecutive dates', () => {
-    expect(reservationTotal('2026-09-15', '2026-09-16', 4500)).toEqual({
+  it('handles a single day', () => {
+    expect(reservationPricing('2026-09-15', '2026-09-16', 4500)).toEqual({
       days: 1,
-      total: 4500,
+      subtotal: 4500,
+      serviceFee: 315,
+      buyerTotal: 4815,
+      sellerFee: 225,
+      sellerNet: 4275,
     })
   })
 
   it('is zero when both dates match', () => {
-    expect(reservationTotal('2026-09-15', '2026-09-15', 4500)).toEqual({
+    expect(reservationPricing('2026-09-15', '2026-09-15', 4500)).toEqual({
       days: 0,
-      total: 0,
+      subtotal: 0,
+      serviceFee: 0,
+      buyerTotal: 0,
+      sellerFee: 0,
+      sellerNet: 0,
     })
+  })
+
+  it('rounds the fees to whole cents and keeps the totals consistent', () => {
+    const pricing = reservationPricing('2026-09-15', '2026-09-16', 999)
+    expect(pricing.serviceFee).toBe(70)
+    expect(pricing.sellerFee).toBe(50)
+    expect(pricing.buyerTotal - pricing.subtotal).toBe(pricing.serviceFee)
+    expect(pricing.subtotal - pricing.sellerNet).toBe(pricing.sellerFee)
   })
 })
 

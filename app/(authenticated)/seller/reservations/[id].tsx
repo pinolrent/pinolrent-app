@@ -4,20 +4,19 @@ import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
-import { formatPrice, formatPricePerDay } from '@/utils/currency'
 import { formatDateRange, formatDays } from '@/utils/dates'
-import { reservationTotal } from '@/utils/reservations'
+import { reservationPricing } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
+import { PriceBreakdown } from '@/components/PriceBreakdown'
 import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { NUMERIC } from '@/constants/typography'
 import {
   ConfirmReservationBlock,
   PaymentSummary,
@@ -64,7 +63,7 @@ export default function SellerReservationDetailScreen() {
     )
   }
 
-  const { days, total } = reservationTotal(
+  const pricing = reservationPricing(
     data.start_date,
     data.end_date,
     data.car.price_per_day
@@ -108,7 +107,7 @@ export default function SellerReservationDetailScreen() {
                       {formatDateRange(data.start_date, data.end_date)}
                     </Text>
                     <Text className="text-sm text-muted-foreground">
-                      {formatDays(days)}
+                      {formatDays(pricing.days)}
                     </Text>
                   </View>
                   <View className="flex-1 gap-1">
@@ -126,14 +125,11 @@ export default function SellerReservationDetailScreen() {
             </View>
             <View className={side}>
               <AppCard gap="sm">
-                <Text style={NUMERIC} className="text-sm text-muted-foreground">
-                  {formatPricePerDay(data.car.price_per_day)}
-                  {' × '}
-                  {formatDays(days)}
-                </Text>
-                <Text style={NUMERIC} className="text-2xl font-bold text-foreground">
-                  {formatPrice(total)}
-                </Text>
+                <PriceBreakdown
+                  pricePerDay={data.car.price_per_day}
+                  pricing={pricing}
+                  audience="seller"
+                />
               </AppCard>
               {notice && <SuccessNote message={notice} />}
               <ConfirmReservationBlock
