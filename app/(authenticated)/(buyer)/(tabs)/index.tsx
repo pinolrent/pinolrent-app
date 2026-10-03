@@ -13,7 +13,7 @@ import {
   toISO,
   validateDateRangeInput,
 } from '@/utils/dates'
-import { reservationTotal } from '@/utils/reservations'
+import { reservationPricing } from '@/utils/reservations'
 import {
   AppButton,
   AppCard,
@@ -80,13 +80,13 @@ export default function BuyerHomeScreen() {
 
   const available =
     carsQuery.data?.pages.flatMap((page) => page).slice(0, PREVIEW_CARS) ?? []
-  const upcomingTotals = upcoming
-    ? reservationTotal(
+  const upcomingPricing = upcoming
+    ? reservationPricing(
         upcoming.start_date,
         upcoming.end_date,
         upcoming.car.price_per_day
       )
-    : { days: 0, total: 0 }
+    : null
 
   const gridItem =
     columns === 3 ? 'min-w-[280px]' : columns === 2 ? 'min-w-[240px]' : ''
@@ -142,7 +142,7 @@ export default function BuyerHomeScreen() {
             onRetry={() => refetch()}
             retrying={isRefetching}
           />
-        ) : upcoming ? (
+        ) : upcoming && upcomingPricing ? (
           <View className="gap-2">
             <Text
               accessibilityRole="header"
@@ -176,8 +176,8 @@ export default function BuyerHomeScreen() {
                 </View>
                 <Text style={NUMERIC} className="text-sm text-muted-foreground">
                   {formatDateRange(upcoming.start_date, upcoming.end_date)} ·{' '}
-                  {formatDays(upcomingTotals.days)} ·{' '}
-                  {formatPrice(upcomingTotals.total)}
+                  {formatDays(upcomingPricing.days)} ·{' '}
+                  {formatPrice(upcomingPricing.buyerTotal)}
                 </Text>
               </View>
               <ChevronRight size={20} color={colors.mutedText} />

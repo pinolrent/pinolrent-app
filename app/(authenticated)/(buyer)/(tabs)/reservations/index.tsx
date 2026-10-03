@@ -71,6 +71,7 @@ export default function ReservationsScreen() {
             <ReservationRow
               reservation={item}
               columns
+              audience="buyer"
               action={
                 <Link href={detailHref(item.id)} asChild>
                   <AppPressable
@@ -97,6 +98,7 @@ export default function ReservationsScreen() {
       <StaggerCard index={index}>
         <ReservationRow
           reservation={item}
+          audience="buyer"
           onPress={() => router.push(detailHref(item.id))}
           action={
             cancellable ? (
@@ -145,7 +147,7 @@ export default function ReservationsScreen() {
             renderItem={renderItem}
             ListHeaderComponent={
               showTable && reservations.length > 0 ? (
-                <ReservationColumns />
+                <ReservationColumns audience="buyer" />
               ) : null
             }
             refreshControl={

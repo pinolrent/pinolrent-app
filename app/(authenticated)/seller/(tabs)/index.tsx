@@ -6,7 +6,7 @@ import { useSellerCars } from '@/hooks/useSellerCars'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
-import { reservationTotal } from '@/utils/reservations'
+import { reservationPricing } from '@/utils/reservations'
 import { AppCard, ErrorState } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
@@ -70,7 +70,8 @@ export default function SellerHomeScreen() {
     .reduce(
       (acc, r) =>
         acc +
-        reservationTotal(r.start_date, r.end_date, r.car.price_per_day).total,
+        reservationPricing(r.start_date, r.end_date, r.car.price_per_day)
+          .sellerNet,
       0
     )
 

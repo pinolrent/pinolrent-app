@@ -4,18 +4,19 @@ import { useRouter } from 'expo-router'
 import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
 import type { Car } from '@/types/car'
-import { formatPrice, formatPricePerDay } from '@/utils/currency'
-import { formatDays, isValidISODate, toISO } from '@/utils/dates'
+import { formatPricePerDay } from '@/utils/currency'
+import { isValidISODate, toISO } from '@/utils/dates'
 import {
   MAX_RESERVATION_NIGHTS,
   isValidReservationRange,
   reservationRangeError,
-  reservationTotal,
+  reservationPricing,
 } from '@/utils/reservations'
 import { getApiErrorMessage } from '@/utils/errors'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { DateRangeField } from '@/components/DateField'
 import { ModalSheet } from '@/components/ModalSheet'
+import { PriceBreakdown } from '@/components/PriceBreakdown'
 
 export function ReserveCarModal({
   car,
@@ -36,8 +37,8 @@ export function ReserveCarModal({
   const rangeHint = reservationRangeError(startDate, endDate, today)
   const validRange = isValidReservationRange(startDate, endDate, today)
   const preview = validRange
-    ? reservationTotal(startDate, endDate, car.price_per_day)
-    : { days: 0, total: 0 }
+    ? reservationPricing(startDate, endDate, car.price_per_day)
+    : null
 
   const editRange = (start: string, end: string) => {
     setStartDate(start)
@@ -93,14 +94,13 @@ export function ReserveCarModal({
         maxNights={MAX_RESERVATION_NIGHTS}
       />
       <FormError message={serverError} />
-      {validRange && (
-        <View className="flex-row items-center justify-between gap-3 border-t border-border pt-3">
-          <Text className="text-sm text-muted-foreground">
-            {formatDays(preview.days)}
-          </Text>
-          <Text className="text-lg font-bold text-foreground">
-            {formatPrice(preview.total)}
-          </Text>
+      {preview && (
+        <View className="border-t border-border pt-3">
+          <PriceBreakdown
+            pricePerDay={car.price_per_day}
+            pricing={preview}
+            audience="buyer"
+          />
         </View>
       )}
       <AppButton onPress={submit} loading={createReservation.isPending}>

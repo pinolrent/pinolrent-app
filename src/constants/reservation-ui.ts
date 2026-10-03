@@ -14,3 +14,8 @@ export const STATUS_TONES: Record<
   confirmed: 'success',
   cancelled: 'destructive',
 }
+
+export const SERVICE_FEE_LABEL = 'Cargo por servicio'
+export const SELLER_FEE_LABEL = 'Deducción por servicio'
+export const TOTAL_DUE_LABEL = 'Total a pagar'
+export const SELLER_NET_LABEL = 'Recibes'
