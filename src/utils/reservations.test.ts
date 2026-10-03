@@ -13,8 +13,8 @@ describe('reservationPricing', () => {
       subtotal: 13500,
       serviceFee: 945,
       buyerTotal: 14445,
-      sellerFee: 675,
-      sellerNet: 12825,
+      sellerFee: 945,
+      sellerNet: 12555,
     })
   })
 
@@ -24,8 +24,8 @@ describe('reservationPricing', () => {
       subtotal: 4500,
       serviceFee: 315,
       buyerTotal: 4815,
-      sellerFee: 225,
-      sellerNet: 4275,
+      sellerFee: 315,
+      sellerNet: 4185,
     })
   })
 
@@ -43,7 +43,7 @@ describe('reservationPricing', () => {
   it('rounds the fees to whole cents and keeps the totals consistent', () => {
     const pricing = reservationPricing('2026-09-15', '2026-09-16', 999)
     expect(pricing.serviceFee).toBe(70)
-    expect(pricing.sellerFee).toBe(50)
+    expect(pricing.sellerFee).toBe(70)
     expect(pricing.buyerTotal - pricing.subtotal).toBe(pricing.serviceFee)
     expect(pricing.subtotal - pricing.sellerNet).toBe(pricing.sellerFee)
   })

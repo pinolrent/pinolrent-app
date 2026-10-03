@@ -7,7 +7,7 @@ export const MAX_RESERVATION_NIGHTS = 29
 // Platform rates: renters pay a service fee on top of the subtotal, sellers
 // get a deduction taken off it. Both apply to days * pricePerDay.
 export const SERVICE_FEE_PERCENT = 7
-export const SELLER_FEE_PERCENT = 5
+export const SELLER_FEE_PERCENT = 7
 
 export interface ReservationPricing {
   days: number
