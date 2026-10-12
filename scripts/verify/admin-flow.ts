@@ -83,12 +83,29 @@ async function main() {
     buyerListBody
   )
 
-  const badFilter = await api(
-    '/admin/users?role=nope',
-    {},
-    admin.token
+  // El filtro de rol es libre: un valor desconocido no es un error, solo no
+  // encuentra a nadie.
+  const adminList = await api('/admin/users?role=admin', {}, admin.token)
+  const adminListBody = (await adminList.json()) as ListResponse<{
+    id: number
+    roles: string[]
+  }>
+  check(
+    'GET /admin/users?role=admin -> solo cuentas admin',
+    adminList.status === 200 &&
+      adminListBody.items.length > 0 &&
+      adminListBody.items.every((item) => item.roles.includes('admin')) &&
+      adminListBody.items.some((item) => item.id === adminBody.id),
+    { total: adminListBody.total }
   )
-  check('GET /admin/users?role inválido -> 400', badFilter.status === 400)
+
+  const unknownRole = await api('/admin/users?role=nope', {}, admin.token)
+  const unknownRoleBody = (await unknownRole.json()) as ListResponse<unknown>
+  check(
+    'GET /admin/users?role desconocido -> 200 sin coincidencias',
+    unknownRole.status === 200 && unknownRoleBody.items.length === 0,
+    unknownRoleBody.total
+  )
 
   const suspend = await api(
     `/admin/users/${buyerBody.id}`,
