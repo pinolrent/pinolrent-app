@@ -11,7 +11,7 @@ import { BecomeSellerSheet } from '@/components/BecomeSellerSheet'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
-export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
+export function ProfileScreen({ area }: { area: 'buyer' | 'seller' | 'admin' }) {
   const router = useRouter()
   const colors = useThemeColors()
   const { isWide, isDesktop } = useBreakpoints()
@@ -19,18 +19,24 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
   const become = useBecomeSeller()
   const [becomeOpen, setBecomeOpen] = useState(false)
 
+  const isAdmin = Boolean(user?.roles?.includes('admin'))
   const isSeller = Boolean(user?.roles?.includes('seller'))
   const isBuyer = Boolean(user?.roles?.includes('buyer'))
-  const roleLabel =
-    isSeller && isBuyer
+  const roleLabel = isAdmin
+    ? 'Administrador'
+    : isSeller && isBuyer
       ? 'Vendedor y comprador'
       : isSeller
         ? 'Vendedor'
         : 'Comprador'
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
-  const editHref = isSeller
-    ? '/(authenticated)/seller/profile/edit'
-    : '/(authenticated)/(buyer)/profile/edit'
+  const baseHref =
+    area === 'admin'
+      ? '/(authenticated)/admin'
+      : area === 'seller'
+        ? '/(authenticated)/seller'
+        : '/(authenticated)/(buyer)'
+  const editHref = `${baseHref}/profile/edit`
 
   const identity = (
     <View className="items-center gap-3 py-4">
@@ -63,7 +69,21 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
       return
     }
     router.replace(
-      next ? '/(authenticated)/seller' : '/(authenticated)/(buyer)'
+      next
+        ? '/(authenticated)/seller'
+        : isAdmin
+          ? '/(authenticated)/admin'
+          : '/(authenticated)/(buyer)'
+    )
+  }
+
+  const toggleAdminMode = (next: boolean) => {
+    router.replace(
+      next
+        ? '/(authenticated)/admin'
+        : isSeller
+          ? '/(authenticated)/seller'
+          : '/(authenticated)/(buyer)'
     )
   }
 
@@ -80,7 +100,9 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
             ? 'Habilitá tus autos con un teléfono de contacto'
             : area === 'seller'
               ? 'Ahora estás vendiendo'
-              : 'Ahora estás comprando'}
+              : area === 'admin'
+                ? 'Ahora estás administrando'
+                : 'Ahora estás comprando'}
         </Text>
       </View>
       <View className="flex-row items-center gap-2">
@@ -103,6 +125,29 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
     </View>
   )
 
+  const adminRow = (
+    <View className="min-h-14 flex-row items-center justify-between gap-3 border-t border-border px-4 py-3">
+      <View className="flex-1">
+        <Text className="text-base text-foreground">
+          Administrar la plataforma
+        </Text>
+        <Text className="text-sm text-muted-foreground">
+          {area === 'admin'
+            ? 'Ahora estás administrando'
+            : 'Reservas, cuentas, autos y pagos'}
+        </Text>
+      </View>
+      <Switch
+        accessibilityLabel="Administrar la plataforma"
+        value={area === 'admin'}
+        onValueChange={toggleAdminMode}
+        ios_backgroundColor={colors.border}
+        trackColor={{ false: colors.border, true: colors.primary }}
+        thumbColor={colors.card}
+      />
+    </View>
+  )
+
   const groups = (
     <View className="gap-4">
       <ListGroup title="Contacto">
@@ -118,6 +163,7 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' }) {
 
       <ListGroup title="Modo">
         {modeRow}
+        {isAdmin ? adminRow : null}
         <FormError message={becomeError} className="px-4 pb-3" />
       </ListGroup>
 

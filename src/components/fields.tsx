@@ -41,11 +41,12 @@ export function StatusBadge({
   tone,
   children,
 }: {
-  tone: 'warning' | 'success' | 'muted' | 'destructive'
+  tone: 'warning' | 'info' | 'success' | 'muted' | 'destructive'
   children: ReactNode
 }) {
   const tones = {
     warning: { bg: 'bg-tint-warning', text: 'text-warning' },
+    info: { bg: 'bg-primary/10', text: 'text-primary' },
     success: { bg: 'bg-tint-success', text: 'text-success' },
     muted: { bg: 'bg-muted', text: 'text-muted-foreground' },
     destructive: { bg: 'bg-tint-destructive', text: 'text-destructive' },

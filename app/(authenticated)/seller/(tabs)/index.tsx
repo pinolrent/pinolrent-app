@@ -7,30 +7,11 @@ import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { reservationPricing } from '@/utils/reservations'
-import { AppCard, ErrorState } from '@/components/ui-kit'
+import { AppCard, ErrorState, Metric } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { NUMERIC, SECTION_LABEL } from '@/constants/typography'
+import { SECTION_LABEL } from '@/constants/typography'
 import { useThemeColors } from '@/hooks/useThemeColors'
-
-function Metric({
-  label,
-  value,
-  tone = 'text-foreground',
-}: {
-  label: string
-  value: string
-  tone?: string
-}) {
-  return (
-    <View className="min-w-[150px] flex-1 gap-1 rounded-xl border border-border bg-card p-4">
-      <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Text style={NUMERIC} className={`text-2xl font-bold ${tone}`}>
-        {value}
-      </Text>
-    </View>
-  )
-}
 
 export default function SellerHomeScreen() {
   const router = useRouter()
@@ -61,9 +42,8 @@ export default function SellerHomeScreen() {
 
   const activeCars = (cars ?? []).filter((car) => car.active).length
   const list = reservations ?? []
-  const pendingPay = list.filter(
-    (r) => r.status === 'pending' && r.payment?.status === 'pending'
-  ).length
+  const toAnswer = list.filter((r) => r.status === 'pending').length
+  const accepted = list.filter((r) => r.status === 'accepted').length
   const confirmed = list.filter((r) => r.status === 'confirmed').length
   const earnings = list
     .filter((r) => r.status === 'confirmed')
@@ -90,21 +70,21 @@ export default function SellerHomeScreen() {
         />
       ) : (
         <View className="gap-6">
-          {pendingPay > 0 ? (
+          {toAnswer > 0 ? (
             <AppCard
               onPress={() => router.push('/(authenticated)/seller/reservations')}
-              accessibilityLabel="Ver las reservas por confirmar"
+              accessibilityLabel="Ver las reservas por responder"
             >
               <View className="flex-row items-center justify-between gap-3">
                 <Text className="flex-1 text-base font-semibold text-foreground">
-                  {pendingPay === 1
-                    ? '1 reserva espera tu confirmación'
-                    : `${pendingPay} reservas esperan tu confirmación`}
+                  {toAnswer === 1
+                    ? '1 reserva espera tu respuesta'
+                    : `${toAnswer} reservas esperan tu respuesta`}
                 </Text>
                 <ChevronRight size={20} color={colors.mutedText} />
               </View>
               <Text className="text-sm text-muted-foreground">
-                Revisa el comprobante y confirma para cerrar la reserva.
+                Acéptala o recházala: la plataforma valida el pago después.
               </Text>
             </AppCard>
           ) : null}
@@ -120,10 +100,11 @@ export default function SellerHomeScreen() {
             <View className="flex-row flex-wrap gap-3">
               <Metric label="Autos activos" value={String(activeCars)} />
               <Metric
-                label="Por confirmar"
-                value={String(pendingPay)}
-                tone={pendingPay > 0 ? 'text-warning' : 'text-foreground'}
+                label="Por responder"
+                value={String(toAnswer)}
+                tone={toAnswer > 0 ? 'text-warning' : 'text-foreground'}
               />
+              <Metric label="Aceptadas" value={String(accepted)} />
               <Metric label="Confirmadas" value={String(confirmed)} />
               <Metric
                 label="Ingresos confirmados"

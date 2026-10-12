@@ -16,9 +16,9 @@ export const reservationsService = {
   sellerList: () =>
     api.get<Reservation[]>('/seller/reservations').then((r) => r.data),
 
-  confirm: (id: number) =>
+  accept: (id: number) =>
     api
-      .patch<Reservation>(`/seller/reservations/${id}/confirm`)
+      .patch<Reservation>(`/seller/reservations/${id}/accept`)
       .then((r) => r.data),
 
   reject: (id: number) =>

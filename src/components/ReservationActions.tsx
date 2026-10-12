@@ -2,10 +2,14 @@ import { useState } from 'react'
 import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import {
+  useAcceptReservation,
   useCancelReservation,
-  useConfirmReservation,
   useRejectReservation,
 } from '@/hooks/useReservations'
+import {
+  useAdminConfirmReservation,
+  useAdminRequestCorrection,
+} from '@/hooks/useAdmin'
 import { useCreatePayment } from '@/hooks/usePayments'
 import type { Payment } from '@/types/payment'
 import type { Reservation } from '@/types/reservation'
@@ -66,33 +70,32 @@ export function CancelReservationBlock({
   )
 }
 
-export function canConfirmReservation(reservation: Reservation) {
-  return (
-    reservation.status === 'pending' &&
-    reservation.payment?.status === 'pending'
-  )
+// El vendedor decide sobre la solicitud sin exigir un pago: el pago se
+// valida después, en la confirmación del administrador.
+export function canDecideReservation(reservation: Reservation) {
+  return reservation.status === 'pending'
 }
 
-export function ConfirmReservationBlock({
+export function AcceptReservationBlock({
   reservation,
-  onConfirmed,
+  onAccepted,
 }: {
   reservation: Reservation
-  onConfirmed?: (reservation: Reservation) => void
+  onAccepted?: (reservation: Reservation) => void
 }) {
-  const confirm = useConfirmReservation()
+  const accept = useAcceptReservation()
 
-  if (!canConfirmReservation(reservation)) return null
+  if (!canDecideReservation(reservation)) return null
 
   return (
     <ConfirmAction
-      label="Confirmar reserva"
-      title="Confirmar reserva"
-      message={`¿Confirmar la reserva de ${reservation.car.name}? Se aprueba el pago registrado.`}
-      confirmLabel="Confirmar reserva"
-      errorFallback="Error al confirmar la reserva"
-      action={() => confirm.mutateAsync(reservation.id)}
-      onDone={() => onConfirmed?.(reservation)}
+      label="Aceptar reserva"
+      title="Aceptar reserva"
+      message={`¿Aceptar la solicitud de ${reservation.car.name}? El pago queda pendiente de validación por la plataforma.`}
+      confirmLabel="Aceptar reserva"
+      errorFallback="Error al aceptar la reserva"
+      action={() => accept.mutateAsync(reservation.id)}
+      onDone={() => onAccepted?.(reservation)}
     />
   )
 }
@@ -106,19 +109,90 @@ export function RejectReservationBlock({
 }) {
   const reject = useRejectReservation()
 
-  if (!canConfirmReservation(reservation)) return null
+  if (!canDecideReservation(reservation)) return null
 
   return (
     <ConfirmAction
       label="Rechazar reserva"
       variant="destructive-outline"
       title="Rechazar reserva"
-      message={`¿Rechazar el pago de la reserva de ${reservation.car.name}? Se cancela la reserva y el comprador tendrá que reservar de nuevo.`}
+      message={`¿Rechazar la solicitud de ${reservation.car.name}? Se liberan las fechas y el comprador tendrá que reservar de nuevo.`}
       confirmLabel="Rechazar reserva"
       destructive
       errorFallback="Error al rechazar la reserva"
       action={() => reject.mutateAsync(reservation.id)}
       onDone={() => onRejected?.(reservation)}
+    />
+  )
+}
+
+// El comprador registra el pago con la reserva pendiente o aceptada. Si el
+// administrador rechazó el comprobante, la reserva sigue aceptada y se vuelve
+// a enviar: la API responde 200 y el pago regresa a pendiente.
+export function canRecordPayment(reservation: Reservation) {
+  if (reservation.status === 'pending') return !reservation.payment
+  if (reservation.status === 'accepted')
+    return !reservation.payment || reservation.payment.status === 'rejected'
+  return false
+}
+
+export function isPaymentCorrection(reservation: Reservation) {
+  return (
+    reservation.status === 'accepted' &&
+    reservation.payment?.status === 'rejected'
+  )
+}
+
+// El administrador valida el pago de una reserva ya aceptada: la única vía
+// para que llegue a confirmada, o para devolver el comprobante al comprador.
+export function AdminConfirmReservationBlock({
+  reservationId,
+  carName,
+  onDone,
+}: {
+  reservationId: number
+  carName?: string
+  onDone?: (reservation: Reservation) => void
+}) {
+  const confirm = useAdminConfirmReservation()
+  const name = carName ?? 'el auto'
+
+  return (
+    <ConfirmAction
+      label="Confirmar pago"
+      title="Confirmar pago"
+      message={`¿Confirmar el pago de ${name}? La reserva queda confirmada.`}
+      confirmLabel="Confirmar pago"
+      errorFallback="Error al confirmar el pago"
+      action={() => confirm.mutateAsync(reservationId)}
+      onDone={onDone}
+    />
+  )
+}
+
+export function AdminRequestCorrectionBlock({
+  reservationId,
+  carName,
+  onDone,
+}: {
+  reservationId: number
+  carName?: string
+  onDone?: (reservation: Reservation) => void
+}) {
+  const correction = useAdminRequestCorrection()
+  const name = carName ?? 'el auto'
+
+  return (
+    <ConfirmAction
+      label="Pedir corrección"
+      variant="destructive-outline"
+      title="Pedir corrección"
+      message={`¿Pedir al comprador un comprobante nuevo para ${name}? La reserva sigue aceptada y el comprobante actual queda rechazado.`}
+      confirmLabel="Pedir corrección"
+      destructive
+      errorFallback="Error al pedir la corrección"
+      action={() => correction.mutateAsync(reservationId)}
+      onDone={onDone}
     />
   )
 }
@@ -135,11 +209,21 @@ export function PayReservationBlock({
   const [method, setMethod] = useState<Payment['method']>('pos')
   const [proofUrl, setProofUrl] = useState('')
   const [proofError, setProofError] = useState<string | null>(null)
+  const correction = isPaymentCorrection(reservation)
   const payError = pay.isError
     ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
     : null
 
-  if (reservation.status !== 'pending' || reservation.payment) return null
+  if (!canRecordPayment(reservation)) return null
+
+  const title = correction ? 'Corregir comprobante' : 'Registrar pago'
+
+  const openSheet = () => {
+    setMethod(reservation.payment?.method ?? 'pos')
+    setProofUrl('')
+    setProofError(null)
+    setOpen(true)
+  }
 
   const submit = () => {
     const proof = proofUrl.trim()
@@ -173,13 +257,19 @@ export function PayReservationBlock({
 
   return (
     <>
-      <AppButton onPress={() => setOpen(true)}>Registrar pago</AppButton>
+      <AppButton onPress={openSheet}>{title}</AppButton>
       <ModalSheet
         visible={open}
         onClose={() => setOpen(false)}
-        title="Registrar pago"
+        title={title}
         maxWidth={DIALOG_WIDTH}
       >
+        {correction ? (
+          <Text className="text-sm text-muted-foreground">
+            El administrador rechazó el comprobante: adjunta uno nuevo para que
+            la reserva se pueda confirmar.
+          </Text>
+        ) : null}
         <ChoiceGroup
           label="Método de pago"
           options={PAYMENT_METHODS}
@@ -211,7 +301,7 @@ export function PayReservationBlock({
         />
         <FormError message={payError} />
         <AppButton onPress={submit} loading={pay.isPending}>
-          Registrar pago
+          {correction ? 'Enviar comprobante' : 'Registrar pago'}
         </AppButton>
       </ModalSheet>
     </>

@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 import type { TextInput } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { useRouter } from 'expo-router'
+import { usePathname, useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
 import { useAuth, useUpdateProfile } from '@/hooks/useAuth'
 import { getApiErrorMessage, validatePhone } from '@/utils/errors'
@@ -26,6 +26,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 
 export function ProfileEditScreen() {
   const router = useRouter()
+  const pathname = usePathname()
   const colors = useThemeColors()
   const { user } = useAuth()
   const update = useUpdateProfile()
@@ -39,13 +40,15 @@ export function ProfileEditScreen() {
     : null
 
   const initial = (user?.email?.[0] ?? '?').toUpperCase()
-  const isSeller = Boolean(user?.roles?.includes('seller'))
-  const profileHref = isSeller
-    ? '/(authenticated)/seller/profile'
-    : '/(authenticated)/(buyer)/profile'
-  const passwordHref = isSeller
-    ? '/(authenticated)/seller/profile/password'
-    : '/(authenticated)/(buyer)/profile/password'
+  // El área sale de la ruta para que el mismo componente sirva a comprador,
+  // vendedor y admin sin duplicarlo.
+  const baseHref = pathname.startsWith('/admin')
+    ? '/(authenticated)/admin'
+    : pathname.startsWith('/seller')
+      ? '/(authenticated)/seller'
+      : '/(authenticated)/(buyer)'
+  const profileHref = `${baseHref}/profile`
+  const passwordHref = `${baseHref}/profile/password`
 
   const onSave = () => {
     const trimmed = phone.trim()
@@ -98,7 +101,7 @@ export function ProfileEditScreen() {
                     ? 'Teléfono (WhatsApp)'
                     : 'Teléfono (opcional)'
                 }
-                placeholder="Ej. 9 1234 5678"
+                placeholder="Ej. 8123 4567"
                 autoComplete="tel"
                 textContentType="telephoneNumber"
                 keyboardType="phone-pad"

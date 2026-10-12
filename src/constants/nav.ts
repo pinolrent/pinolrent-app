@@ -31,3 +31,16 @@ export const sellerNav: NavItem[] = [
   },
   { label: 'Perfil', href: '/(authenticated)/seller/profile', icon: 'profile' },
 ]
+
+export const adminNav: NavItem[] = [
+  { label: 'Panel', href: '/(authenticated)/admin', icon: 'panel' },
+  {
+    label: 'Reservas',
+    href: '/(authenticated)/admin/reservations',
+    icon: 'reservations',
+  },
+  { label: 'Usuarios', href: '/(authenticated)/admin/users', icon: 'users' },
+  { label: 'Autos', href: '/(authenticated)/admin/cars', icon: 'cars' },
+  { label: 'Pagos', href: '/(authenticated)/admin/payments', icon: 'payments' },
+  { label: 'Perfil', href: '/(authenticated)/admin/profile', icon: 'profile' },
+]

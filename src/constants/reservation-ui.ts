@@ -2,16 +2,20 @@ import type { Reservation } from '@/types/reservation'
 
 export const STATUS_LABELS: Record<Reservation['status'], string> = {
   pending: 'Pendiente',
+  accepted: 'Aceptada',
   confirmed: 'Confirmada',
+  rejected: 'Rechazada',
   cancelled: 'Cancelada',
 }
 
 export const STATUS_TONES: Record<
   Reservation['status'],
-  'warning' | 'success' | 'destructive'
+  'warning' | 'info' | 'success' | 'destructive'
 > = {
   pending: 'warning',
+  accepted: 'info',
   confirmed: 'success',
+  rejected: 'destructive',
   cancelled: 'destructive',
 }
 

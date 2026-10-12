@@ -10,7 +10,7 @@ import { formatPrice } from '@/utils/currency'
 import {
   formatDateRange,
   formatDays,
-  toISO,
+  todayISO,
   validateDateRangeInput,
 } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
@@ -47,6 +47,7 @@ export default function BuyerHomeScreen() {
   const [startError, setStartError] = useState<string | null>(null)
   const [endError, setEndError] = useState<string | null>(null)
   const today = new Date()
+  const todayString = todayISO()
 
   const onSearch = () => {
     const from = start.trim()
@@ -73,9 +74,13 @@ export default function BuyerHomeScreen() {
     : null
 
   const reservations = data ?? []
-  const todayISO = toISO(today)
+  // Solo las que siguen en curso: rechazadas y canceladas ya no van.
   const upcoming = reservations
-    .filter((r) => r.status !== 'cancelled' && r.end_date >= todayISO)
+    .filter(
+      (r) =>
+        ['pending', 'accepted', 'confirmed'].includes(r.status) &&
+        r.end_date >= todayString
+    )
     .sort((a, b) => a.start_date.localeCompare(b.start_date))[0]
 
   const available =

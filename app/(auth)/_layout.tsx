@@ -1,5 +1,6 @@
 import { Redirect, Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { homeHref } from '@/utils/roles'
 import { LoadingState } from '@/components/ui-kit'
 
 export default function AuthLayout() {
@@ -12,15 +13,7 @@ export default function AuthLayout() {
   }
 
   if (token) {
-    return (
-      <Redirect
-        href={
-          user?.roles?.includes('seller')
-            ? '/(authenticated)/seller'
-            : '/(authenticated)/(buyer)'
-        }
-      />
-    )
+    return <Redirect href={homeHref(user)} />
   }
 
   return (

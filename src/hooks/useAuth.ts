@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import { queryKeys } from '@/constants/query-keys'
+import { homeHref } from '@/utils/roles'
 import type {
   ChangePasswordRequest,
 } from '@/types/auth'
@@ -38,11 +39,7 @@ export function useAuth() {
     },
     onSuccess: async ({ token, refreshToken, user }) => {
       await setAuth(token, refreshToken, user)
-      router.replace(
-        user.roles.includes('seller')
-          ? '/(authenticated)/seller'
-          : '/(authenticated)/(buyer)'
-      )
+      router.replace(homeHref(user))
     },
   })
 
@@ -59,11 +56,7 @@ export function useAuth() {
     },
     onSuccess: async ({ token, refreshToken, user }) => {
       await setAuth(token, refreshToken, user)
-      router.replace(
-        user.roles.includes('seller')
-          ? '/(authenticated)/seller'
-          : '/(authenticated)/(buyer)'
-      )
+      router.replace(homeHref(user))
     },
   })
 

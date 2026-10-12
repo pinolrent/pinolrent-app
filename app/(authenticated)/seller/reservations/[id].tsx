@@ -18,7 +18,7 @@ import { SkeletonList } from '@/components/Skeleton'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import {
-  ConfirmReservationBlock,
+  AcceptReservationBlock,
   PaymentSummary,
   RejectReservationBlock,
 } from '@/components/ReservationActions'
@@ -132,10 +132,17 @@ export default function SellerReservationDetailScreen() {
                 />
               </AppCard>
               {notice && <SuccessNote message={notice} />}
-              <ConfirmReservationBlock
+              {data.status === 'accepted' ? (
+                <View className="rounded-lg border border-border bg-muted/40 px-3 py-2">
+                  <Text className="text-sm text-muted-foreground">
+                    Esperando que la plataforma valide el pago.
+                  </Text>
+                </View>
+              ) : null}
+              <AcceptReservationBlock
                 reservation={data}
-                onConfirmed={(reservation) =>
-                  setNotice(`Reserva #${reservation.id} confirmada`)
+                onAccepted={(reservation) =>
+                  setNotice(`Reserva #${reservation.id} aceptada`)
                 }
               />
               <RejectReservationBlock

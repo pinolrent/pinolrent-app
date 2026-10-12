@@ -6,7 +6,7 @@ import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
 import { useHover } from '@/hooks/useHover'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { SECTION_LABEL } from '@/constants/typography'
+import { SECTION_LABEL, NUMERIC } from '@/constants/typography'
 
 type Variant =
   | 'default'
@@ -285,6 +285,25 @@ export function ErrorState({
           Reintentar
         </AppButton>
       ) : null}
+    </View>
+  )
+}
+
+export function Metric({
+  label,
+  value,
+  tone = 'text-foreground',
+}: {
+  label: string
+  value: string
+  tone?: string
+}) {
+  return (
+    <View className="min-w-[150px] flex-1 gap-1 rounded-xl border border-border bg-card p-4">
+      <Text className="text-sm text-muted-foreground">{label}</Text>
+      <Text style={NUMERIC} className={`text-2xl font-bold ${tone}`}>
+        {value}
+      </Text>
     </View>
   )
 }

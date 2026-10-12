@@ -7,7 +7,7 @@ export interface Reservation {
   car_id: number
   start_date: string
   end_date: string
-  status: 'pending' | 'confirmed' | 'cancelled'
+  status: 'pending' | 'accepted' | 'confirmed' | 'rejected' | 'cancelled'
   car: Car
   payment?: Payment
 }
