@@ -88,6 +88,12 @@ export function ImageUploadField({
         return
       }
       if (cropAspect) {
+        // The cropper needs real pixels: the picker answers 0x0 for a file it
+        // could not decode, and cropping that can only fail.
+        if (!(asset.width > 0) || !(asset.height > 0)) {
+          setError('No pudimos leer esta imagen, prueba con otra')
+          return
+        }
         setPendingCrop({
           uri: asset.uri,
           width: asset.width,
