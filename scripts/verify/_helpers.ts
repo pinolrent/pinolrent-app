@@ -69,6 +69,22 @@ export async function registerOrLogin(
   return (await res.json()) as { token: string }
 }
 
+// El rol admin sale solo de ADMIN_EMAILS del API: si la cuenta no lo tiene,
+// el flujo no puede correr y conviene decirlo con claridad.
+export const ADMIN_EMAIL = process.env.VERIFY_ADMIN_EMAIL ?? 'verify-admin@example.com'
+
+export async function registerOrLoginAdmin(): Promise<{ token: string }> {
+  const session = await registerOrLogin(ADMIN_EMAIL, 'secret123')
+  const res = await api('/auth/me', {}, session.token)
+  const me = (await res.json()) as { roles?: string[] }
+  if (!me.roles?.includes('admin')) {
+    throw new Error(
+      `La cuenta ${ADMIN_EMAIL} no tiene el rol admin. Levanta el API con ADMIN_EMAILS=${ADMIN_EMAIL} (el rol se sincroniza al arrancar).`
+    )
+  }
+  return session
+}
+
 export function isoDaysFromNow(days: number) {
   return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
 }

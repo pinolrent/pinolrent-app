@@ -4,6 +4,7 @@ import {
   createCar,
   isoDaysFromNow,
   registerOrLogin,
+  registerOrLoginAdmin,
   summary,
 } from './_helpers'
 
@@ -12,13 +13,14 @@ async function main() {
   const seller = await registerOrLogin(
     `vende_pay_${stamp}@example.com`,
     'secret123',
-    '+56912345678'
+    '+50581234567'
   )
   const buyer = await registerOrLogin(
     `compra_pay_${stamp}@example.com`,
-    'secret123',
+    'secret123'
   )
-  check('login buyer y seller entregan token', !!buyer.token && !!seller.token)
+  const admin = await registerOrLoginAdmin()
+  check('login buyer, seller y admin entregan token', !!buyer.token && !!seller.token && !!admin.token)
 
   const car = await createCar(seller.token, `pago_${stamp}`, {
     price_per_day: 45000,
@@ -75,58 +77,67 @@ async function main() {
     paid
   )
 
-  const badMethod = await api(
-    `/reservations/${created.id}/payment`,
-    { method: 'POST', body: JSON.stringify({ method: 'transfer' }) },
-    buyer.token
-  )
-  check('método inválido en reserva ya pagada -> 400 o 409', badMethod.status === 400 || badMethod.status === 409)
-
   const dup = await api(
     `/reservations/${created.id}/payment`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ method: 'cash' }),
-    },
+    { method: 'POST', body: JSON.stringify({ method: 'cash' }) },
     buyer.token
   )
-  check('pago duplicado válido -> 409', dup.status === 409)
+  check('pago duplicado con la reserva pendiente -> 409', dup.status === 409)
 
   const cancelAfterPay = await api(
     `/reservations/${created.id}/cancel`,
     { method: 'PATCH' },
     buyer.token
   )
+  check('cancelar con pago registrado -> 409', cancelAfterPay.status === 409)
+
+  // El vendedor decide sobre la solicitud sin exigir el pago; el admin valida
+  // el pago después. Es el flujo en dos pasos.
+  const accept = await api(
+    `/seller/reservations/${created.id}/accept`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  const accepted = (await accept.json()) as {
+    status: string
+    payment?: { status: string }
+  }
   check(
-    'cancelar con pago registrado -> 409',
-    cancelAfterPay.status === 409
+    'PATCH /seller/reservations/{id}/accept -> accepted con el pago intacto',
+    accept.status === 200 &&
+      accepted.status === 'accepted' &&
+      accepted.payment?.status === 'pending',
+    accepted
   )
 
-  const mine = await api('/reservations', {}, buyer.token)
-  const mineBody = (await mine.json()) as {
-    id: number
-    payment?: { method: string; status: string }
-  }[]
-  const found = mineBody.find((r) => r.id === created.id)
+  const acceptAgain = await api(
+    `/seller/reservations/${created.id}/accept`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  check('aceptar una reserva ya aceptada -> 409', acceptAgain.status === 409)
+
+  const buyerCancelAccepted = await api(
+    `/reservations/${created.id}/cancel`,
+    { method: 'PATCH' },
+    buyer.token
+  )
   check(
-    'GET /reservations incluye pago pos/pending',
-    mine.status === 200 &&
-      found?.payment?.method === 'pos' &&
-      found?.payment?.status === 'pending',
-    found
+    'el comprador no puede cancelar una reserva aceptada -> 409',
+    buyerCancelAccepted.status === 409
   )
 
   const confirm = await api(
-    `/seller/reservations/${created.id}/confirm`,
+    `/admin/reservations/${created.id}/confirm`,
     { method: 'PATCH' },
-    seller.token
+    admin.token
   )
   const confirmed = (await confirm.json()) as {
     status: string
     payment?: { status: string }
   }
   check(
-    'PATCH /seller/reservations/{id}/confirm -> confirmed + approved',
+    'PATCH /admin/reservations/{id}/confirm -> confirmed + approved',
     confirm.status === 200 &&
       confirmed.status === 'confirmed' &&
       confirmed.payment?.status === 'approved',
@@ -154,8 +165,51 @@ async function main() {
     sellerDetail.status === 200
   )
 
-  const rejectStart = isoDaysFromNow(6)
-  const rejectEnd = isoDaysFromNow(8)
+  // La confirmación del admin exige aceptación previa y un pago pendiente.
+  const noPayStart = isoDaysFromNow(5)
+  const noPayEnd = isoDaysFromNow(6)
+  const noPayRes = await api(
+    '/reservations',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        car_id: car.id,
+        start_date: noPayStart,
+        end_date: noPayEnd,
+      }),
+    },
+    buyer.token
+  )
+  const noPay = (await noPayRes.json()) as { id: number }
+  const confirmNoPayment = await api(
+    `/admin/reservations/${noPay.id}/confirm`,
+    { method: 'PATCH' },
+    admin.token
+  )
+  check('confirmar sin aceptar -> 409', confirmNoPayment.status === 409)
+
+  const acceptNoPayment = await api(
+    `/seller/reservations/${noPay.id}/accept`,
+    { method: 'PATCH' },
+    seller.token
+  )
+  check(
+    'aceptar sin pago registrado -> 200 (decide la solicitud, no el pago)',
+    acceptNoPayment.status === 200
+  )
+  const confirmStillNoPayment = await api(
+    `/admin/reservations/${noPay.id}/confirm`,
+    { method: 'PATCH' },
+    admin.token
+  )
+  check(
+    'confirmar aceptada sin pago -> 409 no payment recorded',
+    confirmStillNoPayment.status === 409
+  )
+
+  // Rechazo del vendedor: la reserva queda rejected y el pago pendiente cae.
+  const rejectStart = isoDaysFromNow(8)
+  const rejectEnd = isoDaysFromNow(9)
   const rejectRes = await api(
     '/reservations',
     {
@@ -186,9 +240,9 @@ async function main() {
     payment?: { status: string }
   }
   check(
-    'PATCH /seller/reservations/{id}/reject -> cancelled + rejected',
+    'PATCH /seller/reservations/{id}/reject -> rejected + pago rejected',
     reject.status === 200 &&
-      rejected.status === 'cancelled' &&
+      rejected.status === 'rejected' &&
       rejected.payment?.status === 'rejected',
     rejected
   )
@@ -198,7 +252,7 @@ async function main() {
     { method: 'PATCH' },
     seller.token
   )
-  check('rechazar una reserva ya cancelada -> 409', rejectAgain.status === 409)
+  check('rechazar una reserva ya rechazada -> 409', rejectAgain.status === 409)
 
   const buyerCancelRejected = await api(
     `/reservations/${rejectCreated.id}/cancel`,
@@ -210,82 +264,125 @@ async function main() {
     buyerCancelRejected.status === 409
   )
 
-  const noPayStart = isoDaysFromNow(10)
-  const noPayEnd = isoDaysFromNow(12)
-  const noPayRes = await api(
+  const rebookStart = isoDaysFromNow(8)
+  const rebookEnd = isoDaysFromNow(9)
+  const rebook = await api(
     '/reservations',
     {
       method: 'POST',
       body: JSON.stringify({
         car_id: car.id,
-        start_date: noPayStart,
-        end_date: noPayEnd,
+        start_date: rebookStart,
+        end_date: rebookEnd,
       }),
     },
     buyer.token
   )
-  const noPayCreated = (await noPayRes.json()) as { id: number }
+  const rebooked = (await rebook.json()) as { id: number }
+  check('rechazar libera las fechas -> 201', rebook.status === 201)
 
   const rejectWithoutPayment = await api(
-    `/seller/reservations/${noPayCreated.id}/reject`,
+    `/seller/reservations/${rebooked.id}/reject`,
     { method: 'PATCH' },
     seller.token
   )
+  const rejectWithoutPaymentBody = (await rejectWithoutPayment.json()) as {
+    status: string
+    payment?: unknown
+  }
   check(
-    'rechazar sin pago registrado -> 409',
-    rejectWithoutPayment.status === 409
+    'rechazar sin pago registrado -> 200 (el vendedor decide la solicitud)',
+    rejectWithoutPayment.status === 200 &&
+      rejectWithoutPaymentBody.status === 'rejected' &&
+      rejectWithoutPaymentBody.payment === undefined,
+    rejectWithoutPaymentBody
   )
 
-  const cashStart = isoDaysFromNow(14)
-  const cashEnd = isoDaysFromNow(16)
-  const cashRes = await api(
+  // Loop de corrección: el admin devuelve el comprobante y el comprador lo
+  // vuelve a enviar sin reservar de nuevo.
+  const wrongStart = isoDaysFromNow(11)
+  const wrongEnd = isoDaysFromNow(12)
+  const wrongRes = await api(
     '/reservations',
     {
       method: 'POST',
-      body: JSON.stringify({ car_id: car.id, start_date: cashStart, end_date: cashEnd }),
+      body: JSON.stringify({
+        car_id: car.id,
+        start_date: wrongStart,
+        end_date: wrongEnd,
+      }),
     },
     buyer.token
   )
-  const cashCreated = (await cashRes.json()) as { id: number }
-  const cashPay = await api(
-    `/reservations/${cashCreated.id}/payment`,
-    { method: 'POST', body: JSON.stringify({ method: 'cash' }) },
-    buyer.token
-  )
-  check('POST payment cash -> 201', cashPay.status === 201)
-
-  await api(`/reservations/${cashCreated.id}/cancel`, { method: 'PATCH' }, buyer.token)
-
-  const noPayConfirm = await api(
-    `/seller/reservations/${cashCreated.id}/confirm`,
-    { method: 'PATCH' },
-    seller.token
-  )
-  void noPayConfirm
-
-  const freshStart = isoDaysFromNow(20)
-  const freshEnd = isoDaysFromNow(22)
-  const freshRes = await api(
-    '/reservations',
+  const wrong = (await wrongRes.json()) as { id: number }
+  await api(
+    `/reservations/${wrong.id}/payment`,
     {
       method: 'POST',
-      body: JSON.stringify({ car_id: car.id, start_date: freshStart, end_date: freshEnd }),
+      body: JSON.stringify({
+        method: 'pos',
+        proof_url: 'https://example.com/borroso.pdf',
+      }),
     },
     buyer.token
   )
-  const fresh = (await freshRes.json()) as { id: number }
-  const confirmNoPay = await api(
-    `/seller/reservations/${fresh.id}/confirm`,
+  await api(
+    `/seller/reservations/${wrong.id}/accept`,
     { method: 'PATCH' },
     seller.token
   )
-  check('confirmar sin pago -> 409', confirmNoPay.status === 409)
-  await api(`/reservations/${fresh.id}/cancel`, { method: 'PATCH' }, buyer.token)
+  const correction = await api(
+    `/admin/reservations/${wrong.id}/request-correction`,
+    { method: 'PATCH' },
+    admin.token
+  )
+  const correctionBody = (await correction.json()) as {
+    status: string
+    payment?: { status: string }
+  }
+  check(
+    'request-correction -> accepted con el pago rejected',
+    correction.status === 200 &&
+      correctionBody.status === 'accepted' &&
+      correctionBody.payment?.status === 'rejected',
+    correctionBody
+  )
+
+  const retry = await api(
+    `/reservations/${wrong.id}/payment`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        method: 'cash',
+        proof_url: 'https://example.com/nitido.pdf',
+      }),
+    },
+    buyer.token
+  )
+  const retryBody = (await retry.json()) as { status: string; method: string }
+  check(
+    're-enviar el comprobante -> 200 (no 201) y vuelve a pending',
+    retry.status === 200 &&
+      retryBody.status === 'pending' &&
+      retryBody.method === 'cash',
+    retryBody
+  )
+
+  const confirmCorrected = await api(
+    `/admin/reservations/${wrong.id}/confirm`,
+    { method: 'PATCH' },
+    admin.token
+  )
+  const correctedBody = (await confirmCorrected.json()) as { status: string }
+  check(
+    'confirmar la reserva corregida -> confirmed',
+    confirmCorrected.status === 200 && correctedBody.status === 'confirmed'
+  )
 
   const otherSeller = await registerOrLogin(
     `vende2_${stamp}@example.com`,
     'secret123',
-    '+56912345678'
+    '+50581234567'
   )
   const lonelyCar = await createCar(otherSeller.token, `ajeno_${stamp}`)
   const foreignPatch = await api(
