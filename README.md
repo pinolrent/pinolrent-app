@@ -21,11 +21,17 @@ npm run web
 
 ```sh
 npm run typecheck   # tsc --noEmit, puerta antes de cada commit
-npm run verify      # typecheck + los 5 flows (requiere API en EXPO_PUBLIC_API_URL)
-npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller
+npm run verify      # typecheck + los 6 flows (requiere API en EXPO_PUBLIC_API_URL)
+npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller | verify:admin
 ```
 
-Los flows usan usuarios únicos con auto-registro, funcionan contra una DB fresca.
+Los flows usan usuarios únicos con auto-registro, funcionan contra una DB fresca. El flow de admin
+necesita que la API corra con la cuenta del allow-list:
+
+```sh
+# en pinolrent-api
+ADMIN_EMAILS=verify-admin@example.com make dev
+```
 
 ## Build
 

@@ -6,16 +6,17 @@ PinolRent app — P2P car rental client for pinolrent-api. Sellers publish cars,
 Expo ~55 + React Native 0.83 + React 19.2 + TypeScript strict, `expo-router` entry.
 
 ```
-app/                 # expo-router routes: index gate, (auth), (authenticated)/(buyer), (authenticated)/seller
+app/                 # expo-router routes: index gate, (auth), (authenticated)/(buyer),
+                     # (authenticated)/seller and (authenticated)/admin
 src/
-  services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars)
-  hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, ...)
+  services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars, admin)
+  hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, useAdmin, ...)
   stores/            # zustand global state only: auth.store, theme.store
-  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, api)
-  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup
-  constants/         # config, query-keys, reservation-ui, payment-ui
-  utils/             # errors, currency, dates, reservations, storage
-scripts/verify/      # E2E flows against a live API (_helpers + auth/cars/reservations/payments/seller-manage)
+  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, admin, api)
+  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup, admin-rows
+  constants/         # config, query-keys, reservation-ui, payment-ui, admin-ui
+  utils/             # errors, currency, dates, reservations, roles, storage
+scripts/verify/      # E2E flows against a live API (_helpers + auth/cars/reservations/payments/seller-manage/admin)
 components/ui/       # gluestack generated primitives
 ```
 
@@ -38,13 +39,18 @@ npm run typecheck   # tsc --noEmit, gate before every commit
 npm run lint        # eslint ., expo flat config
 npm test            # vitest run (unit: src/utils/*.test.ts)
 npm start           # expo start (android/ios/web)
-npm run verify      # typecheck + 5 flows, requires API at EXPO_PUBLIC_API_URL
-npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller
+npm run verify      # typecheck + 6 flows, requires API at EXPO_PUBLIC_API_URL
+npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller | verify:admin
 ```
 
 Before every commit `typecheck + lint + test` must pass. Run the matching
 `verify:*` flow when you touched `services/`, `hooks/`, `stores/auth` or `services/api.ts`;
 run full `npm run verify` before opening a PR that changes data flow. Never commit with a red check.
+
+`verify:admin` drives the `/admin/*` routes, so the API has to run with the allow-list account:
+`ADMIN_EMAILS=verify-admin@example.com make dev` (in pinolrent-api; the role syncs on startup and
+CI sets the same variable). `_helpers.registerOrLoginAdmin()` fails with that instruction when the
+account is not an admin.
 
 Release builds live in `.github/workflows/build-release.yml` (manual dispatch) and are documented
 in the README. Two rules that the pipeline enforces and that are easy to break by hand:
@@ -61,8 +67,9 @@ New backend endpoint → new screen follows this order, nothing else:
 1. `src/types/<domain>.ts` — add/extend the contract, keep backend `snake_case`.
 2. `src/services/<domain>.service.ts` — thin wrapper: `api.get/post/patch(...).then(r => r.data)`. No query logic here.
 3. `src/hooks/use<Domain>.ts` — `useQuery` for reads, `useMutation` + cache invalidation for writes.
-4. `app/(authenticated)/(buyer|seller)/...` — screen using the hook, `ScreenShell` + `ui-kit` primitives.
-   Buyer screens keep the clean URL; seller screens go under `seller/` so the path carries the prefix.
+4. `app/(authenticated)/(buyer|seller|admin)/...` — screen using the hook, `ScreenShell` + `ui-kit` primitives.
+   Buyer screens keep the clean URL; seller and admin screens go under `seller/` and `admin/` so the
+   path carries the prefix.
 5. Extend `src/constants/query-keys.ts` and `src/utils/errors.ts` (translation) when needed.
 
 One domain per service/hook file. Never fetch from screens, never put HTTP in stores.
@@ -72,13 +79,16 @@ One domain per service/hook file. Never fetch from screens, never put HTTP in st
 `src/services/api.ts` owns the single axios instance: `baseURL = API_URL`, 15s timeout,
 Bearer injection from `useAuthStore`, single-flight `refreshOnce()` against `/auth/refresh`,
 logout + `router.replace('/(auth)/login')` on definitive 401. `/auth/login|refresh|register`
-never retry.
+never retry. Only a `401`/`403` from the refresh invalidates the session: the API answers `500`
+when the failure is its own, so the session survives and the caller shows a retry message.
 
 Rules: always go through `api.ts`; never create another axios/fetch client in app code
 (`scripts/verify` uses raw fetch by design). Never hand-roll refresh or token attach —
 the only exception is the login/register → `me(token)` bootstrap in `useAuth`.
 Token/user/refresh live in `useAuthStore` + `storage` (SecureStore native, localStorage web);
-`loadFromStorage()` validates against `/auth/me` and tries one refresh before wiping.
+`loadFromStorage()` validates against `/auth/me` and tries one refresh before wiping. Without a
+network or on a 5xx it keeps the credentials and leaves `user` null: `(authenticated)/_layout.tsx`
+then offers retry instead of logging out.
 
 ## State and data
 
@@ -88,28 +98,51 @@ Token/user/refresh live in `useAuthStore` + `storage` (SecureStore native, local
 `enabled: Number.isFinite(id)`. Keep zustand for session/theme only — all server state
 goes through react-query.
 
+The admin listings answer `{items,total,limit,offset}`, so `useAdmin.ts` keys them under
+`['admin', ...]` and paginates with `useInfiniteQuery` + "Cargar más"; their mutations also
+invalidate the shared buyer/seller caches.
+
+## Reservation flow (two steps)
+
+`seller` accepts or rejects the request (`/seller/reservations/{id}/accept|reject`, no payment
+needed) and an `admin` validates the payment (`/admin/reservations/{id}/confirm` or
+`request-correction`). Statuses: `pending → accepted → confirmed`, plus the terminal
+`rejected`/`cancelled`. Only `request-correction` leaves the reservation `accepted` with its
+payment `rejected` so the buyer re-sends the proof (`POST /reservations/{id}/payment` answers
+`200` then, `201` the first time).
+
 ## Routing and roles
 
-`app/index.tsx` gates by session: no token → `/(auth)/login`, `seller` → `/(authenticated)/seller`,
-else buyer. `(authenticated)/_layout.tsx` enforces it with `Stack.Protected` per role plus an
-invalid-session fallback. New screens go inside the matching `(buyer)` group or the `seller`
-folder so they inherit the guard; never check roles ad-hoc in screens when a group guard covers it.
+`app/index.tsx` gates by session and lands on the matching area via `homeHref()` in
+`src/utils/roles.ts`: no token → `/(auth)/login`, `admin` → `/(authenticated)/admin`, `seller` →
+`/(authenticated)/seller`, else buyer. `(authenticated)/_layout.tsx` enforces it with
+`Stack.Protected` per role plus a retry fallback for credentials that could not be validated.
+New screens go inside the matching `(buyer)` group or the `seller`/`admin` folder so they inherit
+the guard; never check roles ad-hoc in screens when a group guard covers it.
 
 `(buyer)` is a group, so its routes live at `/`, `/catalog`, `/reservations` and `/profile`.
-`seller` is a real folder, so its routes carry the prefix (`/seller/cars`). That asymmetry is
-deliberate: two groups producing the same URL make expo-router pick one, and a reload of the
-losing URL lands on the wrong role. Give any new seller screen a `/seller/...` URL.
+`seller` and `admin` are real folders, so their routes carry the prefix (`/seller/cars`,
+`/admin/users`). That asymmetry is deliberate: two groups producing the same URL make expo-router
+pick one, and a reload of the losing URL lands on the wrong role. Give any new seller or admin
+screen a `/seller/...` or `/admin/...` URL.
 
 ## UI
 
 Reuse the kit in `src/components/ui-kit.tsx`: `AppButton`, `AppCard` (explicit `padding`/`gap`),
-`ListGroup`/`ListRow`, `FormError`, `SuccessNote`, `EmptyState`, `ErrorState` and `LoadingState`.
-Shared pieces elsewhere: `ChoiceGroup` for pickers, `ProofLink`, `SkeletonList` (`card` or `row`),
-`ProfileScreen`. Layout via `ScreenShell` (max-width + `bg-background` padding), crash fallback via
+`ListGroup`/`ListRow`, `Metric` (dashboard figures), `FormError`, `SuccessNote`, `EmptyState`,
+`ErrorState` and `LoadingState`. Shared pieces elsewhere: `ChoiceGroup` for pickers, `ProofLink`,
+`SkeletonList` (`card` or `row`), `ProfileScreen` (its `area` also accepts `admin`),
+`admin-list.tsx` (`FilterPills`, `AdminListFooter`) and `admin-rows.tsx` for the admin tables.
+Layout via `ScreenShell` (max-width + `bg-background` padding), crash fallback via
 the root `ErrorBoundary`. Style with uniwind `className` tokens (`bg-card`, `text-muted-foreground`,
 ...) so dark mode (Uniwind theme from `theme.store`) keeps working; avoid one-off colors and raw
 `StyleSheet` for themed surfaces. Images go through `resolveImageUrl` (`/uploads/*` resolves
 against `API_URL`) and validate with `isImageUrl`.
+
+Dates: `todayISO()` in `src/utils/dates.ts` mirrors the API's `BUSINESS_TIMEZONE` (Managua, UTC-6)
+— use it for anything that compares against "today" instead of the device clock, and
+`formatApiTimestamp()` for the naive-UTC `created_at` values of the API. `validatePhone` mirrors
+`internal/handlers/phone.go` (bare 8-digit national, `505…` or `+E.164`).
 
 ## Errors and forms
 
@@ -127,10 +160,12 @@ copy in Spanish.
 
 * Unit: `src/utils/*.test.ts` run by `vitest`. Add/extend cases for every `utils/` change.
 * Flows: `scripts/verify/*.ts` exercise the live API end to end with auto-registered unique users
-(`registerOrLogin`), `isoDaysFromNow()` for dates — never hardcode calendar dates — and built-in
-retry on `429`. `check`/`summary` report pass/fail with non-zero exit. Helpers live in `_helpers.ts`.
+(`registerOrLogin`, and `registerOrLoginAdmin` for the `/admin/*` surface), `isoDaysFromNow()` for
+dates — never hardcode calendar dates — and built-in retry on `429`. `check`/`summary` report
+pass/fail with non-zero exit. Helpers live in `_helpers.ts`.
 * CI (`.github/workflows/ci.yml`): `check` job (`typecheck + lint + test`) and `verify` job that boots
-pinolrent-api from `main` on `:8132` and runs `npm run verify`.
+pinolrent-api from `main` on `:8132` with `ADMIN_EMAILS=verify-admin@example.com` and runs
+`npm run verify`.
 
 ## Commit and PR conventions
 
