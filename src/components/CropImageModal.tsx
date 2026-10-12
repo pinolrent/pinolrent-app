@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal, Text, View, useWindowDimensions } from 'react-native'
+import { Modal, Platform, Text, View, useWindowDimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
@@ -9,10 +9,95 @@ import Animated, {
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
 import { AppButton, FormError } from '@/components/ui-kit'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import {
+  computeCropRect,
+  cropOutputSize,
+  CropRect,
+} from '@/utils/image-crop'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 5
 const MAX_FRAME_WIDTH = 420
+
+function loadImage(uri: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error('image failed to load'))
+    image.src = uri
+  })
+}
+
+// On web the frame is drawn straight out of the decoded image, so the full
+// photo never reaches a canvas: only the cropped region is allocated, and the
+// result is encoded once, as jpeg.
+async function renderCropOnWeb(
+  uri: string,
+  rect: CropRect,
+  output: { width: number; height: number }
+): Promise<string> {
+  const image = await loadImage(uri)
+
+  // The picker measures the file with an image of its own: if those numbers
+  // ever disagree with the real pixels, trust the pixels.
+  const originX = Math.min(rect.originX, Math.max(image.naturalWidth - 1, 0))
+  const originY = Math.min(rect.originY, Math.max(image.naturalHeight - 1, 0))
+  const sourceWidth = Math.max(
+    1,
+    Math.min(rect.width, image.naturalWidth - originX)
+  )
+  const sourceHeight = Math.max(
+    1,
+    Math.min(rect.height, image.naturalHeight - originY)
+  )
+
+  const canvas = document.createElement('canvas')
+  canvas.width = output.width
+  canvas.height = output.height
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('canvas is not available')
+  context.drawImage(
+    image,
+    originX,
+    originY,
+    sourceWidth,
+    sourceHeight,
+    0,
+    0,
+    output.width,
+    output.height
+  )
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, 'image/jpeg', 0.8)
+  })
+  if (!blob) throw new Error('canvas could not encode the crop')
+  return URL.createObjectURL(blob)
+}
+
+async function renderCropOnNative(
+  uri: string,
+  rect: CropRect,
+  output: { width: number; height: number }
+): Promise<string> {
+  const context = ImageManipulator.manipulate(uri)
+  context.crop(rect)
+  if (output.width < rect.width || output.height < rect.height) {
+    context.resize(output)
+  }
+  const rendered = await context.renderAsync()
+  const result = await rendered.saveAsync({
+    compress: 0.8,
+    format: SaveFormat.JPEG,
+  })
+  return result.uri
+}
+
+function renderCrop(uri: string, rect: CropRect): Promise<string> {
+  const output = cropOutputSize(rect)
+  if (Platform.OS === 'web') return renderCropOnWeb(uri, rect, output)
+  return renderCropOnNative(uri, rect, output)
+}
 
 export function CropImageModal({
   uri,
@@ -102,34 +187,25 @@ export function CropImageModal({
 
   const save = async () => {
     setError(null)
+    const rect = computeCropRect({
+      frameWidth,
+      frameHeight,
+      imageWidth: width,
+      imageHeight: height,
+      scale: scale.value,
+      translateX: translateX.value,
+      translateY: translateY.value,
+    })
+    if (!rect) {
+      setError('No pudimos leer esta imagen, prueba con otra')
+      return
+    }
+
     setSaving(true)
     try {
-      const effectiveScale = baseScale * scale.value
-      const originX = Math.round(
-        (-frameWidth / 2 - translateX.value) / effectiveScale + width / 2
-      )
-      const originY = Math.round(
-        (-frameHeight / 2 - translateY.value) / effectiveScale + height / 2
-      )
-      const cropWidth = Math.round(frameWidth / effectiveScale)
-      const cropHeight = Math.round(frameHeight / effectiveScale)
-      const clampedX = Math.min(Math.max(originX, 0), width - cropWidth)
-      const clampedY = Math.min(Math.max(originY, 0), height - cropHeight)
-
-      const context = ImageManipulator.manipulate(uri)
-      context.crop({
-        originX: clampedX,
-        originY: clampedY,
-        width: cropWidth,
-        height: cropHeight,
-      })
-      const rendered = await context.renderAsync()
-      const result = await rendered.saveAsync({
-        compress: 0.8,
-        format: SaveFormat.JPEG,
-      })
-      onCropped(result.uri)
-    } catch {
+      onCropped(await renderCrop(uri, rect))
+    } catch (err) {
+      if (__DEV__) console.warn('[crop]', err)
       setError('No pudimos recortar la imagen, inténtalo de nuevo')
     } finally {
       setSaving(false)
