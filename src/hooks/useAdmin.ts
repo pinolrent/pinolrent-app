@@ -13,6 +13,7 @@ import { queryKeys } from '@/constants/query-keys'
 import type {
   AdminAuditFilters,
   AdminCarFilters,
+  AdminNotificationFilters,
   AdminListResponse,
   AdminPaymentFilters,
   AdminReservationFilters,
@@ -168,5 +169,14 @@ export function useAdminStats() {
 export function useAdminAudit(filters: AdminAuditFilters = {}) {
   return useAdminList(queryKeys.adminAudit(filters), (offset) =>
     adminService.audit({ ...filters, limit: ADMIN_PAGE_SIZE, offset })
+  )
+}
+
+// Vista de auditoría de notificaciones: cada nota que recibió una cuenta.
+export function useAdminNotifications(
+  filters: AdminNotificationFilters = {}
+) {
+  return useAdminList(queryKeys.adminNotifications(filters), (offset) =>
+    adminService.notifications({ ...filters, limit: ADMIN_PAGE_SIZE, offset })
   )
 }

@@ -342,3 +342,23 @@ describe('isInvalidCredentialsError', () => {
     expect(isInvalidCredentialsError(null)).toBe(false)
   })
 })
+
+describe('notification messages', () => {
+  const fromApi = (error: string, status = 400) => ({
+    isAxiosError: true,
+    response: { data: { error }, status },
+    message: 'axios',
+  })
+
+  it('translates a missing own notification', () => {
+    expect(
+      getApiErrorMessage(fromApi('notification not found', 404), 'fallback')
+    ).toBe('No encontramos esa notificación')
+  })
+
+  it('translates an invalid notification id', () => {
+    expect(
+      getApiErrorMessage(fromApi('invalid notification id', 400), 'fallback')
+    ).toBe('No encontramos esa notificación')
+  })
+})

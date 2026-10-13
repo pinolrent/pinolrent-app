@@ -20,6 +20,7 @@ import {
   auditTargetLabel,
 } from '@/constants/admin-ui'
 import { NUMERIC } from '@/constants/typography'
+import { NOTIFICATION_LABELS } from '@/constants/notification-ui'
 import type {
   AdminCar,
   AdminPayment,
@@ -27,6 +28,7 @@ import type {
   AdminUser,
   AuditEntry,
 } from '@/types/admin'
+import type { Notification } from '@/types/notification'
 
 function rowClassName(last?: boolean) {
   return `min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
@@ -220,6 +222,35 @@ export function AdminAuditRow({
       <Text style={NUMERIC} className="text-xs text-muted-foreground">
         {formatApiTimestamp(entry.created_at)}
       </Text>
+    </View>
+  )
+}
+
+export function AdminNotificationRow({
+  notification,
+  last,
+}: {
+  notification: Notification
+  last?: boolean
+}) {
+  return (
+    <View className={rowClassName(last)}>
+      <View className="flex-1 gap-1">
+        <Text className="text-base font-semibold text-foreground">
+          {NOTIFICATION_LABELS[notification.kind]}
+        </Text>
+        <Text numberOfLines={1} className="text-xs text-muted-foreground">
+          Cuenta #{notification.user_id} · Reserva #{notification.reservation_id}
+        </Text>
+      </View>
+      <View className="flex-row items-center gap-2">
+        {notification.read ? null : (
+          <StatusBadge tone="warning">Sin leer</StatusBadge>
+        )}
+        <Text style={NUMERIC} className="text-xs text-muted-foreground">
+          {formatApiTimestamp(notification.created_at)}
+        </Text>
+      </View>
     </View>
   )
 }

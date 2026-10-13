@@ -7,6 +7,8 @@ export const queryKeys = {
     ['reservations', 'seller', { limit }] as const,
   sellerCars: (limit?: number) => ['seller-cars', { limit }] as const,
   reservation: (id: number) => ['reservation', id] as const,
+  notifications: (filters?: object) =>
+    ['notifications', { ...filters }] as const,
   adminUsers: (filters?: object) => ['admin', 'users', { ...filters }] as const,
   adminUser: (id: number) => ['admin', 'user', id] as const,
   adminCars: (filters?: object) => ['admin', 'cars', { ...filters }] as const,
@@ -16,4 +18,6 @@ export const queryKeys = {
     ['admin', 'payments', { ...filters }] as const,
   adminStats: ['admin', 'stats'] as const,
   adminAudit: (filters?: object) => ['admin', 'audit', { ...filters }] as const,
+  adminNotifications: (filters?: object) =>
+    ['admin', 'notifications', { ...filters }] as const,
 }

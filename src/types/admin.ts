@@ -1,5 +1,6 @@
 import type { Role, User } from './auth'
 import type { Car } from './car'
+import type { NotificationKind } from './notification'
 import type { Payment } from './payment'
 import type { Reservation } from './reservation'
 
@@ -112,4 +113,12 @@ export interface AuditEntry {
 export interface AdminAuditFilters extends AdminListParams {
   actor_id?: number
   action?: AdminAction
+}
+
+// GET /admin/notifications: filtros por cuenta, tipo de evento y estado de
+// lectura. user_id resuelve quién recibió la notificación.
+export interface AdminNotificationFilters extends AdminListParams {
+  user_id?: number
+  kind?: NotificationKind
+  unread?: boolean
 }

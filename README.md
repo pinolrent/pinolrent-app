@@ -21,8 +21,8 @@ npm run web
 
 ```sh
 npm run typecheck   # tsc --noEmit, puerta antes de cada commit
-npm run verify      # typecheck + los 6 flows (requiere API en EXPO_PUBLIC_API_URL)
-npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller | verify:admin
+npm run verify      # typecheck + los 7 flows (requiere API en EXPO_PUBLIC_API_URL)
+npm run verify:auth | verify:cars | verify:reservations | verify:notifications | verify:payments | verify:seller | verify:admin
 ```
 
 Los flows usan usuarios únicos con auto-registro, funcionan contra una DB fresca. El flow de admin

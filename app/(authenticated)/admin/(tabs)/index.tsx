@@ -146,6 +146,23 @@ export default function AdminPanelScreen() {
               <ChevronRight size={20} color={colors.mutedText} />
             </View>
           </AppCard>
+
+          <AppCard
+            onPress={() => router.push('/(authenticated)/admin/notifications')}
+            accessibilityLabel="Ver las notificaciones"
+          >
+            <View className="flex-row items-center justify-between gap-3">
+              <View className="flex-1 gap-1">
+                <Text className="text-base font-semibold text-foreground">
+                  Notificaciones
+                </Text>
+                <Text className="text-sm text-muted-foreground">
+                  Lo que el sistema le avisó a cada cuenta.
+                </Text>
+              </View>
+              <ChevronRight size={20} color={colors.mutedText} />
+            </View>
+          </AppCard>
         </View>
       )}
     </ScreenShell>

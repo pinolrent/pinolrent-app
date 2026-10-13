@@ -8,6 +8,7 @@ import { tabBarColors } from '@/components/tab-bar'
 import { Sidebar } from '@/components/SideNav'
 import { LoadingState } from '@/components/ui-kit'
 import { buyerNav } from '@/constants/nav'
+import { useUnreadNotifications } from '@/hooks/useNotifications'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function BuyerTabsLayout() {
@@ -16,6 +17,8 @@ export default function BuyerTabsLayout() {
   const isLoaded = useAuthStore((s) => s.isLoaded)
   const { isDesktop } = useBreakpoints()
   const theme = useThemeStore((s) => s.theme)
+  const { data: unreadNotes } = useUnreadNotifications()
+  const unreadCount = unreadNotes?.filter((n) => !n.read).length ?? 0
 
   if (!isLoaded) {
     return <LoadingState />
@@ -23,7 +26,12 @@ export default function BuyerTabsLayout() {
 
   return (
     <View className="flex-1 flex-row bg-background">
-      <Sidebar items={buyerNav} />
+      <Sidebar
+        items={buyerNav}
+        badges={{
+          '/(authenticated)/(buyer)/notifications': unreadCount,
+        }}
+      />
       <View className="flex-1">
         <Tabs
           screenOptions={{
@@ -58,6 +66,16 @@ export default function BuyerTabsLayout() {
                 title: 'Reservas',
                 tabBarIcon: ({ color }) => (
                   <TabIcon Icon={NAV_ICONS.reservations} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="notifications"
+              options={{
+                title: 'Avisos',
+                tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+                tabBarIcon: ({ color }) => (
+                  <TabIcon Icon={NAV_ICONS.notifications} color={color} />
                 ),
               }}
             />

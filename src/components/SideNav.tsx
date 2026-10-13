@@ -6,6 +6,7 @@ import { useThemeColors } from '@/hooks/useThemeColors'
 import { SessionActions } from './SessionActions'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { AppPressable } from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
 
 const LOGO = require('../assets/icon.png')
 
@@ -28,41 +29,56 @@ function NavRow({
   item,
   active,
   onPress,
+  badge,
 }: {
   item: NavItem
   active: boolean
   onPress: () => void
+  badge?: number
 }) {
   const colors = useThemeColors()
   const Icon = NAV_ICONS[item.icon]
+  const label =
+    badge && badge > 0 ? `${item.label} (${badge} sin leer)` : item.label
 
   return (
     <AppPressable
       accessibilityRole="button"
-      accessibilityLabel={item.label}
+      accessibilityLabel={label}
       accessibilityState={{ selected: active }}
       onPress={onPress}
       hoverClassName={active ? undefined : 'bg-accent'}
-      className={`min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 ${
+      className={`min-h-11 flex-row items-center justify-between gap-3 rounded-lg px-3 py-2 ${
         active ? 'bg-primary' : ''
       }`}
     >
-      <Icon
-        size={20}
-        color={active ? colors.primaryForeground : colors.mutedText}
-      />
-      <Text
-        className={`text-base ${
-          active ? 'font-semibold text-primary-foreground' : 'text-foreground'
-        }`}
-      >
-        {item.label}
-      </Text>
+      <View className="flex-row items-center gap-3">
+        <Icon
+          size={20}
+          color={active ? colors.primaryForeground : colors.mutedText}
+        />
+        <Text
+          className={`text-base ${
+            active ? 'font-semibold text-primary-foreground' : 'text-foreground'
+          }`}
+        >
+          {item.label}
+        </Text>
+      </View>
+      {badge && badge > 0 ? (
+        <StatusBadge tone="destructive">{badge}</StatusBadge>
+      ) : null}
     </AppPressable>
   )
 }
 
-export function Sidebar({ items }: { items: NavItem[] }) {
+export function Sidebar({
+  items,
+  badges,
+}: {
+  items: NavItem[]
+  badges?: Record<string, number>
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const { isDesktop } = useBreakpoints()
@@ -93,6 +109,7 @@ export function Sidebar({ items }: { items: NavItem[] }) {
           key={item.href}
           item={item}
           active={activeHref === item.href}
+          badge={badges?.[item.href]}
           onPress={() => router.push(item.href as never)}
         />
       ))}
