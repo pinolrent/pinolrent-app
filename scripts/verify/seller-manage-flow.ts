@@ -162,6 +162,22 @@ async function main() {
   check('PATCH con token de comprador -> 403', foreignEdit.status === 403)
 
   const throwaway = await createCar(seller.token, `descartable_${stamp}`)
+
+  // Con dos autos publicados se puede probar limit y offset.
+  const carsPage1 = await api('/seller/cars?limit=1', {}, seller.token)
+  const carsPage1Body = (await carsPage1.json()) as { id: number }[]
+  const carsPage2 = await api('/seller/cars?limit=1&offset=1', {}, seller.token)
+  const carsPage2Body = (await carsPage2.json()) as { id: number }[]
+  check(
+    'GET /seller/cars respeta limit y offset',
+    carsPage1.status === 200 &&
+      carsPage1Body.length === 1 &&
+      carsPage2.status === 200 &&
+      carsPage2Body.length === 1 &&
+      carsPage1Body[0].id !== carsPage2Body[0].id,
+    { page1: carsPage1Body, page2: carsPage2Body }
+  )
+
   const removed = await api(
     `/seller/cars/${throwaway.id}`,
     { method: 'DELETE' },

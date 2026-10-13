@@ -4,7 +4,7 @@ import { useAdminPayments } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminPaymentRow } from '@/components/admin-rows'
-import { AdminListFooter, FilterPills } from '@/components/admin-list'
+import { ListFooter, FilterPills } from '@/components/admin-list'
 import { AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
@@ -104,7 +104,7 @@ export default function AdminPaymentsScreen() {
             />
           }
           ListFooterComponent={
-            <AdminListFooter
+            <ListFooter
               hasNextPage={Boolean(hasNextPage)}
               isFetchingNextPage={isFetchingNextPage}
               isFetchNextPageError={isFetchNextPageError}

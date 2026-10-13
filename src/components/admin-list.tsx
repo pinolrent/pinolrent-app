@@ -54,7 +54,7 @@ export function FilterPills<T extends string>({
   )
 }
 
-export function AdminListFooter({
+export function ListFooter({
   hasNextPage,
   isFetchingNextPage,
   isFetchNextPageError,

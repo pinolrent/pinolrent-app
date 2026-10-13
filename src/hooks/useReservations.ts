@@ -1,30 +1,55 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { reservationsService } from '@/services/reservations.service'
 import { queryKeys } from '@/constants/query-keys'
-import type { CreateReservationRequest } from '@/types/reservation'
+import { LIST_PAGE_SIZE } from '@/constants/lists'
+import type {
+  CreateReservationRequest,
+  Reservation,
+} from '@/types/reservation'
 
 function invalidateReservationCaches(
   queryClient: ReturnType<typeof useQueryClient>
 ) {
-  queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
-  queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
+  queryClient.invalidateQueries({ queryKey: ['reservations'] })
+  queryClient.invalidateQueries({ queryKey: ['reservations', 'seller'] })
   queryClient.invalidateQueries({ queryKey: ['cars'] })
   queryClient.invalidateQueries({ queryKey: ['car'] })
   queryClient.invalidateQueries({ queryKey: ['reservation'] })
 }
 
-export function useMyReservations() {
-  return useQuery({
-    queryKey: queryKeys.reservations,
-    queryFn: reservationsService.list,
+// Los listados del comprador y del vendedor son arrays planos: se pide de a una
+// página y se corta cuando la última vino incompleta.
+export function useMyReservations(limit = LIST_PAGE_SIZE) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.reservations(limit),
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      reservationsService.list({ limit, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (
+      page: Reservation[],
+      _allPages: Reservation[][],
+      lastPageParam: number
+    ) => (page.length >= limit ? lastPageParam + limit : undefined),
     refetchOnMount: 'always',
   })
 }
 
-export function useSellerReservations() {
-  return useQuery({
-    queryKey: queryKeys.sellerReservations,
-    queryFn: reservationsService.sellerList,
+export function useSellerReservations(limit = LIST_PAGE_SIZE) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.sellerReservations(limit),
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      reservationsService.sellerList({ limit, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (
+      page: Reservation[],
+      _allPages: Reservation[][],
+      lastPageParam: number
+    ) => (page.length >= limit ? lastPageParam + limit : undefined),
     refetchOnMount: 'always',
   })
 }

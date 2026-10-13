@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { View, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, FlatList, RefreshControl } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
@@ -16,9 +16,9 @@ import {
   AppCard,
   EmptyState,
   ErrorState,
-  FormError,
   ListGroup,
 } from '@/components/ui-kit'
+import { ListFooter } from '@/components/admin-list'
 import { DateField } from '@/components/DateField'
 
 const PAGE_SIZE = 10
@@ -211,21 +211,12 @@ export default function CatalogScreen() {
               />
             }
             ListFooterComponent={
-              isFetchingNextPage ? (
-                <View className="py-4">
-                  <ActivityIndicator
-                    accessibilityRole="progressbar"
-                    accessibilityLabel="Cargando más autos"
-                  />
-                </View>
-              ) : isFetchNextPageError ? (
-                <View className="items-center gap-2 py-4">
-                  <FormError message="No pudimos cargar más autos" />
-                  <AppButton variant="outline" size="sm" onPress={loadNextPage}>
-                    Reintentar
-                  </AppButton>
-                </View>
-              ) : null
+              <ListFooter
+                hasNextPage={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
+                isFetchNextPageError={isFetchNextPageError}
+                onLoadMore={loadNextPage}
+              />
             }
           />
         </ListGroup>

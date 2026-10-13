@@ -11,6 +11,7 @@ import { AppCard, ErrorState, Metric } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { SECTION_LABEL } from '@/constants/typography'
+import { SUMMARY_LIMIT } from '@/constants/lists'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerHomeScreen() {
@@ -24,7 +25,7 @@ export default function SellerHomeScreen() {
     error: carsErr,
     refetch: refetchCars,
     isRefetching: carsRefetching,
-  } = useSellerCars()
+  } = useSellerCars(SUMMARY_LIMIT)
   const {
     data: reservations,
     isLoading: resLoading,
@@ -32,7 +33,7 @@ export default function SellerHomeScreen() {
     error: resErr,
     refetch: refetchRes,
     isRefetching: resRefetching,
-  } = useSellerReservations()
+  } = useSellerReservations(SUMMARY_LIMIT)
 
   const loadError = carsError
     ? getApiErrorMessage(carsErr, 'Error al cargar tus autos')
@@ -40,8 +41,9 @@ export default function SellerHomeScreen() {
       ? getApiErrorMessage(resErr, 'Error al cargar tus reservas')
       : null
 
-  const activeCars = (cars ?? []).filter((car) => car.active).length
-  const list = reservations ?? []
+  const allCars = cars?.pages.flatMap((page) => page) ?? []
+  const activeCars = allCars.filter((car) => car.active).length
+  const list = reservations?.pages.flatMap((page) => page) ?? []
   const toAnswer = list.filter((r) => r.status === 'pending').length
   const accepted = list.filter((r) => r.status === 'accepted').length
   const confirmed = list.filter((r) => r.status === 'confirmed').length

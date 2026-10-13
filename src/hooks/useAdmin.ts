@@ -49,8 +49,8 @@ function invalidateAdmin(queryClient: QueryClient) {
 
 // Un cambio del admin puede mover lo que ven comprador y vendedor.
 function invalidateReservationCaches(queryClient: QueryClient) {
-  queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
-  queryClient.invalidateQueries({ queryKey: queryKeys.sellerReservations })
+  queryClient.invalidateQueries({ queryKey: ['reservations'] })
+  queryClient.invalidateQueries({ queryKey: ['reservations', 'seller'] })
   queryClient.invalidateQueries({ queryKey: ['reservation'] })
   queryClient.invalidateQueries({ queryKey: ['cars'] })
   queryClient.invalidateQueries({ queryKey: ['car'] })

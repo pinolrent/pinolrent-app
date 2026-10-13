@@ -12,10 +12,10 @@ src/
   services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars, admin, notifications)
   hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, useAdmin, ...)
   stores/            # zustand global state only: auth.store, theme.store
-  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, admin, api, notification)
-  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup, admin-rows, NotificationsScreen
-  constants/         # config, query-keys, reservation-ui, payment-ui, admin-ui, notification-ui
-  utils/             # errors, currency, dates, reservations, roles, storage, notifications
+  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, admin, api)
+  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup, admin-rows
+  constants/         # config, query-keys, lists, reservation-ui, payment-ui, admin-ui
+  utils/             # errors, currency, dates, reservations, roles, storage
 scripts/verify/      # E2E flows against a live API (_helpers + auth/cars/reservations/payments/seller-manage/admin)
 components/ui/       # gluestack generated primitives
 ```
@@ -67,7 +67,8 @@ New backend endpoint → new screen follows this order, nothing else:
 
 1. `src/types/<domain>.ts` — add/extend the contract, keep backend `snake_case`.
 2. `src/services/<domain>.service.ts` — thin wrapper: `api.get/post/patch(...).then(r => r.data)`. No query logic here.
-3. `src/hooks/use<Domain>.ts` — `useQuery` for reads, `useMutation` + cache invalidation for writes.
+3. `src/hooks/use<Domain>.ts` — `useQuery` for reads, `useInfiniteQuery` for offset-paginated
+   lists, `useMutation` + cache invalidation for writes.
 4. `app/(authenticated)/(buyer|seller|admin)/...` — screen using the hook, `ScreenShell` + `ui-kit` primitives.
    Buyer screens keep the clean URL; seller and admin screens go under `seller/` and `admin/` so the
    path carries the prefix.
@@ -102,6 +103,14 @@ goes through react-query.
 The admin listings answer `{items,total,limit,offset}`, so `useAdmin.ts` keys them under
 `['admin', ...]` and paginates with `useInfiniteQuery` + "Cargar más"; their mutations also
 invalidate the shared buyer/seller caches.
+
+The buyer/seller listings (`/reservations`, `/seller/reservations`, `/seller/cars`) answer plain
+arrays, so `useReservations.ts` / `useSellerCars.ts` paginate by offset and stop when a page comes
+back short (`LIST_PAGE_SIZE`). All four list screens (catalog included) share `ListFooter`. Keys
+carry the limit, so the list page and the wide summary page do not share cache; invalidations use
+the key prefix (`['reservations']`, `['seller-cars']`). The API caps a request at 200 rows, so the
+screens that derive data from the list (seller home metrics, seller car detail) ask for
+`SUMMARY_LIMIT` and accept the cut.
 
 ## Reservation flow (two steps)
 
@@ -154,7 +163,8 @@ Reuse the kit in `src/components/ui-kit.tsx`: `AppButton`, `AppCard` (explicit `
 `ListGroup`/`ListRow`, `Metric` (dashboard figures), `FormError`, `SuccessNote`, `EmptyState`,
 `ErrorState` and `LoadingState`. Shared pieces elsewhere: `ChoiceGroup` for pickers, `ProofLink`,
 `SkeletonList` (`card` or `row`), `ProfileScreen` (its `area` also accepts `admin`),
-`admin-list.tsx` (`FilterPills`, `AdminListFooter`) and `admin-rows.tsx` for the admin tables.
+`admin-list.tsx` (`FilterPills` and `ListFooter`, the paginated-list footer shared with the
+buyer/seller lists) and `admin-rows.tsx` for the admin tables.
 Layout via `ScreenShell` (max-width + `bg-background` padding), crash fallback via
 the root `ErrorBoundary`. Style with uniwind `className` tokens (`bg-card`, `text-muted-foreground`,
 ...) so dark mode (Uniwind theme from `theme.store`) keeps working; avoid one-off colors and raw

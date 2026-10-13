@@ -5,6 +5,7 @@ import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { ListFooter } from '@/components/admin-list'
 import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import {
@@ -30,13 +31,26 @@ export default function SellerReservationsScreen() {
   // La tabla fija 688px de columnas más la celda del auto: por debajo de
   // 880 el auto queda aplastado y las tarjetas leen mejor.
   const showTable = contentWidth >= 880
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useSellerReservations()
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  } = useSellerReservations()
   const [notice, setNotice] = useTransientNotice()
 
-  const reservations = data ?? []
+  const reservations = data?.pages.flatMap((page) => page) ?? []
   const pending = reservations.filter((r) => r.status === 'pending').length
   const pendingLabel = `${pending} por responder`
+  const loadMore = () => {
+    void fetchNextPage()
+  }
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
@@ -137,7 +151,7 @@ export default function SellerReservationsScreen() {
       subtitle={
         isLoading
           ? undefined
-          : `${reservations.length} en total · ${pendingLabel}`
+          : `${reservations.length} mostradas · ${pendingLabel}`
       }
     >
       {isLoading ? (
@@ -180,8 +194,20 @@ export default function SellerReservationsScreen() {
                 progressBackgroundColor={colors.card}
               />
             }
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) loadMore()
+            }}
+            onEndReachedThreshold={0.4}
             ListEmptyComponent={
               <EmptyState message="Todavía no recibiste ninguna reserva" />
+            }
+            ListFooterComponent={
+              <ListFooter
+                hasNextPage={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
+                isFetchNextPageError={isFetchNextPageError}
+                onLoadMore={loadMore}
+              />
             }
           />
         </View>

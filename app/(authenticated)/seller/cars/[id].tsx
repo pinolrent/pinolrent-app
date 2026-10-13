@@ -26,6 +26,7 @@ import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
 import { useThemeColors } from '@/hooks/useThemeColors'
+import { SUMMARY_LIMIT } from '@/constants/lists'
 import { SHEET_FORM_WIDTH } from '@/constants/layout'
 import { NUMERIC } from '@/constants/typography'
 
@@ -37,13 +38,15 @@ export default function SellerCarDetailScreen() {
   const { container, main, side } = useDetailSplit()
   const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
-    useSellerCars()
+    useSellerCars(SUMMARY_LIMIT)
   const updateCar = useUpdateSellerCar()
   const deleteCar = useDeleteSellerCar()
   const [notice, setNotice] = useTransientNotice()
   const [editOpen, setEditOpen] = useState(false)
 
-  const car = data?.find((item) => item.id === idNum)
+  const car = data?.pages
+    .flatMap((page) => page)
+    .find((item) => item.id === idNum)
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar el auto')

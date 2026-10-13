@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, View } from 'react-native'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminNotificationRow } from '@/components/admin-rows'
-import { AdminListFooter, FilterPills } from '@/components/admin-list'
+import { ListFooter, FilterPills } from '@/components/admin-list'
 import { AppButton, EmptyState, ErrorState } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
@@ -157,7 +157,7 @@ export default function AdminNotificationsScreen() {
             <EmptyState message="No hay notificaciones con ese filtro" />
           }
           ListFooterComponent={
-            <AdminListFooter
+            <ListFooter
               hasNextPage={Boolean(hasNextPage)}
               isFetchingNextPage={isFetchingNextPage}
               isFetchNextPageError={isFetchNextPageError}

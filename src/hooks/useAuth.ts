@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
-import { queryKeys } from '@/constants/query-keys'
 import { homeHref } from '@/utils/roles'
 import type {
   ChangePasswordRequest,
@@ -92,7 +91,7 @@ export function useUpdateProfile() {
     mutationFn: (phone: string) => authService.updateProfile({ phone }),
     onSuccess: (user) => {
       useAuthStore.getState().setUser(user)
-      queryClient.invalidateQueries({ queryKey: queryKeys.reservations })
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
     },
   })
 }

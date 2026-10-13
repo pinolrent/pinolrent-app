@@ -8,6 +8,7 @@ import type { Car } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
 import { StaggerCard } from '@/components/StaggerCard'
 import { ScreenShell } from '@/components/ScreenShell'
+import { ListFooter } from '@/components/admin-list'
 import { CarCard } from '@/components/rows'
 import { SellerCarForm } from '@/components/SellerCarForm'
 import { SkeletonList } from '@/components/Skeleton'
@@ -28,8 +29,18 @@ export default function SellerCarsScreen() {
   const colors = useThemeColors()
   const { deleted } = useLocalSearchParams<{ deleted?: string }>()
   const { columns: numColumns, isWide } = useBreakpoints()
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useSellerCars()
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  } = useSellerCars()
   const createCar = useCreateSellerCar()
 
   const [formOpen, setFormOpen] = useState(false)
@@ -58,8 +69,11 @@ export default function SellerCarsScreen() {
     createCar.reset()
   }
 
-  const cars = data ?? []
+  const cars = data?.pages.flatMap((page) => page) ?? []
   const activeCount = cars.filter((car) => car.active).length
+  const loadMore = () => {
+    void fetchNextPage()
+  }
 
   const renderItem = ({ item, index }: { item: Car; index: number }) => (
     <StaggerCard index={index}>
@@ -80,7 +94,7 @@ export default function SellerCarsScreen() {
   return (
     <ScreenShell
       title="Mis autos"
-      subtitle={`${cars.length} ${cars.length === 1 ? 'publicado' : 'publicados'} · ${activeCount} ${activeCount === 1 ? 'activo' : 'activos'}`}
+      subtitle={`${cars.length} ${cars.length === 1 ? 'mostrado' : 'mostrados'} · ${activeCount} ${activeCount === 1 ? 'activo' : 'activos'}`}
       action={
         isWide ? (
           <AppButton onPress={openForm}>Publicar auto</AppButton>
@@ -117,8 +131,20 @@ export default function SellerCarsScreen() {
                 progressBackgroundColor={colors.card}
               />
             }
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) loadMore()
+            }}
+            onEndReachedThreshold={0.4}
             ListEmptyComponent={
               <EmptyState message="Todavía no publicaste autos" />
+            }
+            ListFooterComponent={
+              <ListFooter
+                hasNextPage={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
+                isFetchNextPageError={isFetchNextPageError}
+                onLoadMore={loadMore}
+              />
             }
           />
           {!isWide && (
