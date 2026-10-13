@@ -29,6 +29,7 @@ import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { NUMERIC, SECTION_LABEL } from '@/constants/typography'
+import { SUMMARY_LIMIT } from '@/constants/lists'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 
 const PREVIEW_CARS = 3
@@ -38,7 +39,7 @@ export default function BuyerHomeScreen() {
   const colors = useThemeColors()
   const { columns, isWide } = useBreakpoints()
   const { data, isLoading, isError, error, refetch, isRefetching } =
-    useMyReservations()
+    useMyReservations(SUMMARY_LIMIT)
   const carsQuery = useCars(PREVIEW_CARS)
 
   // La búsqueda del inicio es de verdad: las fechas viajan al catálogo.
@@ -73,7 +74,7 @@ export default function BuyerHomeScreen() {
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
-  const reservations = data ?? []
+  const reservations = data?.pages.flatMap((page) => page) ?? []
   // Solo las que siguen en curso: rechazadas y canceladas ya no van.
   const upcoming = reservations
     .filter(

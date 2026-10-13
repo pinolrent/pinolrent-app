@@ -6,7 +6,7 @@ import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminCarRow } from '@/components/admin-rows'
-import { AdminListFooter, FilterPills } from '@/components/admin-list'
+import { ListFooter, FilterPills } from '@/components/admin-list'
 import {
   AppButton,
   AppCard,
@@ -153,7 +153,7 @@ export default function AdminCarsScreen() {
             onEndReachedThreshold={0.4}
             ListEmptyComponent={<EmptyState message="Ningún auto coincide" />}
             ListFooterComponent={
-              <AdminListFooter
+              <ListFooter
                 hasNextPage={Boolean(hasNextPage)}
                 isFetchingNextPage={isFetchingNextPage}
                 isFetchNextPageError={isFetchNextPageError}

@@ -6,6 +6,7 @@ import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Reservation } from '@/types/reservation'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
+import { ListFooter } from '@/components/admin-list'
 import { CancelReservationBlock } from '@/components/ReservationActions'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import {
@@ -32,8 +33,18 @@ export default function ReservationsScreen() {
   // 880 el auto queda aplastado y las tarjetas leen mejor.
   const showTable = contentWidth >= 880
   const { created } = useLocalSearchParams<{ created?: string }>()
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useMyReservations()
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  } = useMyReservations()
   const [createdNotice, setCreatedNotice] = useTransientNotice()
 
   useEffect(() => {
@@ -44,9 +55,12 @@ export default function ReservationsScreen() {
     router.setParams({ created: '' })
   }, [created, router, setCreatedNotice])
 
-  const reservations = data ?? []
+  const reservations = data?.pages.flatMap((page) => page) ?? []
   const pending = reservations.filter((r) => r.status === 'pending').length
   const pendingLabel = `${pending} ${pending === 1 ? 'pendiente' : 'pendientes'}`
+  const loadMore = () => {
+    void fetchNextPage()
+  }
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
@@ -116,7 +130,7 @@ export default function ReservationsScreen() {
       subtitle={
         isLoading
           ? undefined
-          : `${reservations.length} en total · ${pendingLabel}`
+          : `${reservations.length} mostradas · ${pendingLabel}`
       }
     >
       {isLoading ? (
@@ -159,6 +173,10 @@ export default function ReservationsScreen() {
                 progressBackgroundColor={colors.card}
               />
             }
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) loadMore()
+            }}
+            onEndReachedThreshold={0.4}
             ListEmptyComponent={
               <EmptyState
                 message="Todavía no reservaste ningún auto"
@@ -171,6 +189,14 @@ export default function ReservationsScreen() {
                     Explorar autos
                   </AppButton>
                 }
+              />
+            }
+            ListFooterComponent={
+              <ListFooter
+                hasNextPage={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
+                isFetchNextPageError={isFetchNextPageError}
+                onLoadMore={loadMore}
               />
             }
           />

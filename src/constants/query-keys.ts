@@ -2,9 +2,10 @@ export const queryKeys = {
   cars: (limit?: number, filters?: object) =>
     ['cars', { limit, ...filters }] as const,
   car: (id: number) => ['car', id] as const,
-  reservations: ['reservations'] as const,
-  sellerReservations: ['reservations', 'seller'] as const,
-  sellerCars: ['seller-cars'] as const,
+  reservations: (limit?: number) => ['reservations', { limit }] as const,
+  sellerReservations: (limit?: number) =>
+    ['reservations', 'seller', { limit }] as const,
+  sellerCars: (limit?: number) => ['seller-cars', { limit }] as const,
   reservation: (id: number) => ['reservation', id] as const,
   adminUsers: (filters?: object) => ['admin', 'users', { ...filters }] as const,
   adminUser: (id: number) => ['admin', 'user', id] as const,

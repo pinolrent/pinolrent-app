@@ -4,7 +4,7 @@ import { useAdminAudit } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminAuditRow } from '@/components/admin-rows'
-import { AdminListFooter, FilterPills } from '@/components/admin-list'
+import { ListFooter, FilterPills } from '@/components/admin-list'
 import { AppButton, AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
@@ -136,7 +136,7 @@ export default function AdminAuditScreen() {
             <EmptyState message="No hay movimientos con ese filtro" />
           }
           ListFooterComponent={
-            <AdminListFooter
+            <ListFooter
               hasNextPage={Boolean(hasNextPage)}
               isFetchingNextPage={isFetchingNextPage}
               isFetchNextPageError={isFetchNextPageError}

@@ -5,7 +5,7 @@ import { useAdminUsers } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminUserRow } from '@/components/admin-rows'
-import { AdminListFooter, FilterPills } from '@/components/admin-list'
+import { ListFooter, FilterPills } from '@/components/admin-list'
 import { AppButton, AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
@@ -135,7 +135,7 @@ export default function AdminUsersScreen() {
           onEndReachedThreshold={0.4}
           ListEmptyComponent={<EmptyState message="Ninguna cuenta coincide" />}
           ListFooterComponent={
-            <AdminListFooter
+            <ListFooter
               hasNextPage={Boolean(hasNextPage)}
               isFetchingNextPage={isFetchingNextPage}
               isFetchNextPageError={isFetchNextPageError}
