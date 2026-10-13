@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -43,44 +43,49 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.26'
-          cache: false
-
       - name: Check out API
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: pinolrent/pinolrent-api
+          ref: main
           path: pinolrent-api
 
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.26'
+          cache: true
+          cache-dependency-path: pinolrent-api/go.sum
+
+      # The build starts in the background so it overlaps with npm ci; the
+      # first build on a cold runner downloads the modules and compiles the
+      # whole API, which can take minutes.
       - name: Start API
         working-directory: pinolrent-api
         run: |
-          JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" ADMIN_EMAILS="verify-admin@example.com" go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
-          # The first build on a cold runner downloads the modules and compiles
-          # the whole API, which can take minutes.
-          for i in $(seq 1 180); do
-            curl -sf -m 2 http://localhost:8132/health && break
-            sleep 1
-          done
-          curl -sf -m 2 http://localhost:8132/health || {
-            echo "The API did not answer /health in time:" >&2
-            cat /tmp/pinolrent-ci.log >&2
-            exit 1
-          }
+          set -euo pipefail
+          JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" ADMIN_EMAILS="verify-admin@example.com" nohup go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
 
       - name: Install dependencies
         run: NODE_ENV=development npm ci
+
+      - name: Wait for the API
+        run: |
+          for i in $(seq 1 240); do
+            curl -sf -m 2 http://localhost:8132/health && exit 0
+            sleep 1
+          done
+          echo "The API did not answer /health in time:" >&2
+          cat /tmp/pinolrent-ci.log >&2
+          exit 1
 
       - name: Verify flows
         run: EXPO_PUBLIC_API_URL=http://localhost:8132 npm run verify
