@@ -48,12 +48,10 @@ eas init                    # escribe el projectId real en app.json: commiteá e
 eas credentials -p android  # generá el keystore y dejaselo a EAS
 ```
 
-Después cargá dos secrets en GitHub → Settings → Secrets and variables → Actions:
-
-| Secret | Valor |
-|---|---|
-| `EXPO_TOKEN` | expo.dev → Account settings → Access tokens |
-| `EXPO_PUBLIC_API_URL` | la URL **https** de la API |
+Después cargá el secret `EXPO_TOKEN` en GitHub → Settings → Secrets and variables → Actions
+(expo.dev → Account settings → Access tokens). La URL de la API no va como secret de GitHub:
+el workflow la lee del environment `production` de EAS (expo.dev → Project → Environment
+variables) y falla temprano si falta o no empieza con `https://`.
 
 **Cada release:**
 
