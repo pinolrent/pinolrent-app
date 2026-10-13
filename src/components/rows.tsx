@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { formatPrice, formatPricePerDay } from '@/utils/currency'
-import { formatDateRange, formatDays } from '@/utils/dates'
+import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
@@ -20,7 +20,9 @@ import {
   STATUS_TONES,
 } from '@/constants/reservation-ui'
 import type { Car } from '@/types/car'
+import type { Notification } from '@/types/notification'
 import type { Reservation } from '@/types/reservation'
+import { NOTIFICATION_LABELS } from '@/constants/notification-ui'
 
 export function CarPhoto({
   uri,
@@ -352,5 +354,67 @@ export function ReservationRow({
       )}
       {action}
     </View>
+  )
+}
+
+export function NotificationRow({
+  notification,
+  onPress,
+  last,
+}: {
+  notification: Notification
+  onPress?: () => void
+  last?: boolean
+}) {
+  const colors = useThemeColors()
+  const unread = !notification.read
+  const body = (
+    <View className="flex-1 gap-1">
+      <View className="flex-row items-center gap-3">
+        {unread ? (
+          <View className="h-2 w-2 rounded-full bg-primary" />
+        ) : (
+          <View className="w-4" />
+        )}
+        <Text
+          numberOfLines={1}
+          className={`text-base ${
+            unread ? 'font-semibold' : ''
+          } text-foreground`}
+        >
+          {NOTIFICATION_LABELS[notification.kind]}
+        </Text>
+      </View>
+      <Text className="text-xs text-muted-foreground">
+        Reserva #{notification.reservation_id} ·{' '}
+        {formatApiTimestamp(notification.created_at)}
+      </Text>
+    </View>
+  )
+
+  const rowClass = `min-h-16 flex-row items-center justify-between gap-3 border-border bg-card px-4 py-3 ${
+    last ? '' : 'border-b'
+  }`
+
+  if (!onPress) {
+    return (
+      <View className={rowClass}>
+        {body}
+        {null}
+      </View>
+    )
+  }
+
+  return (
+    <AppPressable
+      accessibilityRole="button"
+      accessibilityLabel={`Notificación: ${NOTIFICATION_LABELS[notification.kind]}`}
+      onPress={onPress}
+      hoverClassName="bg-accent"
+      className={rowClass}
+    >
+      {body}
+      <ChevronRight size={20} color={colors.mutedText} />
+    </AppPressable>
   )
 }

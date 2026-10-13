@@ -1,10 +1,12 @@
 import api from './api'
 import type { Car } from '@/types/car'
+import type { Notification } from '@/types/notification'
 import type { Reservation } from '@/types/reservation'
 import type {
   AdminAuditFilters,
   AdminCar,
   AdminCarFilters,
+  AdminNotificationFilters,
   AdminListResponse,
   AdminPayment,
   AdminPaymentFilters,
@@ -94,6 +96,14 @@ export const adminService = {
   audit: (params?: AdminAuditFilters) =>
     api
       .get<AdminListResponse<AuditEntry>>('/admin/audit', {
+        params: clean(params),
+      })
+      .then((r) => r.data),
+
+  // Vista de auditoría: cada notificación que recibió una cuenta.
+  notifications: (params?: AdminNotificationFilters) =>
+    api
+      .get<AdminListResponse<Notification>>('/admin/notifications', {
         params: clean(params),
       })
       .then((r) => r.data),

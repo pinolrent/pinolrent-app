@@ -34,6 +34,15 @@ export default function AdminLayout() {
           }}
         />
         <Stack.Screen
+          name="notifications"
+          options={{
+            headerShown: true,
+            title: 'Notificaciones',
+            ...headerBackOptions(theme, '/(authenticated)/admin'),
+            ...headerColors(theme),
+          }}
+        />
+        <Stack.Screen
           name="users/[id]"
           options={{
             headerShown: true,

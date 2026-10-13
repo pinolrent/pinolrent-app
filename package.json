@@ -15,8 +15,9 @@
     "verify:reservations": "tsx scripts/verify/reservations-flow.ts",
     "verify:payments": "tsx scripts/verify/payments-flow.ts",
     "verify:seller": "tsx scripts/verify/seller-manage-flow.ts",
+    "verify:notifications": "tsx scripts/verify/notifications-flow.ts",
     "verify:admin": "tsx scripts/verify/admin-flow.ts",
-    "verify": "npm run typecheck && npm run verify:auth && npm run verify:cars && npm run verify:reservations && npm run verify:payments && npm run verify:seller && npm run verify:admin",
+    "verify": "npm run typecheck && npm run verify:auth && npm run verify:cars && npm run verify:reservations && npm run verify:payments && npm run verify:seller && npm run verify:notifications && npm run verify:admin",
     "prebuild:android": "expo prebuild --platform android --clean",
     "build:apk": "eas build --platform android --profile production-apk --local",
     "build:aab": "eas build --platform android --profile production --local"

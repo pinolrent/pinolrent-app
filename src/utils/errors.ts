@@ -195,6 +195,11 @@ function translateBackendMessage(msg: string): string {
   if (lower.includes('car not found')) return 'No encontramos ese auto'
   if (lower.includes('reservation not found'))
     return 'No encontramos esa reserva'
+  if (
+    lower.includes('notification not found') ||
+    lower.includes('invalid notification id')
+  )
+    return 'No encontramos esa notificación'
   if (lower.includes('no fields to update')) return 'No hay cambios que guardar'
   if (lower.includes('name is required'))
     return 'El nombre del auto es obligatorio'

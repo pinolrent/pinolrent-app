@@ -18,6 +18,11 @@ export const buyerNav: NavItem[] = [
     href: '/(authenticated)/(buyer)/reservations',
     icon: 'reservations',
   },
+  {
+    label: 'Avisos',
+    href: '/(authenticated)/(buyer)/notifications',
+    icon: 'notifications',
+  },
   { label: 'Perfil', href: '/(authenticated)/(buyer)/profile', icon: 'profile' },
 ]
 
@@ -28,6 +33,11 @@ export const sellerNav: NavItem[] = [
     label: 'Reservas',
     href: '/(authenticated)/seller/reservations',
     icon: 'reservations',
+  },
+  {
+    label: 'Avisos',
+    href: '/(authenticated)/seller/notifications',
+    icon: 'notifications',
   },
   { label: 'Perfil', href: '/(authenticated)/seller/profile', icon: 'profile' },
 ]
