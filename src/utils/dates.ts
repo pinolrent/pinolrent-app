@@ -63,7 +63,7 @@ export function daysBetween(start: string, end: string): number {
   return Math.round((e - s) / 86400000)
 }
 
-export interface DateRangeInputErrors {
+interface DateRangeInputErrors {
   startError: string | null
   endError: string | null
 }

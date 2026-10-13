@@ -20,7 +20,7 @@ import type {
   AdminUserFilters,
 } from '@/types/admin'
 
-export const ADMIN_PAGE_SIZE = 20
+const ADMIN_PAGE_SIZE = 20
 
 // Los listados del admin comparten envoltura {items,total}: se pide de a una
 // página y se corta cuando lo cargado alcanza el total.

@@ -1,6 +1,6 @@
 import { useWindowDimensions } from 'react-native'
 
-export const BREAKPOINTS = {
+const BREAKPOINTS = {
   tablet: 600,
   desktop: 900,
   split: 720,
@@ -8,7 +8,7 @@ export const BREAKPOINTS = {
 } as const
 
 // El sidebar de escritorio ocupa 240px (w-60) del ancho de la ventana.
-export const SIDEBAR_WIDTH = 240
+const SIDEBAR_WIDTH = 240
 
 export function useBreakpoints() {
   const { width } = useWindowDimensions()

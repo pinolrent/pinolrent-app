@@ -26,7 +26,7 @@ function usePulse() {
   return useAnimatedStyle(() => ({ opacity: opacity.value }))
 }
 
-export function SkeletonCard() {
+function SkeletonCard() {
   const style = usePulse()
 
   return (
@@ -63,7 +63,7 @@ export function SkeletonRow() {
   )
 }
 
-export function SkeletonCardRow() {
+function SkeletonCardRow() {
   const style = usePulse()
 
   return (

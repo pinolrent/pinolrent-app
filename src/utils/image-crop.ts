@@ -11,9 +11,9 @@
 // The API re-encodes every upload and caps it at 5 MB, and a car photo is
 // shown at card size: 1280 px on the longest side keeps the jpeg around a few
 // hundred KB and the canvas small enough to encode anywhere.
-export const MAX_CROP_SIDE = 1280
+const MAX_CROP_SIDE = 1280
 
-export interface CropViewport {
+interface CropViewport {
   frameWidth: number
   frameHeight: number
   imageWidth: number

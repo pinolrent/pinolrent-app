@@ -129,14 +129,14 @@ export function RejectReservationBlock({
 // El comprador registra el pago con la reserva pendiente o aceptada. Si el
 // administrador rechazó el comprobante, la reserva sigue aceptada y se vuelve
 // a enviar: la API responde 200 y el pago regresa a pendiente.
-export function canRecordPayment(reservation: Reservation) {
+function canRecordPayment(reservation: Reservation) {
   if (reservation.status === 'pending') return !reservation.payment
   if (reservation.status === 'accepted')
     return !reservation.payment || reservation.payment.status === 'rejected'
   return false
 }
 
-export function isPaymentCorrection(reservation: Reservation) {
+function isPaymentCorrection(reservation: Reservation) {
   return (
     reservation.status === 'accepted' &&
     reservation.payment?.status === 'rejected'
