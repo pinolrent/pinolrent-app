@@ -23,7 +23,10 @@ export function reservationPricing(
   endDate: string,
   pricePerDay: number
 ): ReservationPricing {
-  const days = daysBetween(startDate, endDate)
+  // Days are inclusive on the API: a same-day rental is one day, so the
+  // estimate uses the difference plus one (see pinolrent-api cd47b90),
+  // matching the day count behind GET /admin/stats approved_total.
+  const days = daysBetween(startDate, endDate) + 1
   const subtotal = days * pricePerDay
   const serviceFee = Math.round((subtotal * SERVICE_FEE_PERCENT) / 100)
   const sellerFee = Math.round((subtotal * SELLER_FEE_PERCENT) / 100)
@@ -45,7 +48,8 @@ export function reservationRangeError(
 ): string | null {
   if (!isValidISODate(startDate) || !isValidISODate(endDate)) return null
   if (startDate < today) return 'La fecha de inicio no puede ser anterior a hoy'
-  if (endDate <= startDate) return 'La reserva debe durar al menos 1 día'
+  if (endDate < startDate)
+    return 'La fecha de fin tiene que ser posterior a la de inicio'
   if (daysBetween(startDate, endDate) > maxNights)
     return 'La reserva no puede superar los 30 días'
   return null
