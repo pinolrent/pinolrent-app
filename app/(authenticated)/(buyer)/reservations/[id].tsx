@@ -136,7 +136,7 @@ export default function ReservationDetailScreen() {
                 reservation={data}
                 onPaid={() => {
                   setPaidMessage(
-                    'Pago registrado, queda pendiente de confirmación'
+                    'Pago registrado, la plataforma validará el comprobante'
                   )
                   refetch()
                 }}

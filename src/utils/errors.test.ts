@@ -187,14 +187,22 @@ describe('validators', () => {
     )
   })
 
-  it('validates phone numbers', () => {
+  it('validates phone numbers like the api', () => {
     expect(validatePhone('', true)).toBe(
       'El teléfono es obligatorio para vendedores'
     )
     expect(validatePhone('', false)).toBeNull()
-    expect(validatePhone('912345678', true)).toBeNull()
+    // Nacional de Nicaragua (8 dígitos), con separadores.
+    expect(validatePhone('8123 4567', true)).toBeNull()
+    // Código de país sin "+".
+    expect(validatePhone('50581234567', true)).toBeNull()
+    // E.164 con "+".
+    expect(validatePhone('+50581234567', true)).toBeNull()
     expect(validatePhone('+56912345678', true)).toBeNull()
+    // Ni 9 dígitos sueltos ni letras ni "+" en medio.
+    expect(validatePhone('912345678', true)).toBe('Ingresa un teléfono válido')
     expect(validatePhone('abc', true)).toBe('Ingresa un teléfono válido')
+    expect(validatePhone('812+34567', true)).toBe('Ingresa un teléfono válido')
   })
 })
 
@@ -248,6 +256,68 @@ describe('new api messages', () => {
     expect(
       getApiErrorMessage(fromApi('invalid credentials', 401), 'fallback')
     ).toBe('Email o contraseña incorrectos')
+  })
+})
+
+describe('two-step and admin messages', () => {
+  const fromApi = (error: string, status = 409) => ({
+    isAxiosError: true,
+    response: { data: { error }, status },
+    message: 'axios',
+  })
+
+  it('translates the reservation flow messages', () => {
+    expect(
+      getApiErrorMessage(
+        fromApi('car already reserved for the requested dates'),
+        'fallback'
+      )
+    ).toBe('Esas fechas se cruzan con otra reserva')
+    expect(
+      getApiErrorMessage(fromApi('no payment recorded for this reservation'), 'fallback')
+    ).toBe('El comprador todavía no registró el pago')
+    expect(
+      getApiErrorMessage(fromApi('reservation is not accepted'), 'fallback')
+    ).toBe('El vendedor todavía no aceptó la reserva')
+    expect(
+      getApiErrorMessage(
+        fromApi('payment already recorded, cannot cancel'),
+        'fallback'
+      )
+    ).toBe('Ya registraste un pago para esta reserva: pídele al vendedor que la rechace')
+  })
+
+  it('translates the admin user messages', () => {
+    expect(
+      getApiErrorMessage(fromApi('user has future reservations, cannot revoke seller'), 'fallback')
+    ).toBe('Tiene reservas futuras: resuélvelas antes de quitarle la opción de vender')
+    expect(
+      getApiErrorMessage(fromApi('cannot suspend yourself', 400), 'fallback')
+    ).toBe('No puedes suspender tu propia cuenta')
+    expect(
+      getApiErrorMessage(fromApi('user has no phone number'), 'fallback')
+    ).toBe('Esa cuenta no tiene teléfono registrado')
+    expect(getApiErrorMessage(fromApi('user not found', 404), 'fallback')).toBe(
+      'No encontramos esa cuenta'
+    )
+  })
+
+  it('translates the session and filter messages', () => {
+    expect(
+      getApiErrorMessage(fromApi('account suspended', 403), 'fallback')
+    ).toBe('Tu cuenta está suspendida: contacta a soporte')
+    expect(
+      getApiErrorMessage(fromApi('insufficient permissions', 403), 'fallback')
+    ).toBe('No tienes permiso para esta acción')
+    expect(getApiErrorMessage(fromApi('invalid or expired token', 401), 'fallback')).toBe(
+      'Tu sesión expiró, inicia sesión de nuevo'
+    )
+    expect(getApiErrorMessage(fromApi('invalid kind', 400), 'fallback')).toBe(
+      'Revisa los filtros e inténtalo de nuevo'
+    )
+    expect(
+      getApiErrorMessage(fromApi('database is busy, retry', 503), 'fallback')
+    ).toBe('El servidor está ocupado, reintenta en un momento')
   })
 })
 

@@ -1,0 +1,219 @@
+import { useState } from 'react'
+import { RefreshControl, ScrollView, Text, View } from 'react-native'
+import * as Haptics from 'expo-haptics'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import {
+  useAdminCars,
+  useDeleteAdminCar,
+  useUpdateAdminCar,
+} from '@/hooks/useAdmin'
+import { useTransientNotice } from '@/hooks/useTransientNotice'
+import { CarPhoto } from '@/components/rows'
+import { SellerCarForm } from '@/components/SellerCarForm'
+import { formatPricePerDay } from '@/utils/currency'
+import { getApiErrorMessage } from '@/utils/errors'
+import { ScreenShell } from '@/components/ScreenShell'
+import { ModalSheet } from '@/components/ModalSheet'
+import { ConfirmAction } from '@/components/ConfirmAction'
+import {
+  AppButton,
+  AppCard,
+  ErrorState,
+  FormError,
+  SuccessNote,
+} from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
+import { SkeletonList } from '@/components/Skeleton'
+import { useDetailSplit } from '@/hooks/useDetailSplit'
+import { useThemeColors } from '@/hooks/useThemeColors'
+import { SHEET_FORM_WIDTH } from '@/constants/layout'
+import { NUMERIC } from '@/constants/typography'
+
+export default function AdminCarDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const router = useRouter()
+  const idNum = Number(id)
+  const invalidId = !Number.isFinite(idNum)
+  const { container, main, side } = useDetailSplit()
+  const colors = useThemeColors()
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAdminCars()
+  const updateCar = useUpdateAdminCar()
+  const deleteCar = useDeleteAdminCar()
+  const [notice, setNotice] = useTransientNotice()
+  const [editOpen, setEditOpen] = useState(false)
+
+  const car = data?.pages.flatMap((page) => page.items).find(
+    (item) => item.id === idNum
+  )
+
+  const errorMessage = isError
+    ? getApiErrorMessage(error, 'Error al cargar el auto')
+    : null
+
+  if (isLoading) {
+    return (
+      <ScreenShell topInset={false}>
+        <Stack.Screen options={{ title: 'Auto' }} />
+        <SkeletonList count={1} label="Cargando el auto" />
+      </ScreenShell>
+    )
+  }
+
+  if (invalidId || isError || !car) {
+    return (
+      <ScreenShell topInset={false}>
+        <Stack.Screen options={{ title: 'Auto' }} />
+        <ErrorState
+          message={errorMessage ?? 'No encontramos ese auto'}
+          onRetry={invalidId ? undefined : () => refetch()}
+          retrying={isRefetching}
+          centered
+        />
+      </ScreenShell>
+    )
+  }
+
+  const updateError = updateCar.isError
+    ? getApiErrorMessage(updateCar.error, 'Error al actualizar el auto')
+    : null
+
+  const onToggle = () => {
+    setNotice(null)
+    updateCar.mutate(
+      { id: car.id, data: { active: !car.active } },
+      {
+        onSuccess: () => {
+          setNotice(car.active ? 'Auto desactivado' : 'Auto activado')
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        },
+        onError: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        },
+      }
+    )
+  }
+
+  return (
+    <ScreenShell topInset={false}>
+      <Stack.Screen options={{ title: car.name }} />
+      <ScrollView
+        className="flex-1"
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.card}
+          />
+        }
+      >
+        <View className={container}>
+          <View className={main}>
+            <CarPhoto uri={car.photo_url} name={car.name} />
+          </View>
+          <View className={side}>
+            <AppCard gap="sm">
+              <Text style={NUMERIC} className="text-sm text-foreground">
+                {formatPricePerDay(car.price_per_day)}
+              </Text>
+              {car.owner_email ? (
+                <Text numberOfLines={1} className="text-sm text-muted-foreground">
+                  {car.owner_email}
+                </Text>
+              ) : null}
+              <StatusBadge tone={car.active ? 'success' : 'muted'}>
+                {car.active ? 'Activo' : 'Inactivo'}
+              </StatusBadge>
+            </AppCard>
+            <SuccessNote message={notice} />
+            <FormError message={updateError} />
+            <AppButton
+              onPress={() => {
+                setNotice(null)
+                updateCar.reset()
+                setEditOpen(true)
+              }}
+            >
+              Editar
+            </AppButton>
+            <AppButton
+              variant="outline"
+              onPress={onToggle}
+              loading={updateCar.isPending && !editOpen}
+            >
+              {car.active ? 'Desactivar' : 'Activar'}
+            </AppButton>
+            <View className="mt-1 border-t border-border pt-4">
+              <ConfirmAction
+                label="Eliminar"
+                variant="destructive-outline"
+                title="Eliminar auto"
+                message={`¿Eliminar ${car.name}? Solo se puede si nunca tuvo reservas; si las tiene, desactívalo en su lugar.`}
+                confirmLabel="Eliminar"
+                destructive
+                errorFallback="Error al eliminar el auto"
+                action={() => deleteCar.mutateAsync(car.id)}
+                onDone={() =>
+                  router.replace({
+                    pathname: '/(authenticated)/admin/cars',
+                    params: { deleted: '1' },
+                  })
+                }
+              />
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+      <ModalSheet
+        visible={editOpen}
+        onClose={() => setEditOpen(false)}
+        title="Editar auto"
+        maxWidth={SHEET_FORM_WIDTH}
+        busy={updateCar.isPending}
+      >
+        {editOpen ? (
+          <SellerCarForm
+            initialName={car.name}
+            initialPhotoUrl={car.photo_url ?? ''}
+            initialPriceCents={car.price_per_day}
+            submitLabel="Guardar cambios"
+            loading={updateCar.isPending}
+            error={updateCar.isError ? updateError : null}
+            onDirty={() => {
+              if (updateCar.isError) updateCar.reset()
+            }}
+            onSubmit={(values) => {
+              updateCar.mutate(
+                {
+                  id: car.id,
+                  data: {
+                    name: values.name,
+                    price_per_day: values.price_per_day ?? 0,
+                    photo_url: values.photo_url ?? '',
+                  },
+                },
+                {
+                  onSuccess: () => {
+                    setEditOpen(false)
+                    setNotice('Auto actualizado')
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success
+                    )
+                  },
+                  onError: () => {
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Error
+                    )
+                  },
+                }
+              )
+            }}
+            onCancel={() => setEditOpen(false)}
+          />
+        ) : null}
+      </ModalSheet>
+    </ScreenShell>
+  )
+}

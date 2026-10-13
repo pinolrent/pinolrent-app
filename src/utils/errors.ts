@@ -16,17 +16,31 @@ export function validatePassword(value: string): string | null {
   return null
 }
 
+// Espeja internal/handlers/phone.go: sin "+" solo se acepta el número
+// nacional (PHONE_NATIONAL_LEN dígitos) o el prefijo de país con el nacional.
+const PHONE_COUNTRY_PREFIX = '505'
+const PHONE_NATIONAL_LEN = 8
+const E164_RE = /^\+[1-9][0-9]{7,14}$/
+
 export function validatePhone(value: string, required: boolean): string | null {
   const trimmed = value.trim()
   if (!trimmed) {
     return required ? 'El teléfono es obligatorio para vendedores' : null
   }
   if (trimmed.length > 32) return 'Ingresa un teléfono válido'
-  if (/[^0-9+ ().-]/.test(trimmed)) return 'Ingresa un teléfono válido'
+  // El "+" solo vale al inicio, como en la API.
+  if (/[^0-9 ().-]/.test(trimmed.replace(/^\+/, '')))
+    return 'Ingresa un teléfono válido'
   const digits = trimmed.replace(/\D/g, '')
-  if (digits.length === 9 || digits.length === 11) return null
-  if (trimmed.startsWith('+') && digits.length >= 8 && digits.length <= 15)
-    return null
+  const candidate = trimmed.startsWith('+')
+    ? `+${digits}`
+    : digits.length === PHONE_NATIONAL_LEN
+      ? `+${PHONE_COUNTRY_PREFIX}${digits}`
+      : digits.length === PHONE_COUNTRY_PREFIX.length + PHONE_NATIONAL_LEN &&
+          digits.startsWith(PHONE_COUNTRY_PREFIX)
+        ? `+${digits}`
+        : null
+  if (candidate && E164_RE.test(candidate)) return null
   return 'Ingresa un teléfono válido'
 }
 
@@ -104,17 +118,38 @@ function translateBackendMessage(msg: string): string {
   const lower = msg.toLowerCase()
   if (lower.includes('car is not active'))
     return 'Este auto ya no está disponible'
-  if (lower.includes('overlap')) return 'Esas fechas se cruzan con otra reserva'
+  if (lower.includes('already reserved') || lower.includes('overlap'))
+    return 'Esas fechas se cruzan con otra reserva'
   if (lower.includes('payment is not pending'))
     return 'El pago ya no está pendiente'
+  // Antes que el mensaje genérico de la desactivación del auto: la API usa
+  // "future reservations" en los dos.
+  if (lower.includes('cannot revoke seller'))
+    return 'Tiene reservas futuras: resuélvelas antes de quitarle la opción de vender'
   if (lower.includes('future reservations'))
     return 'No se puede desactivar: tiene reservas futuras'
   if (lower.includes('car has reservations, cannot delete'))
     return 'No se puede eliminar: tiene reservas registradas, desactívalo en su lugar'
+  if (lower.includes('cannot cancel'))
+    return 'Ya registraste un pago para esta reserva: pídele al vendedor que la rechace'
+  if (lower.includes('no payment recorded for this reservation'))
+    return 'El comprador todavía no registró el pago'
+  if (lower.includes('reservation is not accepted'))
+    return 'El vendedor todavía no aceptó la reserva'
   if (lower.includes('reservation cannot be longer'))
     return 'La reserva no puede superar los 30 días'
   if (lower.includes('start_date cannot be in the past'))
     return 'La fecha de inicio no puede ser anterior a hoy'
+  if (lower.includes('start_date and end_date must be provided together'))
+    return 'Elige las dos fechas'
+  if (
+    lower.includes('invalid start_date') ||
+    lower.includes('invalid end_date')
+  )
+    return 'Selecciona una fecha válida'
+  if (lower.includes('end_date must be on or after start_date'))
+    return 'La fecha de fin tiene que ser posterior a la de inicio'
+  if (lower.includes('car_id is required')) return 'Selecciona un auto'
   if (lower.includes('invalid email')) return 'Ingresa un email válido'
   if (lower.includes('invalid phone')) return 'Ingresa un teléfono válido'
   if (lower.includes('invalid credentials'))
@@ -143,6 +178,52 @@ function translateBackendMessage(msg: string): string {
     return 'Esta reserva ya tiene un pago registrado'
   if (lower.includes('reservation is not pending'))
     return 'La reserva ya no está pendiente'
+  if (lower.includes('account suspended'))
+    return 'Tu cuenta está suspendida: contacta a soporte'
+  if (lower.includes('insufficient permissions'))
+    return 'No tienes permiso para esta acción'
+  if (
+    lower.includes('invalid or expired token') ||
+    lower.includes('missing bearer token')
+  )
+    return 'Tu sesión expiró, inicia sesión de nuevo'
+  if (lower.includes('cannot suspend yourself'))
+    return 'No puedes suspender tu propia cuenta'
+  if (lower.includes('user has no phone number'))
+    return 'Esa cuenta no tiene teléfono registrado'
+  if (lower.includes('user not found')) return 'No encontramos esa cuenta'
+  if (lower.includes('car not found')) return 'No encontramos ese auto'
+  if (lower.includes('reservation not found'))
+    return 'No encontramos esa reserva'
+  if (lower.includes('no fields to update')) return 'No hay cambios que guardar'
+  if (lower.includes('name is required'))
+    return 'El nombre del auto es obligatorio'
+  if (lower.includes('name is too long'))
+    return 'El nombre del auto es demasiado largo (máx. 200 caracteres)'
+  if (lower.includes('price_per_day must be'))
+    return 'El precio por día no es válido'
+  if (
+    lower.includes('invalid status') ||
+    lower.includes('invalid limit') ||
+    lower.includes('invalid offset') ||
+    lower.includes('invalid active') ||
+    lower.includes('invalid kind') ||
+    lower.includes('invalid unread') ||
+    lower.includes('invalid owner_id') ||
+    lower.includes('invalid user_id') ||
+    lower.includes('invalid car_id') ||
+    lower.includes('invalid actor_id') ||
+    lower.includes('invalid reservation_id') ||
+    lower.includes('suspended is required') ||
+    lower.includes('seller is required')
+  )
+    return 'Revisa los filtros e inténtalo de nuevo'
+  if (lower.includes('invalid user id')) return 'No encontramos esa cuenta'
+  if (lower.includes('invalid car id')) return 'No encontramos ese auto'
+  if (lower.includes('invalid reservation id'))
+    return 'No encontramos esa reserva'
+  if (lower.includes('database is busy'))
+    return 'El servidor está ocupado, reintenta en un momento'
   if (lower.includes('too many requests'))
     return 'Demasiados intentos, espera un minuto y reintenta'
   return msg

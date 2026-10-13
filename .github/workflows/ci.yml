@@ -66,7 +66,7 @@ jobs:
       - name: Start API
         working-directory: pinolrent-api
         run: |
-          JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
+          JWT_SECRET="ci-secret-min-32-bytes-long-xxxx" PORT=8132 DATABASE_URL="/tmp/pinolrent-ci.db" ADMIN_EMAILS="verify-admin@example.com" go run ./cmd/api > /tmp/pinolrent-ci.log 2>&1 &
           # The first build on a cold runner downloads the modules and compiles
           # the whole API, which can take minutes.
           for i in $(seq 1 180); do

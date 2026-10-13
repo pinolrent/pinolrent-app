@@ -39,7 +39,7 @@ export default function ReservationsScreen() {
   useEffect(() => {
     if (!created) return
     setCreatedNotice(
-      `Reserva #${created} creada, queda pendiente de confirmación`
+      `Reserva #${created} creada, espera la respuesta del vendedor`
     )
     router.setParams({ created: '' })
   }, [created, router, setCreatedNotice])

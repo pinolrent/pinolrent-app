@@ -56,6 +56,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       const token = await storage.getItem(TOKEN_KEY)
       const refreshToken = await storage.getItem(REFRESH_KEY)
       if (!token) return
+      // Un fallo sin respuesta (red caída) o un 5xx no dicen nada de la
+      // sesión: se conservan las credenciales para reintentar más tarde.
+      const undecided = (err: unknown) => {
+        if (!axios.isAxiosError(err)) return true
+        const status = err.response?.status
+        return status === undefined || status >= 500
+      }
       try {
         const user = await api
           .get<User>('/auth/me', {
@@ -65,7 +72,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           .then((r) => r.data)
         set({ token, refreshToken, user })
       } catch (err) {
-        if (axios.isAxiosError(err) && !err.response) {
+        if (undecided(err)) {
           set({ token, refreshToken, user: null })
           return
         }
@@ -94,8 +101,12 @@ export const useAuthStore = create<AuthState>((set) => ({
               user,
             })
             return
-          } catch {
-            // refresh failed: fall through to wipe
+          } catch (refreshErr) {
+            if (undecided(refreshErr)) {
+              set({ token, refreshToken, user: null })
+              return
+            }
+            // 401/403 del refresh: la sesión quedó invalidada.
           }
         }
         await storage.removeItem(TOKEN_KEY)

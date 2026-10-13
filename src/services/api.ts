@@ -27,6 +27,15 @@ api.interceptors.request.use((config) => {
 
 const NO_RETRY_URLS = ['/auth/login', '/auth/refresh', '/auth/register']
 
+// Solo un 401 (token inválido o reusado) o un 403 (cuenta suspendida) del
+// refresh invalidan la sesión. La API responde 500 cuando el fallo es suyo:
+// ahí se conserva la sesión y el error se propaga para reintentar.
+function refreshInvalidatesSession(err: unknown): boolean {
+  if (!axios.isAxiosError(err)) return false
+  const status = err.response?.status
+  return status === 401 || status === 403
+}
+
 let refreshPromise: Promise<void> | null = null
 
 function refreshOnce(): Promise<void> {
@@ -73,9 +82,14 @@ api.interceptors.response.use(
         config.headers.Authorization = `Bearer ${useAuthStore.getState().token}`
         return api(config)
       } catch (refreshError) {
-        await useAuthStore.getState().clearAuth()
-        router.replace('/(auth)/login')
-        if (refreshError instanceof Error && refreshError.message === 'no refresh token') {
+        const noRefreshToken =
+          refreshError instanceof Error &&
+          refreshError.message === 'no refresh token'
+        if (noRefreshToken || refreshInvalidatesSession(refreshError)) {
+          await useAuthStore.getState().clearAuth()
+          router.replace('/(auth)/login')
+        }
+        if (noRefreshToken) {
           return Promise.reject(error)
         }
         return Promise.reject(refreshError)

@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics'
 import { useCreateReservation } from '@/hooks/useReservations'
 import type { Car } from '@/types/car'
 import { formatPricePerDay } from '@/utils/currency'
-import { isValidISODate, toISO } from '@/utils/dates'
+import { isValidISODate, todayISO } from '@/utils/dates'
 import {
   MAX_RESERVATION_NIGHTS,
   isValidReservationRange,
@@ -31,7 +31,7 @@ export function ReserveCarModal({
   const [endDate, setEndDate] = useState('')
   const [rangeError, setRangeError] = useState<string | null>(null)
 
-  const today = toISO(new Date())
+  const today = todayISO()
   const hasStart = isValidISODate(startDate)
   const hasEnd = isValidISODate(endDate)
   const rangeHint = reservationRangeError(startDate, endDate, today)

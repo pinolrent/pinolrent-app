@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest'
-import { daysBetween, formatDate, formatDateRange, formatDays, toISO, validateDateRangeInput } from './dates'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  daysBetween,
+  formatApiTimestamp,
+  formatDate,
+  formatDateRange,
+  formatDays,
+  toISO,
+  todayISO,
+  validateDateRangeInput,
+} from './dates'
 
 describe('formatDate', () => {
   it('formats YYYY-MM-DD as DD/MM/YYYY', () => {
@@ -28,6 +37,32 @@ describe('formatDays', () => {
 describe('toISO', () => {
   it('formats a date as YYYY-MM-DD', () => {
     expect(toISO(new Date(2026, 9, 5))).toBe('2026-10-05')
+  })
+})
+
+describe('todayISO', () => {
+  it('cuenta el día en la zona de negocio (UTC-6)', () => {
+    // 03:00 UTC del 5 de octubre en Managua todavía es el 4.
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-05T03:00:00Z'))
+    expect(todayISO()).toBe('2026-10-04')
+    vi.setSystemTime(new Date('2026-10-05T07:00:00Z'))
+    expect(todayISO()).toBe('2026-10-05')
+    vi.useRealTimers()
+  })
+})
+
+describe('formatApiTimestamp', () => {
+  it('pasa un created_at UTC sin zona a la zona de negocio', () => {
+    expect(formatApiTimestamp('2026-10-03 15:12:04')).toBe('03/10/2026 09:12')
+  })
+
+  it('cruza el día cuando corresponde', () => {
+    expect(formatApiTimestamp('2026-10-04 02:30:00')).toBe('03/10/2026 20:30')
+  })
+
+  it('devuelve el valor original si no lo entiende', () => {
+    expect(formatApiTimestamp('ayer')).toBe('ayer')
   })
 })
 

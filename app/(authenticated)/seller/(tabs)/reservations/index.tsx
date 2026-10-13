@@ -8,9 +8,9 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { ProofLink } from '@/components/ProofLink'
 import { ReservationColumns, ReservationRow } from '@/components/rows'
 import {
-  ConfirmReservationBlock,
+  AcceptReservationBlock,
   RejectReservationBlock,
-  canConfirmReservation,
+  canDecideReservation,
 } from '@/components/ReservationActions'
 import {
   AppPressable,
@@ -35,17 +35,15 @@ export default function SellerReservationsScreen() {
   const [notice, setNotice] = useTransientNotice()
 
   const reservations = data ?? []
-  const pending = reservations.filter(
-    (r) => r.status === 'pending' && r.payment?.status === 'pending'
-  ).length
-  const pendingLabel = `${pending} ${pending === 1 ? 'pendiente' : 'pendientes'}`
+  const pending = reservations.filter((r) => r.status === 'pending').length
+  const pendingLabel = `${pending} por responder`
 
   const errorMessage = isError
     ? getApiErrorMessage(error, 'Error al cargar tus reservas')
     : null
 
-  const onConfirmed = (reservation: Reservation) => {
-    setNotice(`Reserva #${reservation.id} confirmada`)
+  const onAccepted = (reservation: Reservation) => {
+    setNotice(`Reserva #${reservation.id} aceptada`)
   }
 
   const onRejected = (reservation: Reservation) => {
@@ -66,7 +64,7 @@ export default function SellerReservationsScreen() {
     item: Reservation
     index: number
   }) => {
-    const confirmable = canConfirmReservation(item)
+    const decidable = canDecideReservation(item)
 
     if (showTable) {
       return (
@@ -91,11 +89,11 @@ export default function SellerReservationsScreen() {
                 </View>
               }
             />
-            {confirmable && (
+            {decidable && (
               <View className="flex-row items-center gap-2 border-t border-border bg-muted/40 px-4 py-3">
-                <ConfirmReservationBlock
+                <AcceptReservationBlock
                   reservation={item}
-                  onConfirmed={onConfirmed}
+                  onAccepted={onAccepted}
                 />
                 <RejectReservationBlock
                   reservation={item}
@@ -115,11 +113,11 @@ export default function SellerReservationsScreen() {
           audience="seller"
           onPress={() => router.push(detailHref(item.id))}
           action={
-            confirmable ? (
+            decidable ? (
               <View className="gap-2">
-                <ConfirmReservationBlock
+                <AcceptReservationBlock
                   reservation={item}
-                  onConfirmed={onConfirmed}
+                  onAccepted={onAccepted}
                 />
                 <RejectReservationBlock
                   reservation={item}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { View } from 'react-native'
 import { Redirect, Stack } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
@@ -9,12 +9,8 @@ export default function AuthenticatedLayout() {
   const user = useAuthStore((s) => s.user)
   const isLoaded = useAuthStore((s) => s.isLoaded)
   const clearAuth = useAuthStore((s) => s.clearAuth)
-
-  useEffect(() => {
-    if (isLoaded && token && !user) {
-      clearAuth()
-    }
-  }, [isLoaded, token, user, clearAuth])
+  const loadFromStorage = useAuthStore((s) => s.loadFromStorage)
+  const [retrying, setRetrying] = useState(false)
 
   if (!isLoaded) {
     return <LoadingState />
@@ -24,14 +20,31 @@ export default function AuthenticatedLayout() {
     return <Redirect href="/(auth)/login" />
   }
 
-  if (token && !user) {
+  if (!user) {
+    // Las credenciales se conservan cuando la API no pudo validarlas (sin red
+    // o un 5xx): se reintenta sin volver a iniciar sesión.
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
         <FormError
-          message="Sesión inválida, vuelve a iniciar sesión"
+          message="No pudimos validar tu sesión, revisa tu conexión"
           className="text-center"
         />
-        <AppButton onPress={() => clearAuth()}>Cerrar sesión</AppButton>
+        <AppButton
+          loading={retrying}
+          onPress={async () => {
+            setRetrying(true)
+            try {
+              await loadFromStorage()
+            } finally {
+              setRetrying(false)
+            }
+          }}
+        >
+          Reintentar
+        </AppButton>
+        <AppButton variant="outline" onPress={() => clearAuth()}>
+          Cerrar sesión
+        </AppButton>
       </View>
     )
   }
@@ -43,6 +56,9 @@ export default function AuthenticatedLayout() {
       </Stack.Protected>
       <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('seller'))}>
         <Stack.Screen name="seller" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!token && Boolean(user?.roles?.includes('admin'))}>
+        <Stack.Screen name="admin" />
       </Stack.Protected>
     </Stack>
   )

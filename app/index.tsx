@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { homeHref } from '@/utils/roles'
 import { LoadingState } from '@/components/ui-kit'
 
 export default function Index() {
@@ -15,12 +16,8 @@ export default function Index() {
       router.replace('/(auth)/login')
       return
     }
-    router.replace(
-      user?.roles?.includes('seller')
-        ? '/(authenticated)/seller'
-        : '/(authenticated)/(buyer)'
-    )
-  }, [isLoaded, token, user?.roles])
+    router.replace(homeHref(user))
+  }, [isLoaded, token, user, router])
 
   return <LoadingState />
 }
