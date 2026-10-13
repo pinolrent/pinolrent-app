@@ -9,17 +9,28 @@ import {
 describe('reservationPricing', () => {
   it('applies the service fee and the seller deduction to the subtotal', () => {
     expect(reservationPricing('2026-09-15', '2026-09-18', 4500)).toEqual({
-      days: 3,
-      subtotal: 13500,
-      serviceFee: 945,
-      buyerTotal: 14445,
-      sellerFee: 945,
-      sellerNet: 12555,
+      days: 4,
+      subtotal: 18000,
+      serviceFee: 1260,
+      buyerTotal: 19260,
+      sellerFee: 1260,
+      sellerNet: 16740,
     })
   })
 
   it('handles a single day', () => {
     expect(reservationPricing('2026-09-15', '2026-09-16', 4500)).toEqual({
+      days: 2,
+      subtotal: 9000,
+      serviceFee: 630,
+      buyerTotal: 9630,
+      sellerFee: 630,
+      sellerNet: 8370,
+    })
+  })
+
+  it('is one day when both dates match (inclusive count)', () => {
+    expect(reservationPricing('2026-09-15', '2026-09-15', 4500)).toEqual({
       days: 1,
       subtotal: 4500,
       serviceFee: 315,
@@ -29,21 +40,10 @@ describe('reservationPricing', () => {
     })
   })
 
-  it('is zero when both dates match', () => {
-    expect(reservationPricing('2026-09-15', '2026-09-15', 4500)).toEqual({
-      days: 0,
-      subtotal: 0,
-      serviceFee: 0,
-      buyerTotal: 0,
-      sellerFee: 0,
-      sellerNet: 0,
-    })
-  })
-
   it('rounds the fees to whole cents and keeps the totals consistent', () => {
     const pricing = reservationPricing('2026-09-15', '2026-09-16', 999)
-    expect(pricing.serviceFee).toBe(70)
-    expect(pricing.sellerFee).toBe(70)
+    expect(pricing.serviceFee).toBe(140)
+    expect(pricing.sellerFee).toBe(140)
     expect(pricing.buyerTotal - pricing.subtotal).toBe(pricing.serviceFee)
     expect(pricing.subtotal - pricing.sellerNet).toBe(pricing.sellerFee)
   })
@@ -62,12 +62,10 @@ describe('reservationRangeError', () => {
     )
   })
 
-  it('rejects ranges of zero or negative length', () => {
-    expect(reservationRangeError('2026-09-27', '2026-09-27', today)).toBe(
-      'La reserva debe durar al menos 1 día'
-    )
+  it('allows same-day ranges, rejects reversed ranges', () => {
+    expect(reservationRangeError('2026-09-27', '2026-09-27', today)).toBeNull()
     expect(reservationRangeError('2026-09-27', '2026-09-26', today)).toBe(
-      'La reserva debe durar al menos 1 día'
+      'La fecha de fin tiene que ser posterior a la de inicio'
     )
   })
 

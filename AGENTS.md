@@ -9,13 +9,13 @@ Expo ~55 + React Native 0.83 + React 19.2 + TypeScript strict, `expo-router` ent
 app/                 # expo-router routes: index gate, (auth), (authenticated)/(buyer),
                      # (authenticated)/seller and (authenticated)/admin
 src/
-  services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars, admin)
+  services/          # thin axios wrappers per domain (auth, cars, reservations, payments, seller-cars, admin, notifications)
   hooks/             # react-query wrappers per domain (useAuth, useCars, useReservations, useAdmin, ...)
   stores/            # zustand global state only: auth.store, theme.store
-  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, admin, api)
-  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup, admin-rows
-  constants/         # config, query-keys, reservation-ui, payment-ui, admin-ui
-  utils/             # errors, currency, dates, reservations, roles, storage
+  types/             # API contracts mirroring backend snake_case (auth, car, reservation, payment, admin, api, notification)
+  components/        # shared UI: ui-kit, ScreenShell, ErrorBoundary, fields, rows, ChoiceGroup, admin-rows, NotificationsScreen
+  constants/         # config, query-keys, reservation-ui, payment-ui, admin-ui, notification-ui
+  utils/             # errors, currency, dates, reservations, roles, storage, notifications
 scripts/verify/      # E2E flows against a live API (_helpers + auth/cars/reservations/payments/seller-manage/admin)
 components/ui/       # gluestack generated primitives
 ```
@@ -39,15 +39,16 @@ npm run typecheck   # tsc --noEmit, gate before every commit
 npm run lint        # eslint ., expo flat config
 npm test            # vitest run (unit: src/utils/*.test.ts)
 npm start           # expo start (android/ios/web)
-npm run verify      # typecheck + 6 flows, requires API at EXPO_PUBLIC_API_URL
-npm run verify:auth | verify:cars | verify:reservations | verify:payments | verify:seller | verify:admin
+npm run verify      # typecheck + 7 flows, requires API at EXPO_PUBLIC_API_URL
+npm run verify:auth | verify:cars | verify:reservations | verify:notifications | verify:payments | verify:seller | verify:admin
 ```
 
 Before every commit `typecheck + lint + test` must pass. Run the matching
 `verify:*` flow when you touched `services/`, `hooks/`, `stores/auth` or `services/api.ts`;
 run full `npm run verify` before opening a PR that changes data flow. Never commit with a red check.
 
-`verify:admin` drives the `/admin/*` routes, so the API has to run with the allow-list account:
+`verify:admin` and `verify:notifications` drive the `/admin/*` and `/notifications/*`
+surfaces, so the API has to run with the allow-list account:
 `ADMIN_EMAILS=verify-admin@example.com make dev` (in pinolrent-api; the role syncs on startup and
 CI sets the same variable). `_helpers.registerOrLoginAdmin()` fails with that instruction when the
 account is not an admin.
@@ -110,6 +111,27 @@ needed) and an `admin` validates the payment (`/admin/reservations/{id}/confirm`
 `rejected`/`cancelled`. Only `request-correction` leaves the reservation `accepted` with its
 payment `rejected` so the buyer re-sends the proof (`POST /reservations/{id}/payment` answers
 `200` then, `201` the first time).
+
+## Notifications
+
+In-app notes about reservation events, written in the same transaction as the change they
+announce — there is no push or email delivery, the client polls. `GET /notifications` returns
+your notes newest-first (requires the `buyer` role, which every account holds, including admins);
+`PATCH /notifications/{id}/read` marks one read and is idempotent (`404` for someone else's).
+The admin surface is `GET /admin/notifications`, a `{items,total,limit,offset}` listing
+filterable by `user_id`, `kind` and `unread`. Kinds: `reservation.requested`, `reservation.accepted`,
+`reservation.rejected`, `reservation.confirmed`, `reservation.correction_requested`,
+`reservation.cancelled`.
+
+The buyer/seller entry point is a tab (`app/(authenticated)/(buyer)/(tabs)/notifications` and
+`.../seller/(tabs)/notifications`, URLs `/notifications` and `/seller/notifications`), with an unread
+badge polled by `useUnreadNotifications()` (refetches every 30s) shown on the tab and on the
+desktop sidebar via `Sidebar`'s `badges` prop. The admin entry is a card on the Panel
+(`/(authenticated)/admin/notifications`). Tapping a note marks it read (`useMarkNotificationRead`)
+and deep-links to the relevant reservation detail, decided by `notificationTarget(kind, area, id)`
+in `src/utils/notifications.ts` (owner-side events → seller detail, buyer-side → buyer detail;
+`confirmed` follows the current area). There is no bulk "mark all": the API only exposes per-item
+reads.
 
 ## Routing and roles
 

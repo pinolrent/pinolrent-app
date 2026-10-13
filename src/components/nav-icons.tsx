@@ -1,4 +1,5 @@
 import {
+  Bell,
   CalendarDays,
   Car,
   CarFront,
@@ -18,6 +19,7 @@ export const NAV_ICONS = {
   catalog: Car,
   reservations: CalendarDays,
   cars: CarFront,
+  notifications: Bell,
   profile: User,
   menu: Menu,
   close: X,

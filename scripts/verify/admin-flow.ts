@@ -359,6 +359,44 @@ async function main() {
     { total: suspendAuditBody.total }
   )
 
+  // Notificaciones: audiencia por evento y filtros admin. El flujo creó una
+  // reserva, así que hay una reservation.requested para el seller (+ admins).
+  const adminNotifs = await api('/admin/notifications?limit=5', {}, admin.token)
+  const adminNotifsBody = (await adminNotifs.json()) as ListResponse<{
+    id: number
+    kind: string
+    user_id: number
+    reservation_id: number
+    read: boolean
+  }>
+  check(
+    'GET /admin/notifications -> envoltura {items,total} con notificaciones',
+    adminNotifs.status === 200 &&
+      typeof adminNotifsBody.total === 'number' &&
+      Array.isArray(adminNotifsBody.items),
+    { total: adminNotifsBody.total }
+  )
+
+  const requestedNotifs = await api(
+    '/admin/notifications?kind=reservation.requested&limit=20',
+    {},
+    admin.token
+  )
+  const requestedBody = (await requestedNotifs.json()) as ListResponse<{
+    kind: string
+  }>
+  check(
+    'GET /admin/notifications?kind=reservation.requested -> solo ese kind',
+    requestedNotifs.status === 200 &&
+      requestedBody.items.every(
+        (item) => item.kind === 'reservation.requested'
+      ),
+    { total: requestedBody.total }
+  )
+
+  const badKind = await api('/admin/notifications?kind=nope', {}, admin.token)
+  check('GET /admin/notifications?kind=nope -> 400', badKind.status === 400)
+
   // Un buyer sin rol admin no entra a ninguna ruta de administración.
   const buyerStats = await api('/admin/stats', {}, buyer.token)
   const buyerStatsBody = (await buyerStats.json()) as { error?: string }
