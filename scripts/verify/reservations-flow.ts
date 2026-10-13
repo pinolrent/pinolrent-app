@@ -110,6 +110,21 @@ async function main() {
       mineBody.some((r) => r.id === recreated.id)
   )
 
+  // La cuenta acumula dos reservas: alcanza para probar limit y offset.
+  const minePage1 = await api('/reservations?limit=1', {}, buyer.token)
+  const minePage1Body = (await minePage1.json()) as { id: number }[]
+  const minePage2 = await api('/reservations?limit=1&offset=1', {}, buyer.token)
+  const minePage2Body = (await minePage2.json()) as { id: number }[]
+  check(
+    'GET /reservations respeta limit y offset',
+    minePage1.status === 200 &&
+      minePage1Body.length === 1 &&
+      minePage2.status === 200 &&
+      minePage2Body.length === 1 &&
+      minePage1Body[0].id !== minePage2Body[0].id,
+    { page1: minePage1Body, page2: minePage2Body }
+  )
+
   const sellerRes = await api('/seller/reservations', {}, seller.token)
   const sellerBody = (await sellerRes.json()) as { id: number }[]
   check(
@@ -117,6 +132,24 @@ async function main() {
     sellerRes.status === 200 &&
       Array.isArray(sellerBody) &&
       sellerBody.some((r) => r.id === recreated.id)
+  )
+
+  const sellerPage1 = await api('/seller/reservations?limit=1', {}, seller.token)
+  const sellerPage1Body = (await sellerPage1.json()) as { id: number }[]
+  const sellerPage2 = await api(
+    '/seller/reservations?limit=1&offset=1',
+    {},
+    seller.token
+  )
+  const sellerPage2Body = (await sellerPage2.json()) as { id: number }[]
+  check(
+    'GET /seller/reservations respeta limit y offset',
+    sellerPage1.status === 200 &&
+      sellerPage1Body.length === 1 &&
+      sellerPage2.status === 200 &&
+      sellerPage2Body.length === 1 &&
+      sellerPage1Body[0].id !== sellerPage2Body[0].id,
+    { page1: sellerPage1Body, page2: sellerPage2Body }
   )
 
   await api(`/reservations/${recreated.id}/cancel`, { method: 'PATCH' }, buyer.token)
