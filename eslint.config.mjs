@@ -1,7 +1,7 @@
 import expo from 'eslint-config-expo/flat.js'
 
 export default [
-  { ignores: ['dist/**', 'web-build/**'] },
+  { ignores: ['dist/**', 'web-build/**', 'android/**', 'ios/**', '.expo/**'] },
   ...expo,
   {
     rules: {

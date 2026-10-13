@@ -22,9 +22,14 @@ expo-env.d.ts
 .metro-health-check*
 
 # debug
+*.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+
+# local databases
+*.db
+*.sqlite*
 
 # macOS
 .DS_Store
@@ -33,6 +38,9 @@ yarn-error.*
 # local env files
 .env
 .env*.local
+.env.development
+.env.production
+.env.test
 
 # CodeGraph index
 .codegraph/
