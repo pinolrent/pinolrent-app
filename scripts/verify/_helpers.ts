@@ -85,8 +85,15 @@ export async function registerOrLoginAdmin(): Promise<{ token: string }> {
   return session
 }
 
+// El API decide el día en BUSINESS_TIMEZONE (Managua, UTC-6 sin horario de
+// verano, igual que src/utils/dates.ts): contar los días en UTC hacía que
+// "ayer" fuera hoy para el API entre las 18:00 y la medianoche de Managua.
+const BUSINESS_TZ_OFFSET_HOURS = -6
+
 export function isoDaysFromNow(days: number) {
-  return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
+  const shifted =
+    Date.now() + (BUSINESS_TZ_OFFSET_HOURS * 3600 + days * 86400) * 1000
+  return new Date(shifted).toISOString().slice(0, 10)
 }
 
 export async function createCar(
