@@ -5,7 +5,7 @@ import { THEME_COLORS, type ThemeName } from '@/constants/theme-colors'
 import { AppPressable } from '@/components/ui-kit'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
-export function goBack(fallbackHref: Href) {
+function goBack(fallbackHref: Href) {
   if (router.canGoBack()) {
     router.back()
     return

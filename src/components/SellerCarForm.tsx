@@ -6,7 +6,7 @@ import { ImageUploadField } from '@/components/ImageUploadField'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { isImageUrl } from '@/utils/errors'
 
-export interface SellerCarFormValues {
+interface SellerCarFormValues {
   name: string
   photo_url?: string
   price_per_day?: number

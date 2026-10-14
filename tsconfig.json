@@ -10,5 +10,14 @@
       ]
     }
   },
-  "exclude": ["node_modules", "dist", "web-build"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "web-build",
+    "android",
+    "ios",
+    ".expo",
+    "babel.config.js",
+    "metro.config.js"
+  ]
 }
