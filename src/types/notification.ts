@@ -1,4 +1,4 @@
-// El API escribe una notificación in-app por cada transición de reserva. No
+// El API escribe una notificación in-app por cada evento de reserva. No
 // hay entrega externa (ni email ni push): el cliente sonda la lista. Los
 // `created_at` del API son UTC sin zona; el cliente los muestra en la zona de
 // negocio (ver formatApiTimestamp). ReadAt no viaja serializado: el estado de
@@ -10,6 +10,7 @@ export const NOTIFICATION_KINDS = [
   'reservation.confirmed',
   'reservation.correction_requested',
   'reservation.cancelled',
+  'reservation.correction_submitted',
 ] as const
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]

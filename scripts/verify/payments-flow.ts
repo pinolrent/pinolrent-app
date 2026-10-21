@@ -368,6 +368,22 @@ async function main() {
     retryBody
   )
 
+  const adminNotifs = await api('/notifications?unread=true', {}, admin.token)
+  const adminNotifsBody = (await adminNotifs.json()) as {
+    kind: string
+    reservation_id: number
+  }[]
+  check(
+    'el admin recibe reservation.correction_submitted al reenviar el comprobante',
+    adminNotifs.status === 200 &&
+      adminNotifsBody.some(
+        (n) =>
+          n.kind === 'reservation.correction_submitted' &&
+          n.reservation_id === wrong.id
+      ),
+    { count: adminNotifsBody.length }
+  )
+
   const confirmCorrected = await api(
     `/admin/reservations/${wrong.id}/confirm`,
     { method: 'PATCH' },

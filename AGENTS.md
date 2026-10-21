@@ -134,7 +134,8 @@ your notes newest-first (requires the `buyer` role, which every account holds, i
 The admin surface is `GET /admin/notifications`, a `{items,total,limit,offset}` listing
 filterable by `user_id`, `kind` and `unread`. Kinds: `reservation.requested`, `reservation.accepted`,
 `reservation.rejected`, `reservation.confirmed`, `reservation.correction_requested`,
-`reservation.cancelled`.
+`reservation.cancelled` and `reservation.correction_submitted` (admins, when the buyer re-sends a
+corrected proof).
 
 The buyer/seller entry point is a tab (`app/(authenticated)/(buyer)/(tabs)/notifications` and
 `.../seller/(tabs)/notifications`, URLs `/notifications` and `/seller/notifications`), with an unread

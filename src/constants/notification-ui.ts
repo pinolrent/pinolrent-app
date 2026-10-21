@@ -9,4 +9,5 @@ export const NOTIFICATION_LABELS: Record<NotificationKind, string> = {
   'reservation.confirmed': 'Reserva confirmada',
   'reservation.correction_requested': 'Corrección solicitada',
   'reservation.cancelled': 'Reserva cancelada',
+  'reservation.correction_submitted': 'Comprobante corregido',
 }
