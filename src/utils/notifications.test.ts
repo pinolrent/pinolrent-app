@@ -48,6 +48,7 @@ describe('notificationTarget', () => {
       'reservation.confirmed',
       'reservation.correction_requested',
       'reservation.cancelled',
+      'reservation.correction_submitted',
     ]
     for (const kind of all) {
       expect(notificationTarget(kind, 'admin', R)).toBeNull()
