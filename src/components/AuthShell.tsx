@@ -19,6 +19,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         resizeMode="cover"
         accessible={false}
         className="flex-1"
+        imageStyle={{ width: '100%', height: '100%' }}
       >
         <KeyboardAvoidingView
           className="flex-1"
