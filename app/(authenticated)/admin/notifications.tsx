@@ -1,15 +1,21 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminNotificationRow } from '@/components/admin-rows'
 import { ListFooter, FilterPills } from '@/components/admin-list'
-import { AppButton, EmptyState, ErrorState } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  AppRefreshControl,
+  CARD_SURFACE,
+  EmptyState,
+  ErrorState,
+} from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { useAdminNotifications } from '@/hooks/useAdmin'
 import { NOTIFICATION_LABELS } from '@/constants/notification-ui'
 import { NOTIFICATION_KINDS } from '@/types/notification'
@@ -30,7 +36,6 @@ const UNREAD_OPTIONS = [
 ] as const
 
 export default function AdminNotificationsScreen() {
-  const colors = useThemeColors()
   const { isPhone } = useBreakpoints()
   const [kind, setKind] = useState<NotificationKind | ''>('')
   const [userId, setUserId] = useState('')
@@ -53,13 +58,16 @@ export default function AdminNotificationsScreen() {
   const entries = data?.pages.flatMap((page) => page.items) ?? []
   const total = data?.pages[0]?.total ?? 0
 
-  const applyFilters = () => {
+  const applyFilters = (next: {
+    kind?: NotificationKind | ''
+    unread?: boolean
+  } = {}) => {
     const parsed = Number(userId.trim())
     setFilters({
-      kind: kind || undefined,
+      kind: (next.kind ?? kind) || undefined,
       user_id:
         userId.trim() && Number.isFinite(parsed) ? parsed : undefined,
-      unread: unreadOnly || undefined,
+      unread: (next.unread ?? unreadOnly) || undefined,
     })
   }
 
@@ -77,8 +85,8 @@ export default function AdminNotificationsScreen() {
       subtitle={isLoading ? undefined : `${entries.length} de ${total} en total`}
     >
       <View className="pb-3">
-        <View className="rounded-xl border border-border bg-card shadow-xs">
-          <View className={isPhone ? 'gap-3 p-3' : 'flex-row items-end gap-3 p-3'}>
+        <AppCard>
+          <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
             <View className="flex-1">
               <AppInput
                 label="Cuenta (id)"
@@ -86,10 +94,10 @@ export default function AdminNotificationsScreen() {
                 keyboardType="number-pad"
                 value={userId}
                 onChangeText={setUserId}
-                onSubmitEditing={applyFilters}
+                onSubmitEditing={() => applyFilters()}
               />
             </View>
-            <AppButton onPress={applyFilters}>Filtrar</AppButton>
+            <AppButton onPress={() => applyFilters()}>Filtrar</AppButton>
           </View>
           <FilterPills
             label="Filtrar por evento"
@@ -97,7 +105,7 @@ export default function AdminNotificationsScreen() {
             value={kind}
             onChange={(next) => {
               setKind(next)
-              applyFilters()
+              applyFilters({ kind: next })
             }}
           />
           <FilterPills
@@ -106,10 +114,10 @@ export default function AdminNotificationsScreen() {
             value={unreadOnly ? 'unread' : ''}
             onChange={(next) => {
               setUnreadOnly(next === 'unread')
-              applyFilters()
+              applyFilters({ unread: next === 'unread' })
             }}
           />
-        </View>
+        </AppCard>
       </View>
       {isLoading ? (
         <SkeletonList
@@ -132,7 +140,7 @@ export default function AdminNotificationsScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
             <StaggerCard index={index}>
-              <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+              <View className={`overflow-hidden ${CARD_SURFACE}`}>
                 <AdminNotificationRow
                   notification={item}
                   last={index === entries.length - 1}
@@ -141,12 +149,9 @@ export default function AdminNotificationsScreen() {
             </StaggerCard>
           )}
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
           onEndReached={() => {
