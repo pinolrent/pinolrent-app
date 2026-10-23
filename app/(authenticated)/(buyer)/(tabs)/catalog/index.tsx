@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
-import { View, FlatList, RefreshControl } from 'react-native'
+import { useEffect, useState } from 'react'
+import { View, FlatList } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
-import { formatDate, validateDateRangeInput } from '@/utils/dates'
+import { formatDate, todayDate, validateDateRangeInput } from '@/utils/dates'
 import { StaggerCard } from '@/components/StaggerCard'
-import { SkeletonRow } from '@/components/Skeleton'
+import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { CarListRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
 import {
@@ -17,6 +16,7 @@ import {
   EmptyState,
   ErrorState,
   ListGroup,
+  AppRefreshControl,
 } from '@/components/ui-kit'
 import { ListFooter } from '@/components/admin-list'
 import { DateField } from '@/components/DateField'
@@ -26,7 +26,6 @@ const PAGE_SIZE = 10
 export default function CatalogScreen() {
   const router = useRouter()
   const { isPhone } = useBreakpoints()
-  const colors = useThemeColors()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [startFilterError, setStartFilterError] = useState<string | null>(null)
@@ -64,7 +63,7 @@ export default function CatalogScreen() {
 
   const cars = data?.pages.flatMap((page) => page) ?? []
   const filtered = Boolean(filters.start_date && filters.end_date)
-  const today = useMemo(() => new Date(), [])
+  const today = todayDate()
   const loadNextPage = () => {
     void fetchNextPage()
   }
@@ -167,11 +166,7 @@ export default function CatalogScreen() {
       </AppCard>
       {isLoading ? (
         <ListGroup fill>
-          <View accessible accessibilityRole="progressbar" accessibilityLabel="Cargando el catálogo">
-            {[0, 1, 2].map((i) => (
-              <SkeletonRow key={i} />
-            ))}
-          </View>
+          <SkeletonList count={3} variant="row" label="Cargando el catálogo" />
         </ListGroup>
       ) : isError ? (
         <ErrorState
@@ -189,12 +184,9 @@ export default function CatalogScreen() {
             renderItem={renderItem}
             contentContainerStyle={{ flexGrow: 1 }}
             refreshControl={
-              <RefreshControl
+              <AppRefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
               />
             }
             onEndReached={() => {

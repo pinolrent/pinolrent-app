@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { useLocalSearchParams } from 'expo-router'
 import { useReservation } from '@/hooks/useReservations'
@@ -12,11 +12,15 @@ import { enterFade } from '@/constants/motion'
 import { ScreenShell } from '@/components/ScreenShell'
 import { CarRow } from '@/components/rows'
 import { PriceBreakdown } from '@/components/PriceBreakdown'
-import { AppCard, ErrorState, SuccessNote } from '@/components/ui-kit'
+import {
+  AppCard,
+  AppRefreshControl,
+  ErrorState,
+  SuccessNote,
+} from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   CancelReservationBlock,
   PayReservationBlock,
@@ -29,7 +33,6 @@ export default function ReservationDetailScreen() {
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
   const { isWide, container, main, side } = useDetailSplit()
-  const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
   const [paidMessage, setPaidMessage] = useTransientNotice()
@@ -78,12 +81,9 @@ export default function ReservationDetailScreen() {
         <ScrollView
           className="flex-1"
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
         >

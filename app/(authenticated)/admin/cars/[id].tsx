@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RefreshControl, ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import {
@@ -21,11 +21,11 @@ import {
   ErrorState,
   FormError,
   SuccessNote,
+  AppRefreshControl,
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { SHEET_FORM_WIDTH } from '@/constants/layout'
 import { NUMERIC } from '@/constants/typography'
 
@@ -35,7 +35,6 @@ export default function AdminCarDetailScreen() {
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const { container, main, side } = useDetailSplit()
-  const colors = useThemeColors()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useAdminCars()
   const updateCar = useUpdateAdminCar()
@@ -100,12 +99,9 @@ export default function AdminCarDetailScreen() {
       <ScrollView
         className="flex-1"
         refreshControl={
-          <RefreshControl
+          <AppRefreshControl
             refreshing={isRefetching}
             onRefresh={() => refetch()}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
           />
         }
       >

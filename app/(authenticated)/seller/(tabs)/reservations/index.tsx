@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, Text, View } from 'react-native'
+import { FlatList, Text, View } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import { useSellerReservations } from '@/hooks/useReservations'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
@@ -18,15 +18,14 @@ import {
   EmptyState,
   ErrorState,
   SuccessNote,
+  AppRefreshControl,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 
 export default function SellerReservationsScreen() {
   const router = useRouter()
-  const colors = useThemeColors()
   const { contentWidth } = useBreakpoints()
   // La tabla fija 688px de columnas más la celda del auto: por debajo de
   // 880 el auto queda aplastado y las tarjetas leen mejor.
@@ -186,12 +185,9 @@ export default function SellerReservationsScreen() {
               ) : null
             }
             refreshControl={
-              <RefreshControl
+              <AppRefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
               />
             }
             onEndReached={() => {

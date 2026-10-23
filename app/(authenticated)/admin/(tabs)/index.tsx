@@ -5,11 +5,10 @@ import { useAdminStats } from '@/hooks/useAdmin'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppCard, ErrorState, Metric } from '@/components/ui-kit'
+import { AppCard, ErrorState, Metric, SectionLabel } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { SECTION_LABEL } from '@/constants/typography'
 import { PAYMENT_STATUS_LABELS } from '@/constants/payment-ui'
 import { STATUS_LABELS } from '@/constants/reservation-ui'
 
@@ -51,13 +50,7 @@ export default function AdminPanelScreen() {
       ) : (
         <View className="gap-6">
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Usuarios
-            </Text>
+            <SectionLabel>Usuarios</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               <Metric label="Cuentas" value={String(data.users.total)} />
               <Metric label="Vendedores" value={String(data.users.sellers)} />
@@ -71,13 +64,7 @@ export default function AdminPanelScreen() {
           </View>
 
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Reservas
-            </Text>
+            <SectionLabel>Reservas</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               {RESERVATION_STATUSES.map((status) => (
                 <Metric
@@ -95,13 +82,7 @@ export default function AdminPanelScreen() {
           </View>
 
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Pagos
-            </Text>
+            <SectionLabel>Pagos</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               {PAYMENT_STATUSES.map((status) => (
                 <Metric
@@ -118,13 +99,7 @@ export default function AdminPanelScreen() {
           </View>
 
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Autos
-            </Text>
+            <SectionLabel>Autos</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               <Metric label="Activos" value={String(data.cars.active)} />
             </View>

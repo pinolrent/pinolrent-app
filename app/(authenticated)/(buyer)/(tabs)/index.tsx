@@ -10,6 +10,7 @@ import { formatPrice } from '@/utils/currency'
 import {
   formatDateRange,
   formatDays,
+  todayDate,
   todayISO,
   validateDateRangeInput,
 } from '@/utils/dates'
@@ -18,8 +19,10 @@ import {
   AppButton,
   AppCard,
   AppPressable,
+  CARD_SURFACE,
   EmptyState,
   ErrorState,
+  SectionLabel,
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { CarCard } from '@/components/rows'
@@ -28,7 +31,7 @@ import { ScreenShell } from '@/components/ScreenShell'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { NUMERIC, SECTION_LABEL } from '@/constants/typography'
+import { NUMERIC } from '@/constants/typography'
 import { SUMMARY_LIMIT } from '@/constants/lists'
 import { STATUS_LABELS, STATUS_TONES } from '@/constants/reservation-ui'
 
@@ -47,7 +50,7 @@ export default function BuyerHomeScreen() {
   const [end, setEnd] = useState('')
   const [startError, setStartError] = useState<string | null>(null)
   const [endError, setEndError] = useState<string | null>(null)
-  const today = new Date()
+  const today = todayDate()
   const todayString = todayISO()
 
   const onSearch = () => {
@@ -150,13 +153,7 @@ export default function BuyerHomeScreen() {
           />
         ) : upcoming && upcomingPricing ? (
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Tu próxima reserva
-            </Text>
+            <SectionLabel>Tu próxima reserva</SectionLabel>
             <AppPressable
               accessibilityRole="button"
               accessibilityLabel={`Ver la reserva de ${upcoming.car.name}`}
@@ -166,7 +163,7 @@ export default function BuyerHomeScreen() {
                 )
               }
               hoverClassName="border-primary/40"
-              className="flex-row items-center gap-3 rounded-xl border border-border bg-card p-3"
+              className={`flex-row items-center gap-3 ${CARD_SURFACE} p-3`}
             >
               <View className="flex-1 gap-1">
                 <View className="flex-row items-center gap-2">
@@ -208,13 +205,7 @@ export default function BuyerHomeScreen() {
         ) : available.length > 0 ? (
           <View className="gap-2">
             <View className="flex-row items-center justify-between gap-3">
-              <Text
-                accessibilityRole="header"
-                style={SECTION_LABEL}
-                className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-              >
-                Autos disponibles
-              </Text>
+              <SectionLabel>Autos disponibles</SectionLabel>
               <AppPressable
                 accessibilityRole="link"
                 accessibilityLabel="Ver el catálogo completo"

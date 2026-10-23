@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAdminCars } from '@/hooks/useAdmin'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
@@ -12,13 +12,14 @@ import {
   AppCard,
   EmptyState,
   ErrorState,
+  AppRefreshControl,
+  CARD_SURFACE,
   SuccessNote,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import type { AdminCarFilters } from '@/types/admin'
 
 const ACTIVE_OPTIONS = [
@@ -29,7 +30,6 @@ const ACTIVE_OPTIONS = [
 
 export default function AdminCarsScreen() {
   const router = useRouter()
-  const colors = useThemeColors()
   const { isPhone } = useBreakpoints()
   const { deleted } = useLocalSearchParams<{ deleted?: string }>()
   const [notice, setNotice] = useTransientNotice()
@@ -128,7 +128,7 @@ export default function AdminCarsScreen() {
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }) => (
               <StaggerCard index={index}>
-                <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+                <View className={`overflow-hidden ${CARD_SURFACE}`}>
                   <AdminCarRow
                     car={item}
                     onPress={() =>
@@ -139,12 +139,9 @@ export default function AdminCarsScreen() {
               </StaggerCard>
             )}
             refreshControl={
-              <RefreshControl
+              <AppRefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
               />
             }
             onEndReached={() => {

@@ -7,6 +7,7 @@ import {
   formatDays,
   toISO,
   todayISO,
+  todayDate,
   validateDateRangeInput,
 } from './dates'
 
@@ -48,6 +49,15 @@ describe('todayISO', () => {
     expect(todayISO()).toBe('2026-10-04')
     vi.setSystemTime(new Date('2026-10-05T07:00:00Z'))
     expect(todayISO()).toBe('2026-10-05')
+    vi.useRealTimers()
+  })
+})
+
+describe('todayDate', () => {
+  it('da el mismo día de negocio que todayISO', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-05T03:00:00Z'))
+    expect(toISO(todayDate())).toBe('2026-10-04')
     vi.useRealTimers()
   })
 })
