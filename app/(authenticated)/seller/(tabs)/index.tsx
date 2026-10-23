@@ -7,10 +7,9 @@ import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { reservationPricing } from '@/utils/reservations'
-import { AppCard, ErrorState, Metric } from '@/components/ui-kit'
+import { AppCard, ErrorState, Metric, SectionLabel } from '@/components/ui-kit'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { SECTION_LABEL } from '@/constants/typography'
 import { SUMMARY_LIMIT } from '@/constants/lists'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
@@ -92,13 +91,7 @@ export default function SellerHomeScreen() {
           ) : null}
 
           <View className="gap-2">
-            <Text
-              accessibilityRole="header"
-              style={SECTION_LABEL}
-              className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-            >
-              Resumen
-            </Text>
+            <SectionLabel>Resumen</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               <Metric label="Autos activos" value={String(activeCars)} />
               <Metric

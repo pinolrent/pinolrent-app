@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import {
   useAdminUser,
@@ -14,10 +14,10 @@ import {
   AppCard,
   ErrorState,
   SuccessNote,
+  AppRefreshControl,
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { ROLE_LABELS } from '@/constants/admin-ui'
 import { NUMERIC } from '@/constants/typography'
 
@@ -25,7 +25,6 @@ export default function AdminUserDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
-  const colors = useThemeColors()
   const { user: me } = useAuth()
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useAdminUser(idNum)
@@ -70,12 +69,9 @@ export default function AdminUserDetailScreen() {
       <ScrollView
         className="flex-1"
         refreshControl={
-          <RefreshControl
+          <AppRefreshControl
             refreshing={isRefetching}
             onRefresh={() => refetch()}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
           />
         }
       >

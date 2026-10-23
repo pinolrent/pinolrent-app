@@ -1,16 +1,22 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useAdminAudit } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminAuditRow } from '@/components/admin-rows'
 import { ListFooter, FilterPills } from '@/components/admin-list'
-import { AppButton, AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  AppRefreshControl,
+  CARD_SURFACE,
+  EmptyState,
+  ErrorState,
+} from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import {
   ADMIN_ACTIONS,
   type AdminAction,
@@ -27,7 +33,6 @@ const ACTION_OPTIONS: { value: AdminAction | ''; label: string }[] = [
 ]
 
 export default function AdminAuditScreen() {
-  const colors = useThemeColors()
   const { isPhone } = useBreakpoints()
   const [action, setAction] = useState<AdminAction | ''>('')
   const [actorId, setActorId] = useState('')
@@ -114,18 +119,15 @@ export default function AdminAuditScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
             <StaggerCard index={index}>
-              <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+              <View className={`overflow-hidden ${CARD_SURFACE}`}>
                 <AdminAuditRow entry={item} />
               </View>
             </StaggerCard>
           )}
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
           onEndReached={() => {

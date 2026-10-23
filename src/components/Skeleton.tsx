@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { MOTION } from '@/constants/motion'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
+import { CARD_SURFACE } from '@/components/ui-kit'
 
 function usePulse() {
   const reduce = useReduceMotion()
@@ -33,7 +34,7 @@ function SkeletonCard() {
     <View
       aria-hidden
       importantForAccessibility="no-hide-descendants"
-      className="gap-2 rounded-xl border border-border bg-card p-3"
+      className={`gap-2 ${CARD_SURFACE} p-3`}
     >
       <Animated.View
         style={style}
@@ -70,7 +71,7 @@ function SkeletonCardRow() {
     <View
       aria-hidden
       importantForAccessibility="no-hide-descendants"
-      className="gap-3 rounded-xl border border-border bg-card p-3 shadow-xs"
+      className={`gap-3 ${CARD_SURFACE} p-3`}
     >
       <View className="flex-row items-center gap-3">
         <Animated.View

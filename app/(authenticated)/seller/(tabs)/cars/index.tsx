@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, FlatList, RefreshControl } from 'react-native'
+import { View, FlatList } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCreateSellerCar, useSellerCars } from '@/hooks/useSellerCars'
@@ -18,15 +18,14 @@ import {
   EmptyState,
   ErrorState,
   SuccessNote,
+  AppRefreshControl,
 } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { SHEET_FORM_WIDTH } from '@/constants/layout'
 
 export default function SellerCarsScreen() {
   const router = useRouter()
-  const colors = useThemeColors()
   const { deleted } = useLocalSearchParams<{ deleted?: string }>()
   const { columns: numColumns, isWide } = useBreakpoints()
   const {
@@ -123,12 +122,9 @@ export default function SellerCarsScreen() {
             keyExtractor={(item) => String(item.id)}
             renderItem={renderItem}
             refreshControl={
-              <RefreshControl
+              <AppRefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
               />
             }
             onEndReached={() => {

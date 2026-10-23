@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useAdminPayments } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminPaymentRow } from '@/components/admin-rows'
 import { ListFooter, FilterPills } from '@/components/admin-list'
-import { AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
+import {
+  AppCard,
+  AppRefreshControl,
+  CARD_SURFACE,
+  EmptyState,
+  ErrorState,
+} from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { PAYMENT_STATUS_LABELS } from '@/constants/payment-ui'
 import type { Payment } from '@/types/payment'
 
@@ -21,7 +26,6 @@ const STATUS_OPTIONS: { value: Payment['status'] | ''; label: string }[] = [
 ]
 
 export default function AdminPaymentsScreen() {
-  const colors = useThemeColors()
   const [status, setStatus] = useState<Payment['status'] | ''>('')
   const {
     data,
@@ -78,18 +82,15 @@ export default function AdminPaymentsScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
             <StaggerCard index={index}>
-              <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+              <View className={`overflow-hidden ${CARD_SURFACE}`}>
                 <AdminPaymentRow payment={item} />
               </View>
             </StaggerCard>
           )}
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
           onEndReached={() => {

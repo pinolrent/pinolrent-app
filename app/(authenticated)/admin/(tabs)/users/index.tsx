@@ -1,17 +1,23 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAdminUsers } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
 import { AdminUserRow } from '@/components/admin-rows'
 import { ListFooter, FilterPills } from '@/components/admin-list'
-import { AppButton, AppCard, EmptyState, ErrorState } from '@/components/ui-kit'
+import {
+  AppButton,
+  AppCard,
+  AppRefreshControl,
+  CARD_SURFACE,
+  EmptyState,
+  ErrorState,
+} from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { ROLE_LABELS } from '@/constants/admin-ui'
 import type { Role } from '@/types/auth'
 import type { AdminUserFilters } from '@/types/admin'
@@ -26,7 +32,6 @@ const ROLE_OPTIONS: { value: Role | ''; label: string }[] = [
 
 export default function AdminUsersScreen() {
   const router = useRouter()
-  const colors = useThemeColors()
   const { isPhone } = useBreakpoints()
   const [search, setSearch] = useState('')
   const [role, setRole] = useState<Role | ''>('')
@@ -110,7 +115,7 @@ export default function AdminUsersScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
             <StaggerCard index={index}>
-              <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+              <View className={`overflow-hidden ${CARD_SURFACE}`}>
                 <AdminUserRow
                   user={item}
                   onPress={() =>
@@ -121,12 +126,9 @@ export default function AdminUsersScreen() {
             </StaggerCard>
           )}
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
           onEndReached={() => {

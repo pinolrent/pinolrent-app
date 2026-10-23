@@ -66,7 +66,7 @@ function NavRow({
         </Text>
       </View>
       {badge && badge > 0 ? (
-        <StatusBadge tone="destructive">{badge}</StatusBadge>
+        <StatusBadge tone="info">{badge}</StatusBadge>
       ) : null}
     </AppPressable>
   )

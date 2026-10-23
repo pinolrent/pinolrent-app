@@ -1,5 +1,12 @@
 import type { ComponentProps, ReactNode } from 'react'
-import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  RefreshControl,
+  Text,
+  View,
+} from 'react-native'
 import Animated from 'react-native-reanimated'
 import { enterFade } from '@/constants/motion'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
@@ -17,6 +24,41 @@ type Variant =
   | 'ghost'
 
 export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
+
+// Los props extra importan: en Android ScrollView clona este elemento y le
+// pasa el contenido como children, así que hay que reenviarlos.
+export function AppRefreshControl({
+  refreshing,
+  onRefresh,
+  ...rest
+}: Omit<ComponentProps<typeof RefreshControl>, 'refreshing' | 'onRefresh'> & {
+  refreshing: boolean
+  onRefresh: () => void
+}) {
+  const colors = useThemeColors()
+  return (
+    <RefreshControl
+      {...rest}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor={colors.primary}
+      colors={[colors.primary]}
+      progressBackgroundColor={colors.card}
+    />
+  )
+}
+
+export function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <Text
+      accessibilityRole="header"
+      style={SECTION_LABEL}
+      className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+    >
+      {children}
+    </Text>
+  )
+}
 
 const PRESSED_STYLE = { opacity: 0.7, transform: [{ scale: 0.98 }] }
 
@@ -123,7 +165,7 @@ export function AppCard({
   onPress?: () => void
   accessibilityLabel?: string
 }) {
-  const classes = `rounded-xl border border-border bg-card shadow-xs ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
+  const classes = `${CARD_SURFACE} ${CARD_GAP[gap]} ${CARD_PADDING[padding]} ${className}`
 
   if (!onPress) {
     return <View className={classes}>{children}</View>
@@ -153,17 +195,9 @@ export function ListGroup({
 }) {
   return (
     <View className={`gap-2 ${fill ? 'flex-1' : ''}`}>
-      {title ? (
-        <Text
-          accessibilityRole="header"
-          style={SECTION_LABEL}
-          className="px-1 text-xs font-semibold uppercase text-muted-foreground"
-        >
-          {title}
-        </Text>
-      ) : null}
+      {title ? <SectionLabel>{title}</SectionLabel> : null}
       <View
-        className={`overflow-hidden rounded-xl border border-border bg-card shadow-xs ${
+        className={`overflow-hidden ${CARD_SURFACE} ${
           fill ? 'flex-1' : ''
         }`}
       >
@@ -299,7 +333,7 @@ export function Metric({
   tone?: string
 }) {
   return (
-    <View className="min-w-[150px] flex-1 gap-1 rounded-xl border border-border bg-card p-4">
+    <View className={`min-w-[150px] flex-1 gap-1 ${CARD_SURFACE} p-4`}>
       <Text className="text-sm text-muted-foreground">{label}</Text>
       <Text style={NUMERIC} className={`text-2xl font-bold ${tone}`}>
         {value}
