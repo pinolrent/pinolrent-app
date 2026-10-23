@@ -30,6 +30,11 @@ export function todayISO(): string {
   return shifted.toISOString().slice(0, 10)
 }
 
+// Los calendarios piden un Date: el día de negocio, como fecha local.
+export function todayDate(): Date {
+  return new Date(`${todayISO()}T00:00:00`)
+}
+
 // Los created_at del API son UTC sin zona ("2026-10-03 15:12:04"); se
 // muestran en la zona de negocio.
 export function formatApiTimestamp(value: string): string {
