@@ -3,7 +3,13 @@ import { ActivityIndicator, Switch, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuth, useBecomeSeller } from '@/hooks/useAuth'
 import { ScreenShell } from '@/components/ScreenShell'
-import { AppButton, FormError, ListGroup, ListRow } from '@/components/ui-kit'
+import {
+  AppButton,
+  CARD_SURFACE,
+  FormError,
+  ListGroup,
+  ListRow,
+} from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { getApiErrorMessage } from '@/utils/errors'
 import { SessionActions } from '@/components/SessionActions'
@@ -197,7 +203,7 @@ export function ProfileScreen({ area }: { area: 'buyer' | 'seller' | 'admin' }) 
     >
       {isWide ? (
         <View className="flex-row items-start gap-6">
-          <View className="w-80 rounded-xl border border-border bg-card p-4">
+          <View className={`w-80 ${CARD_SURFACE} p-4`}>
             {identity}
           </View>
           <View className="flex-1">{groups}</View>

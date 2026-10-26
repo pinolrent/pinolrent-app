@@ -68,6 +68,9 @@ export function CarPhoto({
   )
 }
 
+const CAR_CARD_CLASS = `flex-1 gap-3 p-3 ${CARD_SURFACE}`
+const CAR_CARD_STYLE = { maxWidth: CARD_WIDTH }
+
 export function CarCard({
   car,
   onPress,
@@ -94,10 +97,7 @@ export function CarCard({
 
   if (!onPress) {
     return (
-      <View
-        className={`flex-1 gap-3 p-3 ${CARD_SURFACE}`}
-        style={{ maxWidth: CARD_WIDTH }}
-      >
+      <View className={CAR_CARD_CLASS} style={CAR_CARD_STYLE}>
         {content}
       </View>
     )
@@ -109,8 +109,8 @@ export function CarCard({
       accessibilityLabel={car.name}
       onPress={onPress}
       hoverClassName="border-primary/40"
-      className={`flex-1 gap-3 p-3 ${CARD_SURFACE}`}
-      style={{ maxWidth: CARD_WIDTH }}
+      className={CAR_CARD_CLASS}
+      style={CAR_CARD_STYLE}
     >
       {content}
     </AppPressable>
@@ -397,12 +397,7 @@ export function NotificationRow({
   }`
 
   if (!onPress) {
-    return (
-      <View className={rowClass}>
-        {body}
-        {null}
-      </View>
-    )
+    return <View className={rowClass}>{body}</View>
   }
 
   return (

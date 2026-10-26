@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useAdminReservations } from '@/hooks/useAdmin'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -14,11 +14,12 @@ import {
   AppCard,
   EmptyState,
   ErrorState,
+  AppRefreshControl,
+  CARD_SURFACE,
   SuccessNote,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { StaggerCard } from '@/components/StaggerCard'
-import { useThemeColors } from '@/hooks/useThemeColors'
 import { STATUS_LABELS } from '@/constants/reservation-ui'
 import type { Reservation } from '@/types/reservation'
 
@@ -30,7 +31,6 @@ const STATUS_OPTIONS: { value: Reservation['status'] | ''; label: string }[] = [
 ]
 
 export default function AdminReservationsScreen() {
-  const colors = useThemeColors()
   const [status, setStatus] = useState<Reservation['status'] | ''>('')
   const [notice, setNotice] = useTransientNotice()
   const {
@@ -95,7 +95,7 @@ export default function AdminReservationsScreen() {
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }) => (
               <StaggerCard index={index}>
-                <View className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+                <View className={`overflow-hidden ${CARD_SURFACE}`}>
                   <AdminReservationRow
                     reservation={item}
                     action={
@@ -125,12 +125,9 @@ export default function AdminReservationsScreen() {
               </StaggerCard>
             )}
             refreshControl={
-              <RefreshControl
+              <AppRefreshControl
                 refreshing={isRefetching}
                 onRefresh={() => refetch()}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
               />
             }
             onEndReached={() => {

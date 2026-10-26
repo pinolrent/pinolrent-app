@@ -9,6 +9,11 @@ export function tabBarColors(theme: ThemeName) {
     },
     tabBarActiveTintColor: colors.primary,
     tabBarInactiveTintColor: colors.mutedText,
+    // Mismo tono que el badge del sidebar: un contador no es un error.
+    tabBarBadgeStyle: {
+      backgroundColor: colors.primary,
+      color: colors.primaryForeground,
+    },
   }
 }
 

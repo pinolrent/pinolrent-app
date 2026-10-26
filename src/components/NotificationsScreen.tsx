@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
   useMarkNotificationRead,
@@ -16,14 +16,14 @@ import {
 import { ScreenShell } from '@/components/ScreenShell'
 import { NotificationRow } from '@/components/rows'
 import {
-  AppButton,
+  AppCard,
+  AppRefreshControl,
   EmptyState,
   ErrorState,
   FormError,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
 import { FilterPills } from '@/components/admin-list'
-import { useThemeColors } from '@/hooks/useThemeColors'
 
 const READ_FILTERS: { value: 'unread' | ''; label: string }[] = [
   { value: '', label: 'Todas' },
@@ -32,7 +32,6 @@ const READ_FILTERS: { value: 'unread' | ''; label: string }[] = [
 
 export default function NotificationsScreen({ area }: { area: NotificationArea }) {
   const router = useRouter()
-  const colors = useThemeColors()
   const [readFilter, setReadFilter] = useState<'unread' | ''>('')
   const filters = readFilter === 'unread' ? { unread: true } : {}
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -70,12 +69,14 @@ export default function NotificationsScreen({ area }: { area: NotificationArea }
       }
     >
       <View className="pb-3">
-        <FilterPills
-          label="Filtrar por lectura"
-          options={READ_FILTERS}
-          value={readFilter}
-          onChange={(v) => setReadFilter(v)}
-        />
+        <AppCard>
+          <FilterPills
+            label="Filtrar por lectura"
+            options={READ_FILTERS}
+            value={readFilter}
+            onChange={(v) => setReadFilter(v)}
+          />
+        </AppCard>
       </View>
       <FormError message={readError} />
       {isLoading ? (
@@ -109,12 +110,9 @@ export default function NotificationsScreen({ area }: { area: NotificationArea }
             />
           )}
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
             />
           }
           ListEmptyComponent={
@@ -123,9 +121,6 @@ export default function NotificationsScreen({ area }: { area: NotificationArea }
                 readFilter === 'unread'
                   ? 'No tienes notificaciones sin leer'
                   : 'No tienes notificaciones'
-              }
-              action={
-                <AppButton onPress={() => refetch()}>Recargar</AppButton>
               }
             />
           }
