@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import { formatPrice, formatPricePerDay } from '@/utils/currency'
+import { formatPricePerDay, formatUSDExact } from '@/utils/currency'
 import { formatDays } from '@/utils/dates'
 import {
   SELLER_FEE_PERCENT,
@@ -36,15 +36,15 @@ export function PriceBreakdown({
       <View className="flex-row items-center justify-between gap-3">
         <Text className="text-sm text-muted-foreground">Subtotal</Text>
         <Text style={NUMERIC} className="text-sm text-foreground">
-          {formatPrice(pricing.subtotal)}
+          {formatUSDExact(pricing.subtotal)}
         </Text>
       </View>
       <View className="flex-row items-center justify-between gap-3">
         <Text className="text-sm text-muted-foreground">{feeLabel}</Text>
         <Text style={NUMERIC} className="text-sm text-foreground">
           {buyer
-            ? `+${formatPrice(pricing.serviceFee)}`
-            : formatPrice(-pricing.sellerFee)}
+            ? `+${formatUSDExact(pricing.serviceFee)}`
+            : formatUSDExact(-pricing.sellerFee)}
         </Text>
       </View>
       <View className="flex-row items-center justify-between gap-3 border-t border-border pt-2">
@@ -52,7 +52,7 @@ export function PriceBreakdown({
           {buyer ? TOTAL_DUE_LABEL : SELLER_NET_LABEL}
         </Text>
         <Text style={NUMERIC} className="text-2xl font-bold text-foreground">
-          {formatPrice(buyer ? pricing.buyerTotal : pricing.sellerNet)}
+          {formatUSDExact(buyer ? pricing.buyerTotal : pricing.sellerNet)}
         </Text>
       </View>
     </View>

@@ -3,7 +3,7 @@ import { Image, Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { formatPrice, formatPricePerDay } from '@/utils/currency'
+import { formatPricePerDay, formatUSDExact } from '@/utils/currency'
 import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
@@ -255,7 +255,7 @@ export function ReservationRow({
     reservation.car.price_per_day
   )
   const { days } = pricing
-  const amount = formatPrice(
+  const amount = formatUSDExact(
     audience === 'seller' ? pricing.sellerNet : pricing.buyerTotal
   )
   const badge = (
