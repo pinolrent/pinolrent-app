@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   MAX_RESERVATION_NIGHTS,
+  buyerNextStep,
   isValidReservationRange,
   reservationPricing,
   reservationRangeError,
 } from './reservations'
+import type { Reservation } from '@/types/reservation'
 
 describe('reservationPricing', () => {
   it('applies the service fee and the seller deduction to the subtotal', () => {
@@ -108,6 +110,66 @@ describe('isValidReservationRange', () => {
     )
     expect(isValidReservationRange('2026-10-01', '2026-10-31', today)).toBe(
       false
+    )
+  })
+})
+
+describe('buyerNextStep', () => {
+  const base = {
+    id: 1,
+    user_id: 1,
+    car_id: 1,
+    start_date: '2026-09-27',
+    end_date: '2026-09-30',
+    car: { id: 1, name: 'Kia Picanto', price_per_day: 4000, active: true },
+  } as const
+
+  const reservation = (
+    status: Reservation['status'],
+    payment?: Reservation['payment']
+  ): Reservation => ({ ...base, status, payment }) as Reservation
+
+  const payment = (status: 'pending' | 'approved' | 'rejected') => ({
+    id: 1,
+    reservation_id: 1,
+    method: 'cash' as const,
+    status,
+  })
+
+  it('waits for the seller while the request is pending', () => {
+    expect(buyerNextStep(reservation('pending'))).toEqual({
+      label: 'Falta que el vendedor acepte la solicitud',
+      action: false,
+    })
+  })
+
+  it('asks for the proof once the seller accepts', () => {
+    expect(buyerNextStep(reservation('accepted')).action).toBe(true)
+    expect(buyerNextStep(reservation('accepted')).label).toContain('comprobante')
+  })
+
+  it('asks for a new proof when the payment was rejected', () => {
+    const step = buyerNextStep(reservation('accepted', payment('rejected')))
+    expect(step.action).toBe(true)
+    expect(step.label).toContain('rechazado')
+  })
+
+  it('stops asking once the payment is in review or approved', () => {
+    expect(buyerNextStep(reservation('accepted', payment('pending')))).toEqual({
+      label: 'Tu pago está en revisión',
+      action: false,
+    })
+    expect(buyerNextStep(reservation('accepted', payment('approved'))).label).toBe(
+      'Pago validado: falta la confirmación del admin'
+    )
+  })
+
+  it('describes the closed states without action', () => {
+    for (const status of ['confirmed', 'rejected', 'cancelled'] as const) {
+      expect(buyerNextStep(reservation(status)).action).toBe(false)
+    }
+    expect(buyerNextStep(reservation('confirmed')).label).toContain(
+      'coordiná la entrega'
     )
   })
 })

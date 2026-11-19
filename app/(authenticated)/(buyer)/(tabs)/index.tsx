@@ -14,7 +14,7 @@ import {
   todayISO,
   validateDateRangeInput,
 } from '@/utils/dates'
-import { reservationPricing } from '@/utils/reservations'
+import { buyerNextStep, reservationPricing } from '@/utils/reservations'
 import {
   AppButton,
   AppCard,
@@ -95,6 +95,7 @@ export default function BuyerHomeScreen() {
         upcoming.car.price_per_day
       )
     : null
+  const upcomingStep = upcoming ? buyerNextStep(upcoming) : null
 
   const gridItem =
     columns === 3
@@ -185,6 +186,19 @@ export default function BuyerHomeScreen() {
                   {formatDays(upcomingPricing.days)} ·{' '}
                   {formatPrice(upcomingPricing.buyerTotal)}
                 </Text>
+                {/* El estado dice en qué punto está; esto dice qué le toca a
+                    quien reservó, y se marca cuando depende de él. */}
+                {upcomingStep ? (
+                  <Text
+                    className={
+                      upcomingStep.action
+                        ? 'text-sm font-semibold text-foreground'
+                        : 'text-sm text-muted-foreground'
+                    }
+                  >
+                    {upcomingStep.label}
+                  </Text>
+                ) : null}
               </View>
               <ChevronRight size={20} color={colors.mutedText} />
             </AppPressable>
