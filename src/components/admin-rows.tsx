@@ -68,13 +68,16 @@ export function AdminUserRow({
           {user.suspended_at ? (
             <StatusBadge tone="destructive">Suspendida</StatusBadge>
           ) : null}
+          {/* El teléfono va con los roles y no en una columna propia: sólo lo
+              tienen las cuentas que venden, así que alineado a la derecha el
+              ojo leía una columna que se corta. */}
+          {user.phone ? (
+            <Text style={NUMERIC} className="text-sm text-muted-foreground">
+              {user.phone}
+            </Text>
+          ) : null}
         </View>
       </View>
-      {user.phone ? (
-        <Text style={NUMERIC} className="text-sm text-muted-foreground">
-          {user.phone}
-        </Text>
-      ) : null}
       <ChevronRight size={20} color={colors.mutedText} />
     </AppPressable>
   )

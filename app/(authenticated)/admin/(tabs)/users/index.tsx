@@ -74,8 +74,8 @@ export default function AdminUsersScreen() {
           <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
             <View className="flex-1">
               <AppInput
-                label="Buscar"
-                placeholder="Email o id exacto"
+                label="Email o id exacto"
+                placeholder="vende@ejemplo.com"
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="search"
