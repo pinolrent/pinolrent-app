@@ -27,7 +27,9 @@ export function ScreenShell({
   // En escritorio el sidebar ya marca la sección: el título del cuerpo
   // sobra y quedan el subtítulo y la acción como barra de la pantalla.
   const showTitle = Boolean(title) && !isDesktop
-  const hasHeader = Boolean(showTitle || subtitle || action)
+  // El título cuenta siempre, aunque no se vea: en escritorio sin subtítulo ni
+  // acción el bloque no se dibujaba y la pantalla se quedaba sin heading.
+  const hasHeader = Boolean(title || subtitle || action)
   const vertical = isPhone ? 16 : 24
 
   return (
