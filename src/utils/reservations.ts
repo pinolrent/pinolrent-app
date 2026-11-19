@@ -1,3 +1,4 @@
+import type { Reservation } from '@/types/reservation'
 import { daysBetween, isValidISODate } from './dates'
 
 // The API rejects reservations where end - start is 30 days or more, so the
@@ -66,4 +67,50 @@ export function isValidReservationRange(
     isValidISODate(endDate) &&
     reservationRangeError(startDate, endDate, today, maxNights) === null
   )
+}
+
+export interface NextStep {
+  /** Qué le toca hacer al comprador, o qué está esperando. */
+  label: string
+  /** El comprador tiene que hacer algo para que la reserva avance. */
+  action: boolean
+}
+
+// El estado de la reserva dice en qué punto está; esto dice qué significa para
+// quien la hizo. La reserva aceptada sin comprobante es el único caso en el que
+// el próximo paso depende del comprador y no del vendedor ni del admin.
+export function buyerNextStep(reservation: Reservation): NextStep {
+  switch (reservation.status) {
+    case 'pending':
+      return {
+        label: 'Falta que el vendedor acepte la solicitud',
+        action: false,
+      }
+    case 'accepted':
+      if (!reservation.payment) {
+        return { label: 'Aceptada: subí el comprobante de pago', action: true }
+      }
+      if (reservation.payment.status === 'rejected') {
+        return {
+          label: 'El comprobante fue rechazado: subí uno nuevo',
+          action: true,
+        }
+      }
+      if (reservation.payment.status === 'pending') {
+        return { label: 'Tu pago está en revisión', action: false }
+      }
+      return {
+        label: 'Pago validado: falta la confirmación del admin',
+        action: false,
+      }
+    case 'confirmed':
+      return {
+        label: 'Confirmada: coordiná la entrega con el vendedor',
+        action: false,
+      }
+    case 'rejected':
+      return { label: 'El vendedor no aceptó la reserva', action: false }
+    case 'cancelled':
+      return { label: 'Cancelaste esta reserva', action: false }
+  }
 }
