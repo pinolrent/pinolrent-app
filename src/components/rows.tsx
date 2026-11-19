@@ -189,7 +189,9 @@ export function CarListRow({
 const COLUMN = {
   car: 'flex-1 min-w-0',
   dates: 'w-48',
-  total: 'w-24',
+  // 128px: "US$12.345,60" mide 110 a 14px semibold con cifras tabulares; con
+  // w-24 (96) el monto se partía en dos renglones.
+  total: 'w-32 text-right',
   status: 'w-44',
   action: 'w-40 items-end',
 } as const
@@ -292,6 +294,7 @@ export function ReservationRow({
           </Text>
         </View>
         <Text
+          numberOfLines={1}
           style={NUMERIC}
           className={`${COLUMN.total} text-sm font-semibold text-foreground`}
         >
