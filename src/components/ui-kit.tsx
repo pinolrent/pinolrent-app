@@ -63,6 +63,9 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <Text
       accessibilityRole="header"
+      // Nivel 2: el 1 es el título de la pantalla. Sin esto cada rótulo de
+      // sección competía con él y la página terminaba con varios h1.
+      aria-level={2}
       style={SECTION_LABEL}
       className="px-1 text-sm font-semibold text-muted-foreground"
     >
