@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
             Algo salió mal
           </Text>
           <EmptyState
-            message="Reintenta volviendo a cargar"
+            message="Volvé a cargar la pantalla"
             action={
               <AppButton onPress={() => this.setState({ error: null })}>
                 Reintentar

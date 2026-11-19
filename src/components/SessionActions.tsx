@@ -27,7 +27,7 @@ export function SessionActions() {
       <ConfirmDialog
         visible={confirmOpen}
         title="Cerrar sesión"
-        message="¿Seguro que quieres cerrar sesión?"
+        message="¿Seguro que querés cerrar sesión?"
         confirmLabel="Cerrar sesión"
         loading={logout.isPending}
         error={logoutError}

@@ -94,11 +94,6 @@ export default function SellerHomeScreen() {
             <SectionLabel>Resumen</SectionLabel>
             <View className="flex-row flex-wrap gap-3">
               <Metric label="Autos activos" value={String(activeCars)} />
-              <Metric
-                label="Por responder"
-                value={String(toAnswer)}
-                tone={toAnswer > 0 ? 'text-warning' : 'text-foreground'}
-              />
               <Metric label="Aceptadas" value={String(accepted)} />
               <Metric label="Confirmadas" value={String(confirmed)} />
               <Metric
