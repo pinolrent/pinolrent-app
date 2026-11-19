@@ -97,11 +97,13 @@ export function Sidebar({
       className="w-60 gap-1 border-r border-border bg-card p-4"
     >
       <View className="mb-2 flex-row items-center gap-2">
+        {/* Tamaño explícito: con sólo clases, la <Image> de react-native-web
+            se dibuja al tamaño intrínseco del PNG (566px) y se come el menú. */}
         <Image
           source={LOGO}
           accessible={false}
-          className="h-9 w-9 rounded-lg"
           resizeMode="cover"
+          style={{ width: 36, height: 36, borderRadius: 8 }}
         />
         <Text style={DISPLAY} className="text-lg font-bold text-foreground">
           PinolRent
