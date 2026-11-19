@@ -52,6 +52,13 @@ export function ScreenShell({
                 >
                   {title}
                 </Text>
+              ) : title ? (
+                // En escritorio el sidebar ya marca la sección, pero sin esto
+                // la pantalla no tiene ningún heading: un lector de pantalla
+                // aterriza en una página sin título.
+                <Text accessibilityRole="header" className="sr-only">
+                  {title}
+                </Text>
               ) : null}
               {subtitle ? (
                 <Text
