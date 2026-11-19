@@ -29,6 +29,8 @@
     "build:aab": "eas build --platform android --profile production --local"
   },
   "dependencies": {
+    "@expo-google-fonts/barlow": "^0.4.1",
+    "@expo-google-fonts/barlow-semi-condensed": "^0.4.1",
     "@expo/metro-runtime": "~55.0.12",
     "@gluestack-ui/core": "^5.0.15",
     "@gluestack-ui/utils": "^5.0.6",
@@ -37,6 +39,7 @@
     "dayjs": "^1.11.23",
     "expo": "~55.0.31",
     "expo-constants": "~55.0.17",
+    "expo-font": "~55.0.8",
     "expo-haptics": "^57.0.2",
     "expo-image-manipulator": "~55.0.21",
     "expo-image-picker": "~55.0.24",
