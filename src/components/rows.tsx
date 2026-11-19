@@ -291,8 +291,23 @@ export function ReservationRow({
   )
 
   if (columns) {
+    // La tabla se navega con la acción de la fila (el link "Ver detalle"), así
+    // que la fila entera sólo es un botón cuando no hay acción adentro: dos
+    // controles anidados confunden al lector de pantalla y al dedo.
+    const Row = action ? View : onPress ? AppPressable : View
+    const rowProps =
+      !action && onPress
+        ? {
+            accessibilityRole: 'button' as const,
+            accessibilityLabel: `Ver la reserva de ${reservation.car.name}, ${formatDateRange(reservation.start_date, reservation.end_date)}, ${STATUS_LABELS[reservation.status]}`,
+            onPress,
+            hoverClassName: 'bg-accent',
+          }
+        : {}
+
     return (
-      <View
+      <Row
+        {...rowProps}
         className={`flex-row items-center gap-4 px-4 py-3 ${rowSurface(first, last)}`}
       >
         <View className={`${COLUMN.car} flex-row items-center gap-3`}>
@@ -335,8 +350,15 @@ export function ReservationRow({
             {paymentLine(reservation)}
           </Text>
         </View>
-        <View className={COLUMN.action}>{action}</View>
-      </View>
+        <View className={COLUMN.action}>
+          {action ??
+            (onPress ? (
+              // Sin acción propia, la fila se abre con el chevron: la columna
+              // no queda vacía.
+              <ChevronRight size={20} color={colors.mutedText} />
+            ) : null)}
+        </View>
+      </Row>
     )
   }
 
@@ -350,10 +372,10 @@ export function ReservationRow({
         />
         <View className="flex-1 gap-1">
           <Text
-          numberOfLines={2}
-          style={DISPLAY}
-          className="text-lg font-bold text-foreground"
-        >
+            numberOfLines={2}
+            style={DISPLAY}
+            className="text-lg font-bold text-foreground"
+          >
             {reservation.car.name}
           </Text>
           <Text className="text-sm text-foreground">

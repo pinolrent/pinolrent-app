@@ -7,7 +7,14 @@ import { useSellerReservations } from '@/hooks/useReservations'
 import { formatPrice } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { reservationPricing } from '@/utils/reservations'
-import { AppCard, ErrorState, Metric, SectionLabel } from '@/components/ui-kit'
+import {
+  AppCard,
+  AppPressable,
+  ErrorState,
+  Metric,
+  SectionLabel,
+} from '@/components/ui-kit'
+import { ReservationRow } from '@/components/rows'
 import { ScreenShell } from '@/components/ScreenShell'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { SUMMARY_LIMIT } from '@/constants/lists'
@@ -46,6 +53,9 @@ export default function SellerHomeScreen() {
   const toAnswer = list.filter((r) => r.status === 'pending').length
   const accepted = list.filter((r) => r.status === 'accepted').length
   const confirmed = list.filter((r) => r.status === 'confirmed').length
+  // La reserva no trae fecha de alta en el contrato, así que el orden lo da el
+  // id, que es creciente: las últimas tres que entraron.
+  const latest = [...list].sort((a, b) => b.id - a.id).slice(0, 3)
   const earnings = list
     .filter((r) => r.status === 'confirmed')
     .reduce(
@@ -101,6 +111,52 @@ export default function SellerHomeScreen() {
                 value={formatPrice(earnings)}
               />
             </View>
+          </View>
+
+          {/* Últimas reservas: el hueco del inicio con datos reales, y con la
+              misma forma que la pantalla de reservas para que se lean igual. */}
+          <View className="gap-2">
+            <View className="flex-row items-center justify-between">
+              <SectionLabel>Últimas reservas</SectionLabel>
+              <AppPressable
+                accessibilityRole="link"
+                accessibilityLabel="Ver todas las reservas"
+                onPress={() =>
+                  router.push('/(authenticated)/seller/reservations')
+                }
+                className="min-h-11 justify-center px-1"
+              >
+                <Text className="text-sm font-semibold text-primary">
+                  Ver todas
+                </Text>
+              </AppPressable>
+            </View>
+            {latest.length === 0 ? (
+              <AppCard>
+                <Text className="text-sm text-muted-foreground">
+                  Todavía no tenés reservas. Cuando un comprador reserve un auto
+                  tuyo, aparece acá.
+                </Text>
+              </AppCard>
+            ) : (
+              <View className="overflow-hidden">
+                {latest.map((reservation, index) => (
+                  <ReservationRow
+                    key={reservation.id}
+                    reservation={reservation}
+                    audience="seller"
+                    columns={isWide}
+                    first={index === 0}
+                    last={index === latest.length - 1}
+                    onPress={() =>
+                      router.push(
+                        `/(authenticated)/seller/reservations/${reservation.id}`
+                      )
+                    }
+                  />
+                ))}
+              </View>
+            )}
           </View>
         </View>
       )}
