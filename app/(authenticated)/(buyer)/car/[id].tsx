@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useCar, useCarContact } from '@/hooks/useCars'
 import { CarPhoto } from '@/components/rows'
-import { formatPricePerDay } from '@/utils/currency'
+import { formatUSD } from '@/utils/currency'
 import { getApiErrorMessage } from '@/utils/errors'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { enterFade } from '@/constants/motion'
@@ -18,14 +18,15 @@ import {
   ErrorState,
   FormError,
 } from '@/components/ui-kit'
+import { StatusBadge } from '@/components/fields'
 import { useDetailSplit } from '@/hooks/useDetailSplit'
-import { NUMERIC } from '@/constants/typography'
+import { DISPLAY, NUMERIC } from '@/constants/typography'
 
 export default function CarDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [showReserve, setShowReserve] = useState(false)
   const reduceMotion = useReduceMotion()
-  const { isWide, container, main, side } = useDetailSplit()
+  const { container, main, side } = useDetailSplit()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const {
@@ -72,36 +73,50 @@ export default function CarDetailScreen() {
   )
 
   return (
-    <Animated.View
-      entering={enterFade(reduceMotion)}
-      className="flex-1"
-    >
+    <Animated.View entering={enterFade(reduceMotion)} className="flex-1">
       <Stack.Screen options={{ title: car.name }} />
       <ScreenShell topInset={false}>
-        <ScrollView
-          className="flex-1"
-        >
+        <ScrollView className="flex-1">
           <View className={container}>
             <View className={main}>
               <CarPhoto uri={car.photo_url} name={car.name} />
             </View>
             <View className={side}>
+              {/* La ficha: nombre, disponibilidad, tarifa y la acción. El
+                  botón de reservar va acá y no al final, para que el paso
+                  siguiente esté a la vista apenas se lee el precio. */}
               <AppCard gap="sm">
-                <Text
-                  style={NUMERIC}
-                  className="text-2xl font-bold text-foreground"
-                >
-                  {formatPricePerDay(car.price_per_day)}
-                </Text>
-                {!car.active ? (
+                <View className="flex-row items-start justify-between gap-3">
+                  <Text
+                    style={DISPLAY}
+                    accessibilityRole="header"
+                    className="flex-1 text-2xl font-bold text-foreground"
+                  >
+                    {car.name}
+                  </Text>
+                  <StatusBadge tone={car.active ? 'success' : 'muted'}>
+                    {car.active ? 'Disponible' : 'No disponible'}
+                  </StatusBadge>
+                </View>
+                <View className="flex-row items-baseline gap-2">
+                  <Text
+                    style={NUMERIC}
+                    className="text-3xl font-bold text-foreground"
+                  >
+                    {formatUSD(car.price_per_day)}
+                  </Text>
+                  <Text className="text-sm text-muted-foreground">por día</Text>
+                </View>
+                {car.active ? (
                   <Text className="text-sm text-muted-foreground">
-                    No disponible por ahora
+                    El vendedor confirma tu solicitud antes de coordinar la
+                    entrega.
                   </Text>
                 ) : null}
-                {isWide ? reserveButton : null}
+                {reserveButton}
               </AppCard>
               <AppCard>
-                <Text className="text-sm text-muted-foreground">Contacto</Text>
+                <Text className="text-sm text-muted-foreground">Vendedor</Text>
                 {contact.isError ? (
                   <View className="gap-2">
                     <FormError
@@ -132,7 +147,7 @@ export default function CarDetailScreen() {
                     className="min-h-11 justify-center"
                   >
                     <Text className="text-base font-semibold text-primary">
-                      Contactar al vendedor por WhatsApp
+                      Escribirle por WhatsApp
                     </Text>
                   </AppPressable>
                 ) : (
@@ -141,7 +156,6 @@ export default function CarDetailScreen() {
                   </Text>
                 )}
               </AppCard>
-              {!isWide ? reserveButton : null}
             </View>
           </View>
         </ScrollView>
