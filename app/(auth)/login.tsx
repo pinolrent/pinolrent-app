@@ -17,6 +17,7 @@ import {
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { AuthShell } from '@/components/AuthShell'
+import { DISPLAY } from '@/constants/typography'
 import { PasswordHelpSheet } from '@/components/PasswordHelpSheet'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
@@ -60,6 +61,7 @@ export default function LoginScreen() {
     <AuthShell>
       <Text
         accessibilityRole="header"
+        style={DISPLAY}
         className="mb-2 text-xl font-bold text-foreground"
       >
         Iniciar sesión

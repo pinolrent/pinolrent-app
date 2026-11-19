@@ -119,8 +119,8 @@ export default function NotificationsScreen({ area }: { area: NotificationArea }
             <EmptyState
               message={
                 readFilter === 'unread'
-                  ? 'No tienes notificaciones sin leer'
-                  : 'No tienes notificaciones'
+                  ? 'No hay notificaciones sin leer'
+                  : 'No hay notificaciones'
               }
             />
           }

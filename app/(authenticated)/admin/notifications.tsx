@@ -8,13 +8,11 @@ import {
   AppButton,
   AppCard,
   AppRefreshControl,
-  CARD_SURFACE,
   EmptyState,
   ErrorState,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useAdminNotifications } from '@/hooks/useAdmin'
 import { NOTIFICATION_LABELS } from '@/constants/notification-ui'
@@ -135,18 +133,15 @@ export default function AdminNotificationsScreen() {
       ) : (
         <FlatList
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
           data={entries}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
-            <StaggerCard index={index}>
-              <View className={`overflow-hidden ${CARD_SURFACE}`}>
-                <AdminNotificationRow
-                  notification={item}
-                  last={index === entries.length - 1}
-                />
-              </View>
-            </StaggerCard>
+            <AdminNotificationRow
+              notification={item}
+              first={index === 0}
+              last={index === entries.length - 1}
+            />
           )}
           refreshControl={
             <AppRefreshControl

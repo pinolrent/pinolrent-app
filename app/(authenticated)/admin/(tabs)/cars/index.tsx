@@ -13,12 +13,10 @@ import {
   EmptyState,
   ErrorState,
   AppRefreshControl,
-  CARD_SURFACE,
   SuccessNote,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import type { AdminCarFilters } from '@/types/admin'
 
@@ -123,20 +121,18 @@ export default function AdminCarsScreen() {
           <SuccessNote message={notice} />
           <FlatList
             className="flex-1"
-            contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
             data={cars}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }) => (
-              <StaggerCard index={index}>
-                <View className={`overflow-hidden ${CARD_SURFACE}`}>
-                  <AdminCarRow
+                                <AdminCarRow
+                first={index === 0}
+                last={index === cars.length - 1}
                     car={item}
                     onPress={() =>
                       router.push(`/(authenticated)/admin/cars/${item.id}`)
                     }
                   />
-                </View>
-              </StaggerCard>
             )}
             refreshControl={
               <AppRefreshControl

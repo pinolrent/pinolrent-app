@@ -10,13 +10,11 @@ import {
   AppButton,
   AppCard,
   AppRefreshControl,
-  CARD_SURFACE,
   EmptyState,
   ErrorState,
 } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { ROLE_LABELS } from '@/constants/admin-ui'
 import type { Role } from '@/types/auth'
@@ -74,8 +72,8 @@ export default function AdminUsersScreen() {
           <View className={isPhone ? 'gap-3' : 'flex-row items-end gap-3'}>
             <View className="flex-1">
               <AppInput
-                label="Buscar"
-                placeholder="Email o id exacto"
+                label="Email o id exacto"
+                placeholder="vende@ejemplo.com"
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="search"
@@ -110,20 +108,18 @@ export default function AdminUsersScreen() {
       ) : (
         <FlatList
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
           data={users}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
-            <StaggerCard index={index}>
-              <View className={`overflow-hidden ${CARD_SURFACE}`}>
-                <AdminUserRow
+                            <AdminUserRow
+                first={index === 0}
+                last={index === users.length - 1}
                   user={item}
                   onPress={() =>
                     router.push(`/(authenticated)/admin/users/${item.id}`)
                   }
                 />
-              </View>
-            </StaggerCard>
           )}
           refreshControl={
             <AppRefreshControl

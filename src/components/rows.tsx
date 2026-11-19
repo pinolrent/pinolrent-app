@@ -3,12 +3,12 @@ import { Image, Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { formatPrice, formatPricePerDay } from '@/utils/currency'
+import { formatPricePerDay, formatUSD, formatUSDExact } from '@/utils/currency'
 import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
-import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
-import { NUMERIC } from '@/constants/typography'
+import { AppPressable, CARD_SURFACE, rowSurface } from '@/components/ui-kit'
+import { DISPLAY, NUMERIC } from '@/constants/typography'
 import { CARD_WIDTH } from '@/constants/layout'
 import {
   PAYMENT_METHOD_LABELS,
@@ -84,7 +84,11 @@ export function CarCard({
     <>
       <CarPhoto uri={car.photo_url} name={car.name} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+        <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
           {car.name}
         </Text>
         <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
@@ -130,7 +134,11 @@ export function CarRow({
     <View className="flex-row items-center gap-3">
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+        <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
           {car.name}
         </Text>
         <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
@@ -146,11 +154,13 @@ export function CarRow({
 export function CarListRow({
   car,
   onPress,
+  first = false,
   last = false,
   meta,
 }: {
   car: Car
   onPress?: () => void
+  first?: boolean
   last?: boolean
   meta?: ReactNode
 }) {
@@ -162,22 +172,30 @@ export function CarListRow({
       accessibilityLabel={`${car.name}, ${formatPricePerDay(car.price_per_day)}`}
       onPress={onPress}
       hoverClassName="bg-accent"
-      className={`min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
-        last ? '' : 'border-b'
-      }`}
+      className={`min-h-20 flex-row items-center gap-3 px-4 py-3 ${rowSurface(
+        first,
+        last
+      )}`}
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
         <Text
           numberOfLines={1}
+          style={DISPLAY}
           className="text-lg font-semibold text-foreground"
         >
           {car.name}
         </Text>
-        <Text style={NUMERIC} className="text-sm text-muted-foreground">
-          {formatPricePerDay(car.price_per_day)}
-        </Text>
         {meta}
+      </View>
+      {/* El precio va al extremo derecho, como en la tabla de reservas: en
+          escritorio la fila mide más de mil píxeles y con todo el dato pegado
+          a la izquierda el resto era aire. */}
+      <View className="items-end">
+        <Text style={NUMERIC} className="text-base font-semibold text-foreground">
+          {formatUSD(car.price_per_day)}
+        </Text>
+        <Text className="text-xs text-muted-foreground">por día</Text>
       </View>
       <ChevronRight size={20} color={colors.mutedText} />
     </AppPressable>
@@ -187,18 +205,26 @@ export function CarListRow({
 const COLUMN = {
   car: 'flex-1 min-w-0',
   dates: 'w-48',
-  total: 'w-24',
+  // 128px: "US$12.345,60" mide 110 a 14px semibold con cifras tabulares; con
+  // w-24 (96) el monto se partía en dos renglones.
+  total: 'w-32 text-right',
   status: 'w-44',
   action: 'w-40 items-end',
 } as const
 
 export function ReservationColumns({
   audience,
+  first = true,
 }: {
   audience: 'buyer' | 'seller'
+  first?: boolean
 }) {
   return (
-    <View className="flex-row items-center gap-4 border-b border-border px-4 py-2">
+    <View
+      className={`flex-row items-center gap-4 border-x border-t border-b border-border bg-card px-4 py-2 ${
+        first ? 'rounded-t-xl' : ''
+      }`}
+    >
       <Text
         className={`${COLUMN.car} text-xs font-semibold text-muted-foreground`}
       >
@@ -237,12 +263,16 @@ export function ReservationRow({
   onPress,
   columns = false,
   audience,
+  first = false,
+  last = false,
 }: {
   reservation: Reservation
   action?: ReactNode
   onPress?: () => void
   columns?: boolean
   audience: 'buyer' | 'seller'
+  first?: boolean
+  last?: boolean
 }) {
   const colors = useThemeColors()
   const pricing = reservationPricing(
@@ -251,7 +281,7 @@ export function ReservationRow({
     reservation.car.price_per_day
   )
   const { days } = pricing
-  const amount = formatPrice(
+  const amount = formatUSDExact(
     audience === 'seller' ? pricing.sellerNet : pricing.buyerTotal
   )
   const badge = (
@@ -262,7 +292,9 @@ export function ReservationRow({
 
   if (columns) {
     return (
-      <View className="flex-row items-center gap-4 px-4 py-3">
+      <View
+        className={`flex-row items-center gap-4 px-4 py-3 ${rowSurface(first, last)}`}
+      >
         <View className={`${COLUMN.car} flex-row items-center gap-3`}>
           <CarPhoto
             uri={reservation.car.photo_url}
@@ -272,6 +304,7 @@ export function ReservationRow({
           <View className="flex-1 gap-1">
             <Text
               numberOfLines={1}
+              style={DISPLAY}
               className="text-lg font-bold text-foreground"
             >
               {reservation.car.name}
@@ -290,6 +323,7 @@ export function ReservationRow({
           </Text>
         </View>
         <Text
+          numberOfLines={1}
           style={NUMERIC}
           className={`${COLUMN.total} text-sm font-semibold text-foreground`}
         >
@@ -315,7 +349,11 @@ export function ReservationRow({
           variant="row"
         />
         <View className="flex-1 gap-1">
-          <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+          <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
             {reservation.car.name}
           </Text>
           <Text className="text-sm text-foreground">

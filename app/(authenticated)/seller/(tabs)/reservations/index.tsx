@@ -21,7 +21,6 @@ import {
   AppRefreshControl,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerReservationsScreen() {
@@ -80,47 +79,53 @@ export default function SellerReservationsScreen() {
     const decidable = canDecideReservation(item)
 
     if (showTable) {
+      const last = index === reservations.length - 1
+
       return (
-        <StaggerCard index={index}>
-          <View className="border-b border-border">
-            <ReservationRow
-              reservation={item}
-              columns
-              audience="seller"
-              action={
-                <View className="items-end gap-2">
-                  <Link href={detailHref(item.id)} asChild>
-                    <AppPressable
-                      accessibilityRole="link"
-                      accessibilityLabel="Ver detalle de la reserva"
-                      className="min-h-11 justify-center"
-                    >
-                      <Text className="text-sm text-primary">Ver detalle</Text>
-                    </AppPressable>
-                  </Link>
-                  {proofLink(item)}
-                </View>
-              }
-            />
-            {decidable && (
-              <View className="flex-row items-center gap-2 border-t border-border bg-muted/40 px-4 py-3">
-                <AcceptReservationBlock
-                  reservation={item}
-                  onAccepted={onAccepted}
-                />
-                <RejectReservationBlock
-                  reservation={item}
-                  onRejected={onRejected}
-                />
+        <View>
+          <ReservationRow
+            reservation={item}
+            columns
+            audience="seller"
+            first={index === 0}
+            last={last && !decidable}
+            action={
+              <View className="items-end gap-2">
+                <Link href={detailHref(item.id)} asChild>
+                  <AppPressable
+                    accessibilityRole="link"
+                    accessibilityLabel="Ver detalle de la reserva"
+                    className="min-h-11 justify-center"
+                  >
+                    <Text className="text-sm text-primary">Ver detalle</Text>
+                  </AppPressable>
+                </Link>
+                {proofLink(item)}
               </View>
-            )}
-          </View>
-        </StaggerCard>
+            }
+          />
+          {decidable && (
+            <View
+              className={`flex-row items-center gap-2 border-x border-b border-border bg-muted/40 px-4 py-3 ${
+                last ? 'rounded-b-xl' : ''
+              }`}
+            >
+              <AcceptReservationBlock
+                reservation={item}
+                onAccepted={onAccepted}
+              />
+              <RejectReservationBlock
+                reservation={item}
+                onRejected={onRejected}
+              />
+            </View>
+          )}
+        </View>
       )
     }
 
     return (
-      <StaggerCard index={index}>
+      <View>
         <ReservationRow
           reservation={item}
           audience="seller"
@@ -140,7 +145,7 @@ export default function SellerReservationsScreen() {
             ) : undefined
           }
         />
-      </StaggerCard>
+      </View>
     )
   }
 

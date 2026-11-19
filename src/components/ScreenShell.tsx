@@ -3,6 +3,7 @@ import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { SCREEN_WIDTH } from '@/constants/layout'
+import { DISPLAY } from '@/constants/typography'
 
 export function ScreenShell({
   title,
@@ -48,8 +49,16 @@ export function ScreenShell({
               {showTitle ? (
                 <Text
                   accessibilityRole="header"
+                  style={DISPLAY}
                   className="text-2xl font-bold text-foreground"
                 >
+                  {title}
+                </Text>
+              ) : title ? (
+                // En escritorio el sidebar ya marca la sección, pero sin esto
+                // la pantalla no tiene ningún heading: un lector de pantalla
+                // aterriza en una página sin título.
+                <Text accessibilityRole="header" className="sr-only">
                   {title}
                 </Text>
               ) : null}

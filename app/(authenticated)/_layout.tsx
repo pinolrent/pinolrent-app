@@ -26,7 +26,7 @@ export default function AuthenticatedLayout() {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-background p-6">
         <FormError
-          message="No pudimos validar tu sesión, revisa tu conexión"
+          message="No pudimos validar tu sesión, revisá tu conexión"
           className="text-center"
         />
         <AppButton

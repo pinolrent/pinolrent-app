@@ -37,7 +37,8 @@
             "backgroundColor": "#0A121B"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "router": {},

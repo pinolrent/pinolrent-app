@@ -6,6 +6,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaListener } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Uniwind } from 'uniwind'
+import { useFonts } from 'expo-font'
+import {
+  BarlowSemiCondensed_500Medium,
+  BarlowSemiCondensed_600SemiBold,
+} from '@expo-google-fonts/barlow-semi-condensed'
 import { GluestackUIProvider } from '../components/ui/gluestack-ui-provider'
 import { THEME_COLORS } from '@/constants/theme-colors'
 import { useAuthStore } from '@/stores/auth.store'
@@ -26,6 +31,12 @@ export default function RootLayout() {
   const loadTheme = useThemeStore((s) => s.loadTheme)
   const theme = useThemeStore((s) => s.theme)
   const themeLoaded = useThemeStore((s) => s.isLoaded)
+  // Sin las fuentes la app se dibuja igual, con la sans del sistema: si la
+  // carga falla no se queda en una pantalla en blanco.
+  const [fontsLoaded, fontError] = useFonts({
+    BarlowSemiCondensed_500Medium,
+    BarlowSemiCondensed_600SemiBold,
+  })
 
   useEffect(() => {
     loadFromStorage().catch(() => {
@@ -47,7 +58,7 @@ export default function RootLayout() {
     if (doc?.documentElement) doc.documentElement.lang = 'es'
   }, [])
 
-  if (!themeLoaded) return null
+  if (!themeLoaded || (!fontsLoaded && !fontError)) return null
 
   return (
     <SafeAreaListener

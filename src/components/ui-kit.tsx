@@ -23,7 +23,18 @@ type Variant =
   | 'secondary'
   | 'ghost'
 
-export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
+// Sin sombra: la profundidad de una superficie la dice su borde, no una
+// sombra clara repetida debajo de cada caja.
+export const CARD_SURFACE = 'rounded-xl border border-border bg-card'
+
+// Las filas de una tabla o de una lista larga llevan la superficie ellas mismas:
+// un contenedor que scrollea no puede dibujar un borde que termine donde
+// termina el último dato, y la lista queda con un bloque vacío al pie.
+export function rowSurface(first = false, last = false) {
+  return `border-x border-b border-border bg-card ${
+    first ? 'rounded-t-xl border-t' : ''
+  } ${last ? 'rounded-b-xl' : ''}`
+}
 
 // Los props extra importan: en Android ScrollView clona este elemento y le
 // pasa el contenido como children, así que hay que reenviarlos.
@@ -53,7 +64,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
     <Text
       accessibilityRole="header"
       style={SECTION_LABEL}
-      className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+      className="px-1 text-sm font-semibold text-muted-foreground"
     >
       {children}
     </Text>
@@ -187,18 +198,22 @@ export function AppCard({
 export function ListGroup({
   title,
   fill = false,
+  bordered = true,
   children,
 }: {
   title?: string
   fill?: boolean
+  /** La superficie con borde la ponen las filas: una lista más corta que la
+   *  pantalla dejaba el borde dibujando un alto vacío debajo del último dato. */
+  bordered?: boolean
   children: ReactNode
 }) {
   return (
     <View className={`gap-2 ${fill ? 'flex-1' : ''}`}>
       {title ? <SectionLabel>{title}</SectionLabel> : null}
       <View
-        className={`overflow-hidden ${CARD_SURFACE} ${
-          fill ? 'flex-1' : ''
+        className={`overflow-hidden ${fill ? 'flex-1' : ''} ${
+          bordered ? CARD_SURFACE : ''
         }`}
       >
         {children}

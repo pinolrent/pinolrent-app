@@ -14,6 +14,7 @@ import { AppButton, AppPressable, FormError } from '@/components/ui-kit'
 import { AppInput } from '@/components/fields'
 import { ChoiceGroup } from '@/components/ChoiceGroup'
 import { AuthShell } from '@/components/AuthShell'
+import { DISPLAY } from '@/constants/typography'
 import { useThemeColors } from '@/hooks/useThemeColors'
 
 type Role = 'buyer' | 'seller'
@@ -78,6 +79,7 @@ export default function RegisterScreen() {
     <AuthShell>
       <Text
         accessibilityRole="header"
+        style={DISPLAY}
         className="mb-2 text-xl font-bold text-foreground"
       >
         Crear cuenta

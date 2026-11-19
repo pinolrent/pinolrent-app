@@ -6,7 +6,6 @@ import { useCreateSellerCar, useSellerCars } from '@/hooks/useSellerCars'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
 import type { Car } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
-import { StaggerCard } from '@/components/StaggerCard'
 import { ScreenShell } from '@/components/ScreenShell'
 import { ListFooter } from '@/components/admin-list'
 import { CarCard } from '@/components/rows'
@@ -74,8 +73,8 @@ export default function SellerCarsScreen() {
     void fetchNextPage()
   }
 
-  const renderItem = ({ item, index }: { item: Car; index: number }) => (
-    <StaggerCard index={index}>
+  const renderItem = ({ item }: { item: Car; index: number }) => (
+    <View className="flex-1">
       <CarCard
         car={item}
         onPress={() => router.push(`/(authenticated)/seller/cars/${item.id}`)}
@@ -87,7 +86,7 @@ export default function SellerCarsScreen() {
           </View>
         }
       />
-    </StaggerCard>
+    </View>
   )
 
   return (
