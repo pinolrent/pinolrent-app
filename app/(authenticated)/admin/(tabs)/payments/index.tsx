@@ -8,12 +8,10 @@ import { ListFooter, FilterPills } from '@/components/admin-list'
 import {
   AppCard,
   AppRefreshControl,
-  CARD_SURFACE,
   EmptyState,
   ErrorState,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { PAYMENT_STATUS_LABELS } from '@/constants/payment-ui'
 import type { Payment } from '@/types/payment'
 
@@ -77,15 +75,15 @@ export default function AdminPaymentsScreen() {
       ) : (
         <FlatList
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
           data={payments}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
-            <StaggerCard index={index}>
-              <View className={`overflow-hidden ${CARD_SURFACE}`}>
-                <AdminPaymentRow payment={item} />
-              </View>
-            </StaggerCard>
+            <AdminPaymentRow
+              payment={item}
+              first={index === 0}
+              last={index === payments.length - 1}
+            />
           )}
           refreshControl={
             <AppRefreshControl

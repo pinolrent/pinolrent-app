@@ -21,7 +21,6 @@ import {
   AppRefreshControl,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 export default function SellerReservationsScreen() {
@@ -83,7 +82,7 @@ export default function SellerReservationsScreen() {
       const last = index === reservations.length - 1
 
       return (
-        <StaggerCard index={index}>
+        <View>
           <ReservationRow
             reservation={item}
             columns
@@ -121,12 +120,12 @@ export default function SellerReservationsScreen() {
               />
             </View>
           )}
-        </StaggerCard>
+        </View>
       )
     }
 
     return (
-      <StaggerCard index={index}>
+      <View>
         <ReservationRow
           reservation={item}
           audience="seller"
@@ -146,7 +145,7 @@ export default function SellerReservationsScreen() {
             ) : undefined
           }
         />
-      </StaggerCard>
+      </View>
     )
   }
 

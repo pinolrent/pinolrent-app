@@ -15,11 +15,9 @@ import {
   EmptyState,
   ErrorState,
   AppRefreshControl,
-  CARD_SURFACE,
   SuccessNote,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { STATUS_LABELS } from '@/constants/reservation-ui'
 import type { Reservation } from '@/types/reservation'
 
@@ -90,13 +88,13 @@ export default function AdminReservationsScreen() {
           <SuccessNote message={notice} />
           <FlatList
             className="flex-1"
-            contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
             data={reservations}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }) => (
-              <StaggerCard index={index}>
-                <View className={`overflow-hidden ${CARD_SURFACE}`}>
-                  <AdminReservationRow
+                                <AdminReservationRow
+                first={index === 0}
+                last={index === reservations.length - 1}
                     reservation={item}
                     action={
                       item.status === 'accepted' ? (
@@ -121,8 +119,6 @@ export default function AdminReservationsScreen() {
                       ) : undefined
                     }
                   />
-                </View>
-              </StaggerCard>
             )}
             refreshControl={
               <AppRefreshControl

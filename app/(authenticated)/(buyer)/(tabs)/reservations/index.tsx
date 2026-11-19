@@ -18,7 +18,6 @@ import {
   AppRefreshControl,
 } from '@/components/ui-kit'
 import { SkeletonList } from '@/components/Skeleton'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 
 function canCancel(reservation: Reservation) {
@@ -81,7 +80,7 @@ export default function ReservationsScreen() {
       const last = index === reservations.length - 1
 
       return (
-        <StaggerCard index={index}>
+        <View>
           <ReservationRow
             reservation={item}
             columns
@@ -109,12 +108,12 @@ export default function ReservationsScreen() {
               <CancelReservationBlock reservation={item} />
             </View>
           )}
-        </StaggerCard>
+        </View>
       )
     }
 
     return (
-      <StaggerCard index={index}>
+      <View>
         <ReservationRow
           reservation={item}
           audience="buyer"
@@ -125,7 +124,7 @@ export default function ReservationsScreen() {
             ) : undefined
           }
         />
-      </StaggerCard>
+      </View>
     )
   }
 

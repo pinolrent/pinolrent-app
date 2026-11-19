@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { AppPressable } from '@/components/ui-kit'
+import { AppPressable, rowSurface } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
 import { ProofLink } from '@/components/ProofLink'
 import { CarPhoto } from '@/components/rows'
@@ -30,19 +30,19 @@ import type {
 } from '@/types/admin'
 import type { Notification } from '@/types/notification'
 
-function rowClassName(last?: boolean) {
-  return `min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
-    last ? '' : 'border-b'
-  }`
+function rowClassName(first?: boolean, last?: boolean) {
+  return `min-h-20 flex-row items-center gap-3 px-4 py-3 ${rowSurface(first, last)}`
 }
 
 export function AdminUserRow({
   user,
   onPress,
+  first,
   last,
 }: {
   user: AdminUser
   onPress?: () => void
+  first?: boolean
   last?: boolean
 }) {
   const colors = useThemeColors()
@@ -53,7 +53,7 @@ export function AdminUserRow({
       accessibilityLabel={`Cuenta de ${user.email}`}
       onPress={onPress}
       hoverClassName="bg-accent"
-      className={rowClassName(last)}
+      className={rowClassName(first, last)}
     >
       <View className="flex-1 gap-2">
         <Text numberOfLines={1} className="text-base font-semibold text-foreground">
@@ -86,10 +86,12 @@ export function AdminUserRow({
 export function AdminCarRow({
   car,
   onPress,
+  first,
   last,
 }: {
   car: AdminCar
   onPress?: () => void
+  first?: boolean
   last?: boolean
 }) {
   const colors = useThemeColors()
@@ -100,7 +102,7 @@ export function AdminCarRow({
       accessibilityLabel={`Auto ${car.name}`}
       onPress={onPress}
       hoverClassName="bg-accent"
-      className={rowClassName(last)}
+      className={rowClassName(first, last)}
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
@@ -127,15 +129,17 @@ export function AdminCarRow({
 export function AdminReservationRow({
   reservation,
   action,
+  first,
   last,
 }: {
   reservation: AdminReservation
   action?: ReactNode
+  first?: boolean
   last?: boolean
 }) {
   return (
-    <View className={last ? '' : 'border-b border-border'}>
-      <View className="min-h-20 flex-row items-center gap-3 bg-card px-4 py-3">
+    <View className={rowSurface(first, last)}>
+      <View className="min-h-20 flex-row items-center gap-3 px-4 py-3">
         <View className="flex-1 gap-1">
           <View className="flex-row items-center gap-2">
             <StatusBadge tone={STATUS_TONES[reservation.status]}>
@@ -170,9 +174,11 @@ export function AdminReservationRow({
 
 export function AdminPaymentRow({
   payment,
+  first,
   last,
 }: {
   payment: AdminPayment
+  first?: boolean
   last?: boolean
 }) {
   const context = [
@@ -185,7 +191,7 @@ export function AdminPaymentRow({
     .join(' · ')
 
   return (
-    <View className={rowClassName(last)}>
+    <View className={rowClassName(first, last)}>
       <View className="flex-1 gap-1">
         <View className="flex-row items-center gap-2">
           <StatusBadge tone={PAYMENT_STATUS_TONES[payment.status]}>
@@ -206,13 +212,15 @@ export function AdminPaymentRow({
 
 export function AdminAuditRow({
   entry,
+  first,
   last,
 }: {
   entry: AuditEntry
+  first?: boolean
   last?: boolean
 }) {
   return (
-    <View className={rowClassName(last)}>
+    <View className={rowClassName(first, last)}>
       <View className="flex-1 gap-1">
         <Text className="text-base font-semibold text-foreground">
           {AUDIT_ACTION_LABELS[entry.action] ?? entry.action}
@@ -231,13 +239,15 @@ export function AdminAuditRow({
 
 export function AdminNotificationRow({
   notification,
+  first,
   last,
 }: {
   notification: Notification
+  first?: boolean
   last?: boolean
 }) {
   return (
-    <View className={rowClassName(last)}>
+    <View className={rowClassName(first, last)}>
       <View className="flex-1 gap-1">
         <Text className="text-base font-semibold text-foreground">
           {NOTIFICATION_LABELS[notification.kind]}

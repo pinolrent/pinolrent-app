@@ -23,7 +23,9 @@ type Variant =
   | 'secondary'
   | 'ghost'
 
-export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
+// Sin sombra: la profundidad de una superficie la dice su borde, no una
+// sombra clara repetida debajo de cada caja.
+export const CARD_SURFACE = 'rounded-xl border border-border bg-card'
 
 // Las filas de una tabla o de una lista larga llevan la superficie ellas mismas:
 // un contenedor que scrollea no puede dibujar un borde que termine donde

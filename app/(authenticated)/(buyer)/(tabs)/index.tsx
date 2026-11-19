@@ -28,7 +28,6 @@ import { StatusBadge } from '@/components/fields'
 import { CarCard } from '@/components/rows'
 import { DateField } from '@/components/DateField'
 import { ScreenShell } from '@/components/ScreenShell'
-import { StaggerCard } from '@/components/StaggerCard'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { useThemeColors } from '@/hooks/useThemeColors'
 import { NUMERIC } from '@/constants/typography'
@@ -221,12 +220,10 @@ export default function BuyerHomeScreen() {
               </AppPressable>
             </View>
             <View className="flex-row flex-wrap gap-3">
-              {available.map((car, index) => (
-                <StaggerCard
+              {available.map((car) => (
+                <View
                   key={car.id}
-                  index={index}
-                  className={gridItem}
-                  flex={columns > 1}
+                  className={`${gridItem} ${columns > 1 ? 'flex-1' : ''}`}
                 >
                   <CarCard
                     car={car}
@@ -234,7 +231,7 @@ export default function BuyerHomeScreen() {
                       router.push(`/(authenticated)/(buyer)/car/${car.id}`)
                     }
                   />
-                </StaggerCard>
+                </View>
               ))}
             </View>
           </View>

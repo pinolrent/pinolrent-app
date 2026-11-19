@@ -5,7 +5,6 @@ import { useCars } from '@/hooks/useCars'
 import type { Car, CarsListParams } from '@/types/car'
 import { getApiErrorMessage } from '@/utils/errors'
 import { formatDate, todayDate, validateDateRangeInput } from '@/utils/dates'
-import { StaggerCard } from '@/components/StaggerCard'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { CarListRow } from '@/components/rows'
@@ -111,14 +110,12 @@ export default function CatalogScreen() {
     : countLabel
 
   const renderItem = ({ item, index }: { item: Car; index: number }) => (
-    <StaggerCard index={index}>
-      <CarListRow
-        car={item}
-        first={index === 0}
-        last={index === cars.length - 1}
-        onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
-      />
-    </StaggerCard>
+    <CarListRow
+      car={item}
+      first={index === 0}
+      last={index === cars.length - 1}
+      onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
+    />
   )
 
   return (
