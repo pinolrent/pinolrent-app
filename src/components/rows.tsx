@@ -146,11 +146,13 @@ export function CarRow({
 export function CarListRow({
   car,
   onPress,
+  first = false,
   last = false,
   meta,
 }: {
   car: Car
   onPress?: () => void
+  first?: boolean
   last?: boolean
   meta?: ReactNode
 }) {
@@ -162,9 +164,9 @@ export function CarListRow({
       accessibilityLabel={`${car.name}, ${formatPricePerDay(car.price_per_day)}`}
       onPress={onPress}
       hoverClassName="bg-accent"
-      className={`min-h-20 flex-row items-center gap-3 border-border bg-card px-4 py-3 ${
-        last ? '' : 'border-b'
-      }`}
+      className={`min-h-20 flex-row items-center gap-3 border-x border-b border-border bg-card px-4 py-3 ${
+        first ? 'rounded-t-xl border-t' : ''
+      } ${last ? 'rounded-b-xl' : ''}`}
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">

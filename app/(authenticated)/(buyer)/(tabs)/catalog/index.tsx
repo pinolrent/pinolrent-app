@@ -114,6 +114,7 @@ export default function CatalogScreen() {
     <StaggerCard index={index}>
       <CarListRow
         car={item}
+        first={index === 0}
         last={index === cars.length - 1}
         onPress={() => router.push(`/(authenticated)/(buyer)/car/${item.id}`)}
       />
@@ -176,7 +177,7 @@ export default function CatalogScreen() {
           centered
         />
       ) : (
-        <ListGroup fill>
+        <ListGroup fill bordered={false}>
           <FlatList
             className="flex-1"
             data={cars}

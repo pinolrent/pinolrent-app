@@ -187,18 +187,22 @@ export function AppCard({
 export function ListGroup({
   title,
   fill = false,
+  bordered = true,
   children,
 }: {
   title?: string
   fill?: boolean
+  /** La superficie con borde la ponen las filas: una lista más corta que la
+   *  pantalla dejaba el borde dibujando un alto vacío debajo del último dato. */
+  bordered?: boolean
   children: ReactNode
 }) {
   return (
     <View className={`gap-2 ${fill ? 'flex-1' : ''}`}>
       {title ? <SectionLabel>{title}</SectionLabel> : null}
       <View
-        className={`overflow-hidden ${CARD_SURFACE} ${
-          fill ? 'flex-1' : ''
+        className={`overflow-hidden ${fill ? 'flex-1' : ''} ${
+          bordered ? CARD_SURFACE : ''
         }`}
       >
         {children}
