@@ -98,7 +98,11 @@ export default function BuyerHomeScreen() {
     : null
 
   const gridItem =
-    columns === 3 ? 'min-w-[280px]' : columns === 2 ? 'min-w-[240px]' : ''
+    columns === 3
+      ? 'min-w-[280px]'
+      : columns === 2
+        ? 'min-w-[240px]'
+        : 'w-full'
 
   return (
     <ScreenShell title="Inicio" width={isWide ? 'default' : 'form'} scroll>
@@ -218,7 +222,12 @@ export default function BuyerHomeScreen() {
             </View>
             <View className="flex-row flex-wrap gap-3">
               {available.map((car, index) => (
-                <StaggerCard key={car.id} index={index} className={gridItem}>
+                <StaggerCard
+                  key={car.id}
+                  index={index}
+                  className={gridItem}
+                  flex={columns > 1}
+                >
                   <CarCard
                     car={car}
                     onPress={() =>
