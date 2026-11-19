@@ -9,19 +9,19 @@ export function ThemeToggle() {
   const toggle = useThemeStore((s) => s.toggle)
   const colors = useThemeColors()
   const dark = theme === 'dark'
-  const Icon = dark ? Sun : Moon
+  // El icono y el texto dicen el modo en el que estás; el botón dice a dónde
+  // te lleva. Al revés, estando en oscuro el control se leía "Claro".
+  const Icon = dark ? Moon : Sun
 
   return (
     <AppPressable
       accessibilityRole="button"
-      accessibilityLabel={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
+      accessibilityLabel={`Tema ${dark ? 'oscuro' : 'claro'}. Cambiar a ${dark ? 'claro' : 'oscuro'}`}
       onPress={() => toggle()}
       className="min-h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3 py-2"
     >
       <Icon size={16} color={colors.text} />
-      <Text className="text-sm text-foreground">
-        {dark ? 'Claro' : 'Oscuro'}
-      </Text>
+      <Text className="text-sm text-foreground">{dark ? 'Oscuro' : 'Claro'}</Text>
     </AppPressable>
   )
 }
