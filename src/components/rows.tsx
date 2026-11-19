@@ -8,7 +8,7 @@ import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
 import { AppPressable, CARD_SURFACE, rowSurface } from '@/components/ui-kit'
-import { NUMERIC } from '@/constants/typography'
+import { DISPLAY, NUMERIC } from '@/constants/typography'
 import { CARD_WIDTH } from '@/constants/layout'
 import {
   PAYMENT_METHOD_LABELS,
@@ -84,7 +84,11 @@ export function CarCard({
     <>
       <CarPhoto uri={car.photo_url} name={car.name} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+        <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
           {car.name}
         </Text>
         <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
@@ -130,7 +134,11 @@ export function CarRow({
     <View className="flex-row items-center gap-3">
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+        <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
           {car.name}
         </Text>
         <Text style={NUMERIC} className="text-sm font-semibold text-foreground">
@@ -173,6 +181,7 @@ export function CarListRow({
       <View className="flex-1 gap-1">
         <Text
           numberOfLines={1}
+          style={DISPLAY}
           className="text-lg font-semibold text-foreground"
         >
           {car.name}
@@ -289,6 +298,7 @@ export function ReservationRow({
           <View className="flex-1 gap-1">
             <Text
               numberOfLines={1}
+              style={DISPLAY}
               className="text-lg font-bold text-foreground"
             >
               {reservation.car.name}
@@ -333,7 +343,11 @@ export function ReservationRow({
           variant="row"
         />
         <View className="flex-1 gap-1">
-          <Text numberOfLines={2} className="text-lg font-bold text-foreground">
+          <Text
+          numberOfLines={2}
+          style={DISPLAY}
+          className="text-lg font-bold text-foreground"
+        >
             {reservation.car.name}
           </Text>
           <Text className="text-sm text-foreground">

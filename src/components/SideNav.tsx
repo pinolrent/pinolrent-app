@@ -7,6 +7,7 @@ import { SessionActions } from './SessionActions'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { AppPressable } from '@/components/ui-kit'
 import { StatusBadge } from '@/components/fields'
+import { DISPLAY } from '@/constants/typography'
 
 const LOGO = require('../assets/icon.png')
 
@@ -102,7 +103,9 @@ export function Sidebar({
           className="h-9 w-9 rounded-lg"
           resizeMode="cover"
         />
-        <Text className="text-lg font-bold text-foreground">PinolRent</Text>
+        <Text style={DISPLAY} className="text-lg font-bold text-foreground">
+          PinolRent
+        </Text>
       </View>
       {items.map((item) => (
         <NavRow

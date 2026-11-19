@@ -3,6 +3,7 @@ import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBreakpoints } from '@/hooks/useBreakpoints'
 import { SCREEN_WIDTH } from '@/constants/layout'
+import { DISPLAY } from '@/constants/typography'
 
 export function ScreenShell({
   title,
@@ -48,6 +49,7 @@ export function ScreenShell({
               {showTitle ? (
                 <Text
                   accessibilityRole="header"
+                  style={DISPLAY}
                   className="text-2xl font-bold text-foreground"
                 >
                   {title}

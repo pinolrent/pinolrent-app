@@ -62,7 +62,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
     <Text
       accessibilityRole="header"
       style={SECTION_LABEL}
-      className="px-1 text-xs font-semibold uppercase text-muted-foreground"
+      className="px-1 text-sm font-semibold text-muted-foreground"
     >
       {children}
     </Text>
