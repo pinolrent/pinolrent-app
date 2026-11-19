@@ -78,31 +78,37 @@ export default function ReservationsScreen() {
     const cancellable = canCancel(item)
 
     if (showTable) {
+      const last = index === reservations.length - 1
+
       return (
         <StaggerCard index={index}>
-          <View className="border-b border-border">
-            <ReservationRow
-              reservation={item}
-              columns
-              audience="buyer"
-              action={
-                <Link href={detailHref(item.id)} asChild>
-                  <AppPressable
-                    accessibilityRole="link"
-                    accessibilityLabel="Ver detalle de la reserva"
-                    className="min-h-11 justify-center"
-                  >
-                    <Text className="text-sm text-primary">Ver detalle</Text>
-                  </AppPressable>
-                </Link>
-              }
-            />
-            {cancellable && (
-              <View className="border-t border-border bg-muted/40 px-4 py-3">
-                <CancelReservationBlock reservation={item} />
-              </View>
-            )}
-          </View>
+          <ReservationRow
+            reservation={item}
+            columns
+            audience="buyer"
+            first={index === 0}
+            last={last && !cancellable}
+            action={
+              <Link href={detailHref(item.id)} asChild>
+                <AppPressable
+                  accessibilityRole="link"
+                  accessibilityLabel="Ver detalle de la reserva"
+                  className="min-h-11 justify-center"
+                >
+                  <Text className="text-sm text-primary">Ver detalle</Text>
+                </AppPressable>
+              </Link>
+            }
+          />
+          {cancellable && (
+            <View
+              className={`border-x border-b border-border bg-muted/40 px-4 py-3 ${
+                last ? 'rounded-b-xl' : ''
+              }`}
+            >
+              <CancelReservationBlock reservation={item} />
+            </View>
+          )}
         </StaggerCard>
       )
     }

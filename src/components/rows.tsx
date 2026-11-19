@@ -7,7 +7,7 @@ import { formatPricePerDay, formatUSDExact } from '@/utils/currency'
 import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
-import { AppPressable, CARD_SURFACE } from '@/components/ui-kit'
+import { AppPressable, CARD_SURFACE, rowSurface } from '@/components/ui-kit'
 import { NUMERIC } from '@/constants/typography'
 import { CARD_WIDTH } from '@/constants/layout'
 import {
@@ -164,9 +164,10 @@ export function CarListRow({
       accessibilityLabel={`${car.name}, ${formatPricePerDay(car.price_per_day)}`}
       onPress={onPress}
       hoverClassName="bg-accent"
-      className={`min-h-20 flex-row items-center gap-3 border-x border-b border-border bg-card px-4 py-3 ${
-        first ? 'rounded-t-xl border-t' : ''
-      } ${last ? 'rounded-b-xl' : ''}`}
+      className={`min-h-20 flex-row items-center gap-3 px-4 py-3 ${rowSurface(
+        first,
+        last
+      )}`}
     >
       <CarPhoto uri={car.photo_url} name={car.name} variant="row" />
       <View className="flex-1 gap-1">
@@ -198,11 +199,17 @@ const COLUMN = {
 
 export function ReservationColumns({
   audience,
+  first = true,
 }: {
   audience: 'buyer' | 'seller'
+  first?: boolean
 }) {
   return (
-    <View className="flex-row items-center gap-4 border-b border-border px-4 py-2">
+    <View
+      className={`flex-row items-center gap-4 border-x border-t border-b border-border bg-card px-4 py-2 ${
+        first ? 'rounded-t-xl' : ''
+      }`}
+    >
       <Text
         className={`${COLUMN.car} text-xs font-semibold text-muted-foreground`}
       >
@@ -241,12 +248,16 @@ export function ReservationRow({
   onPress,
   columns = false,
   audience,
+  first = false,
+  last = false,
 }: {
   reservation: Reservation
   action?: ReactNode
   onPress?: () => void
   columns?: boolean
   audience: 'buyer' | 'seller'
+  first?: boolean
+  last?: boolean
 }) {
   const colors = useThemeColors()
   const pricing = reservationPricing(
@@ -266,7 +277,9 @@ export function ReservationRow({
 
   if (columns) {
     return (
-      <View className="flex-row items-center gap-4 px-4 py-3">
+      <View
+        className={`flex-row items-center gap-4 px-4 py-3 ${rowSurface(first, last)}`}
+      >
         <View className={`${COLUMN.car} flex-row items-center gap-3`}>
           <CarPhoto
             uri={reservation.car.photo_url}

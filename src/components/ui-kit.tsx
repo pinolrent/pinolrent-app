@@ -25,6 +25,15 @@ type Variant =
 
 export const CARD_SURFACE = 'rounded-xl border border-border bg-card shadow-xs'
 
+// Las filas de una tabla o de una lista larga llevan la superficie ellas mismas:
+// un contenedor que scrollea no puede dibujar un borde que termine donde
+// termina el último dato, y la lista queda con un bloque vacío al pie.
+export function rowSurface(first = false, last = false) {
+  return `border-x border-b border-border bg-card ${
+    first ? 'rounded-t-xl border-t' : ''
+  } ${last ? 'rounded-b-xl' : ''}`
+}
+
 // Los props extra importan: en Android ScrollView clona este elemento y le
 // pasa el contenido como children, así que hay que reenviarlos.
 export function AppRefreshControl({
