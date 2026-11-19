@@ -3,7 +3,7 @@ import { Image, Text, View } from 'react-native'
 import { ChevronRight } from 'lucide-react-native'
 import { resolveImageUrl } from '@/utils/errors'
 import { useThemeColors } from '@/hooks/useThemeColors'
-import { formatPricePerDay, formatUSDExact } from '@/utils/currency'
+import { formatPricePerDay, formatUSD, formatUSDExact } from '@/utils/currency'
 import { formatDateRange, formatDays, formatApiTimestamp } from '@/utils/dates'
 import { reservationPricing } from '@/utils/reservations'
 import { StatusBadge } from '@/components/fields'
@@ -186,10 +186,16 @@ export function CarListRow({
         >
           {car.name}
         </Text>
-        <Text style={NUMERIC} className="text-sm text-muted-foreground">
-          {formatPricePerDay(car.price_per_day)}
-        </Text>
         {meta}
+      </View>
+      {/* El precio va al extremo derecho, como en la tabla de reservas: en
+          escritorio la fila mide más de mil píxeles y con todo el dato pegado
+          a la izquierda el resto era aire. */}
+      <View className="items-end">
+        <Text style={NUMERIC} className="text-base font-semibold text-foreground">
+          {formatUSD(car.price_per_day)}
+        </Text>
+        <Text className="text-xs text-muted-foreground">por día</Text>
       </View>
       <ChevronRight size={20} color={colors.mutedText} />
     </AppPressable>
