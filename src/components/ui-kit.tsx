@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native'
 import Animated from 'react-native-reanimated'
+import { ChevronRight } from 'lucide-react-native'
 import { enterFade } from '@/constants/motion'
 import { useReduceMotion } from '@/hooks/useReduceMotion'
 import { Button, ButtonSpinner, ButtonText } from '../../components/ui/button'
@@ -345,17 +346,47 @@ export function Metric({
   label,
   value,
   tone = 'text-foreground',
+  onPress,
+  actionLabel,
 }: {
   label: string
   value: string
   tone?: string
+  /** Convierte el número en la puerta de la lista que lo explica. */
+  onPress?: () => void
+  actionLabel?: string
 }) {
-  return (
-    <View className={`min-w-[150px] flex-1 gap-1 ${CARD_SURFACE} p-4`}>
-      <Text className="text-sm text-muted-foreground">{label}</Text>
+  const colors = useThemeColors()
+  const body = (
+    <>
+      <View className="flex-row items-start justify-between gap-2">
+        <Text className="flex-1 text-sm text-muted-foreground">{label}</Text>
+        {onPress ? (
+          <ChevronRight size={16} color={colors.mutedText} />
+        ) : null}
+      </View>
       <Text style={NUMERIC} className={`text-2xl font-bold ${tone}`}>
         {value}
       </Text>
-    </View>
+    </>
+  )
+
+  if (!onPress) {
+    return (
+      <View className={`min-w-[150px] flex-1 gap-1 ${CARD_SURFACE} p-4`}>
+        {body}
+      </View>
+    )
+  }
+
+  return (
+    <AppPressable
+      className={`min-w-[150px] flex-1 gap-1 ${CARD_SURFACE} p-4`}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={actionLabel ?? label}
+    >
+      {body}
+    </AppPressable>
   )
 }

@@ -76,6 +76,13 @@ export default function AdminPanelScreen() {
                       ? 'text-warning'
                       : undefined
                   }
+                  actionLabel={`Ver las reservas en estado ${STATUS_LABELS[status].toLowerCase()}`}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(authenticated)/admin/reservations',
+                      params: { status },
+                    })
+                  }
                 />
               ))}
             </View>
@@ -89,6 +96,13 @@ export default function AdminPanelScreen() {
                   key={status}
                   label={PAYMENT_STATUS_LABELS[status]}
                   value={String(data.payments[status] ?? 0)}
+                  actionLabel={`Ver los pagos en estado ${PAYMENT_STATUS_LABELS[status].toLowerCase()}`}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(authenticated)/admin/payments',
+                      params: { status },
+                    })
+                  }
                 />
               ))}
               <Metric
