@@ -95,12 +95,14 @@ export default function NotificationsScreen({ area }: { area: NotificationArea }
       ) : (
         <FlatList
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, gap: 12, paddingBottom: 16 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
           data={notifications}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item, index }) => (
             <NotificationRow
               notification={item}
+              area={area}
+              first={index === 0}
               last={index === notifications.length - 1}
               onPress={
                 isNotificationNavigable(item.kind, area)

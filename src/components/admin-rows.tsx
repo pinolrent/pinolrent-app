@@ -29,6 +29,7 @@ import type {
   AuditEntry,
 } from '@/types/admin'
 import type { Notification } from '@/types/notification'
+import { notificationAction } from '@/utils/notifications'
 
 function rowClassName(first?: boolean, last?: boolean) {
   return `min-h-20 flex-row items-center gap-3 px-4 py-3 ${rowSurface(first, last)}`
@@ -255,6 +256,11 @@ export function AdminNotificationRow({
         <Text numberOfLines={1} className="text-xs text-muted-foreground">
           Cuenta #{notification.user_id} · Reserva #{notification.reservation_id}
         </Text>
+        {notificationAction(notification.kind, 'admin') ? (
+          <Text className="text-sm font-semibold text-foreground">
+            {notificationAction(notification.kind, 'admin')!.label}
+          </Text>
+        ) : null}
       </View>
       <View className="flex-row items-center gap-2">
         {notification.read ? null : (
