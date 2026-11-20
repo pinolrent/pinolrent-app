@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FlatList, View } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 import { useAdminReservations } from '@/hooks/useAdmin'
 import { useTransientNotice } from '@/hooks/useTransientNotice'
 import { getApiErrorMessage } from '@/utils/errors'
@@ -28,8 +29,25 @@ const STATUS_OPTIONS: { value: Reservation['status'] | ''; label: string }[] = [
   ).map((status) => ({ value: status, label: STATUS_LABELS[status] })),
 ]
 
+const STATUS_VALUES = STATUS_OPTIONS.map((option) => option.value)
+
+// El aviso de comprobante nuevo y los números del panel llegan con ?status=:
+// la lista ya viene filtrada en vez de obligar a buscar la cola a mano.
+function statusFromParams(raw?: string): Reservation['status'] | '' {
+  return STATUS_VALUES.includes((raw ?? '') as Reservation['status'])
+    ? (raw as Reservation['status'])
+    : ''
+}
+
 export default function AdminReservationsScreen() {
-  const [status, setStatus] = useState<Reservation['status'] | ''>('')
+  const params = useLocalSearchParams<{ status?: string }>()
+  const paramStatus = statusFromParams(params.status)
+  const [status, setStatus] = useState<Reservation['status'] | ''>(paramStatus)
+
+  // Se llega otra vez desde otro aviso: el filtro sigue al enlace.
+  useEffect(() => {
+    setStatus(paramStatus)
+  }, [paramStatus])
   const [notice, setNotice] = useTransientNotice()
   const {
     data,

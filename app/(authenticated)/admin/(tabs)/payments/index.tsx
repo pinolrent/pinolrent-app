@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FlatList, View } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 import { useAdminPayments } from '@/hooks/useAdmin'
 import { getApiErrorMessage } from '@/utils/errors'
 import { ScreenShell } from '@/components/ScreenShell'
@@ -23,8 +24,23 @@ const STATUS_OPTIONS: { value: Payment['status'] | ''; label: string }[] = [
   })),
 ]
 
+const STATUS_VALUES = STATUS_OPTIONS.map((option) => option.value)
+
+// Los números del panel llegan con ?status=: la lista se abre ya filtrada.
+function statusFromParams(raw?: string): Payment['status'] | '' {
+  return STATUS_VALUES.includes((raw ?? '') as Payment['status'])
+    ? (raw as Payment['status'])
+    : ''
+}
+
 export default function AdminPaymentsScreen() {
-  const [status, setStatus] = useState<Payment['status'] | ''>('')
+  const params = useLocalSearchParams<{ status?: string }>()
+  const paramStatus = statusFromParams(params.status)
+  const [status, setStatus] = useState<Payment['status'] | ''>(paramStatus)
+
+  useEffect(() => {
+    setStatus(paramStatus)
+  }, [paramStatus])
   const {
     data,
     isLoading,
