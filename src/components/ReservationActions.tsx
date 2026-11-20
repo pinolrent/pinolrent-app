@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import {
@@ -200,9 +200,12 @@ export function AdminRequestCorrectionBlock({
 export function PayReservationBlock({
   reservation,
   onPaid,
+  autoOpen = false,
 }: {
   reservation: Reservation
   onPaid?: () => void
+  /** Llega desde un aviso que pide el comprobante: el formulario ya está abierto. */
+  autoOpen?: boolean
 }) {
   const pay = useCreatePayment()
   const [open, setOpen] = useState(false)
@@ -214,6 +217,19 @@ export function PayReservationBlock({
     ? getApiErrorMessage(pay.error, 'Error al registrar el pago')
     : null
 
+  // Una sola vez: si el comprador cierra el formulario, no se le vuelve a
+  // abrir en la cara en cada render.
+  const autoOpened = useRef(false)
+  useEffect(() => {
+    if (!autoOpen || autoOpened.current) return
+    if (!canRecordPayment(reservation)) return
+    autoOpened.current = true
+    setMethod(reservation.payment?.method ?? 'pos')
+    setProofUrl('')
+    setProofError(null)
+    setOpen(true)
+  }, [autoOpen, reservation])
+
   if (!canRecordPayment(reservation)) return null
 
   const title = correction ? 'Corregir comprobante' : 'Registrar pago'
@@ -224,6 +240,7 @@ export function PayReservationBlock({
     setProofError(null)
     setOpen(true)
   }
+
 
   const submit = () => {
     const proof = proofUrl.trim()

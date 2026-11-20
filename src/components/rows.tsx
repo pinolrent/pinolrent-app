@@ -23,6 +23,7 @@ import type { Car } from '@/types/car'
 import type { Notification } from '@/types/notification'
 import type { Reservation } from '@/types/reservation'
 import { NOTIFICATION_LABELS } from '@/constants/notification-ui'
+import { notificationAction, type NotificationArea } from '@/utils/notifications'
 
 export function CarPhoto({
   uri,
@@ -419,15 +420,20 @@ export function ReservationRow({
 
 export function NotificationRow({
   notification,
+  area,
   onPress,
+  first,
   last,
 }: {
   notification: Notification
+  area: NotificationArea
   onPress?: () => void
+  first?: boolean
   last?: boolean
 }) {
   const colors = useThemeColors()
   const unread = !notification.read
+  const step = notificationAction(notification.kind, area)
   const body = (
     <View className="flex-1 gap-1">
       <View className="flex-row items-center gap-3">
@@ -449,12 +455,23 @@ export function NotificationRow({
         Reserva #{notification.reservation_id} ·{' '}
         {formatApiTimestamp(notification.created_at)}
       </Text>
+      {/* El aviso dice qué pasó; esto dice qué sigue, y va en semibold
+          cuando el paso depende de quien lo recibe. */}
+      {step ? (
+        <Text
+          className={
+            step.action
+              ? 'text-sm font-semibold text-foreground'
+              : 'text-sm text-muted-foreground'
+          }
+        >
+          {step.label}
+        </Text>
+      ) : null}
     </View>
   )
 
-  const rowClass = `min-h-16 flex-row items-center justify-between gap-3 border-border bg-card px-4 py-3 ${
-    last ? '' : 'border-b'
-  }`
+  const rowClass = `min-h-16 flex-row items-center justify-between gap-3 px-4 py-3 ${rowSurface(first, last)}`
 
   if (!onPress) {
     return <View className={rowClass}>{body}</View>

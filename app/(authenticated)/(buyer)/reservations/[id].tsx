@@ -28,11 +28,13 @@ import {
 } from '@/components/ReservationActions'
 
 export default function ReservationDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id, step } = useLocalSearchParams<{ id: string; step?: string }>()
   const idNum = Number(id)
   const invalidId = !Number.isFinite(idNum)
   const reduceMotion = useReduceMotion()
   const { isWide, container, main, side } = useDetailSplit()
+  // Los avisos de "subí el comprobante" llegan con ?step=payment.
+  const askForProof = step === 'payment'
   const { data, isLoading, isError, error, refetch, isRefetching } =
     useReservation(idNum)
   const [paidMessage, setPaidMessage] = useTransientNotice()
@@ -134,6 +136,7 @@ export default function ReservationDetailScreen() {
               {paidMessage && <SuccessNote message={paidMessage} />}
               <PayReservationBlock
                 reservation={data}
+                autoOpen={askForProof}
                 onPaid={() => {
                   setPaidMessage(
                     'Pago registrado, la plataforma validará el comprobante'
